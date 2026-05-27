@@ -1,0 +1,3807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Interactive Food Buddy Maker</title>
+<style>
+  :root{
+    --bg1:#fbfdff;
+    --bg2:#dff4ff;
+    --ink:#111827;
+    --panel:#ffffffdd;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at 12% 10%, #fff7b9 0 8%, transparent 22%),
+      radial-gradient(circle at 86% 18%, #ffd9f1 0 10%, transparent 24%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  .wrap{
+    width:min(1100px,100%);
+    margin:0 auto;
+    padding:18px;
+    display:grid;
+    grid-template-columns:390px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  header{
+    grid-column:1/-1;
+    padding:16px 18px;
+    border:4px solid #000;
+    border-radius:28px;
+    background:#fff;
+    box-shadow:8px 8px 0 #000;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2rem,5vw,4rem);
+    line-height:.9;
+    letter-spacing:-2px;
+  }
+  .tagline{
+    margin:8px 0 0;
+    font-weight:800;
+    color:#334155;
+  }
+  .panel{
+    border:4px solid #000;
+    border-radius:28px;
+    background:var(--panel);
+    box-shadow:8px 8px 0 #000;
+    padding:16px;
+  }
+  label{
+    display:block;
+    font-weight:900;
+    margin:10px 0 5px;
+  }
+  input,select,button{
+    width:100%;
+    font:inherit;
+    font-weight:800;
+    border:3px solid #000;
+    border-radius:18px;
+    padding:12px;
+    background:#fff;
+    color:#111;
+  }
+  .dateGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .full{grid-column:1/-1}
+  button{
+    cursor:pointer;
+    background:#1445ff;
+    color:white;
+    box-shadow:0 5px 0 #000;
+    margin-top:14px;
+    transition:transform .08s, box-shadow .08s, filter .15s;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:active{
+    transform:translateY(5px);
+    box-shadow:0 0 0 #000;
+  }
+  .smallBtn{
+    background:#fff;
+    color:#000;
+    margin-top:10px;
+  }
+  .hint{
+    font-size:.92rem;
+    line-height:1.35;
+    color:#374151;
+    font-weight:700;
+    margin:12px 0 0;
+  }
+  .stage{
+    min-height:640px;
+    position:relative;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    gap:12px;
+  }
+  .canvasBox{
+    position:relative;
+    display:grid;
+    place-items:center;
+    min-height:500px;
+    overflow:hidden;
+    border:4px solid #000;
+    border-radius:28px;
+    background:
+      radial-gradient(circle at 50% 85%, #ffffff 0 21%, transparent 22%),
+      linear-gradient(#e8fbff,#fff);
+  }
+  canvas{
+    width:min(100%,590px);
+    aspect-ratio:1/1;
+    touch-action:manipulation;
+    cursor:pointer;
+  }
+  .berryName{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    justify-content:space-between;
+    border:4px solid #000;
+    border-radius:22px;
+    background:#fff;
+    padding:12px 14px;
+  }
+  .berryName strong{
+    font-size:clamp(1.3rem,3vw,2.4rem);
+    letter-spacing:-1px;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+  }
+  .stat{
+    border:3px solid #000;
+    background:#fff;
+    border-radius:20px;
+    padding:10px;
+    min-height:78px;
+  }
+  .stat b{
+    display:block;
+    font-size:.72rem;
+    text-transform:uppercase;
+    color:#475569;
+  }
+  .stat span{
+    display:block;
+    font-size:1rem;
+    font-weight:950;
+    margin-top:4px;
+  }
+  .words{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  .wordChip{
+    border:3px solid #000;
+    background:#ffe866;
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:950;
+  }
+  .floaty{
+    position:absolute;
+    pointer-events:none;
+    font-weight:950;
+    animation:floatUp 900ms ease-out forwards;
+    -webkit-text-stroke:1px #000;
+    color:white;
+    font-size:1.2rem;
+  }
+  @keyframes floatUp{
+    from{opacity:1; transform:translateY(0) scale(.8) rotate(-5deg)}
+    to{opacity:0; transform:translateY(-85px) scale(1.35) rotate(10deg)}
+  }
+  .toast{
+    min-height:24px;
+    font-weight:900;
+    color:#1e293b;
+  }
+  @media (max-width:850px){
+    .wrap{grid-template-columns:1fr}
+    .stage{min-height:auto}
+    .canvasBox{min-height:360px}
+    .stats{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Interactive Food Buddy Maker</h1>
+      <p class="tagline">Enter a birthday and the food machine builds a weird little snack friend from it.</p>
+    </header>
+
+    <section class="panel controls" aria-label="Food buddy controls">
+      <label for="birthYear">Birth year</label>
+      <input class="year" id="birthYear" inputmode="text" placeholder="Example: 2011 or 200 BC" value="2011" />
+
+      <div class="dateGrid">
+        <div>
+          <label for="birthMonth">Birth month</label>
+          <select id="birthMonth">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div>
+          <label for="birthDay">Birthday</label>
+          <select id="birthDay"></select>
+        </div>
+        <div class="full">
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option value="any">Any / Random</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="fruitKind">Food type</label>
+          <select id="fruitKind">
+            <option value="blueberry" selected>Blueberry / Berry</option>
+            <option value="apple">Apple</option>
+            <option value="plum">Plum</option>
+            <option value="orange">Orange</option>
+            <option value="grape">Grape</option>
+            <option value="blackberry">Blackberry</option>
+            <option value="strawberry">Strawberry</option>
+            <option value="raspberry">Raspberry</option>
+            <option value="cranberry">Cranberry</option>
+            <option value="cherry">Cherry</option>
+            <option value="banana">Banana</option>
+            <option value="pear">Pear</option>
+            <option value="peach">Peach</option>
+            <option value="apricot">Apricot</option>
+            <option value="nectarine">Nectarine</option>
+            <option value="lemon">Lemon</option>
+            <option value="lime">Lime</option>
+            <option value="grapefruit">Grapefruit</option>
+            <option value="tangerine">Tangerine</option>
+            <option value="watermelon">Watermelon</option>
+            <option value="cantaloupe">Cantaloupe</option>
+            <option value="honeydew">Honeydew</option>
+            <option value="pineapple">Pineapple</option>
+            <option value="mango">Mango</option>
+            <option value="kiwi">Kiwi</option>
+            <option value="coconut">Coconut</option>
+            <option value="dragonfruit">Dragonfruit</option>
+            <option value="passionfruit">Passionfruit</option>
+            <option value="papaya">Papaya</option>
+            <option value="pomegranate">Pomegranate</option>
+            <option value="fig">Fig</option>
+            <option value="currant">Currant</option>
+            <option value="elderberry">Elderberry</option>
+            <option value="gooseberry">Gooseberry</option>
+            <option value="mulberry">Mulberry</option>
+            <option value="boysenberry">Boysenberry</option>
+            <option value="cloudberry">Cloudberry</option>
+            <option value="huckleberry">Huckleberry</option>
+            <option value="acai">Açaí Berry</option>
+            <option value="starfruit">Starfruit</option>
+            <option value="lychee">Lychee</option>
+            <option value="guava">Guava</option>
+            <option value="persimmon">Persimmon</option>
+            <option value="date">Date</option>
+            <option value="durian">Durian</option>
+            <option value="jackfruit">Jackfruit</option>
+            <option value="rambutan">Rambutan</option>
+            <option value="mangosteen">Mangosteen</option>
+            <option value="quince">Quince</option>
+            <option value="pawpaw">Pawpaw</option>
+            <option value="soursop">Soursop</option>
+            <option value="avocado">Avocado</option>
+            <option value="tomato">Tomato</option>
+            <option value="olive">Olive</option>
+            <option value="yuzu">Yuzu</option>
+            <option value="kumquat">Kumquat</option>
+            <option value="pomelo">Pomelo</option>
+            <option value="bloodorange">Blood Orange</option>
+            <option value="plantain">Plantain</option>
+            <option value="breadfruit">Breadfruit</option>
+            <option value="tamarind">Tamarind</option>
+            <option value="longan">Longan</option>
+            <option value="loquat">Loquat</option>
+            <option value="jujube">Jujube</option>
+            <option value="cherimoya">Cherimoya</option>
+            <option value="feijoa">Feijoa</option>
+            <option value="sapote">Sapote</option>
+            <option value="miracleberry">Miracle Berry</option>
+            <option value="carrot">Carrot</option>
+            <option value="potato">Potato</option>
+            <option value="sweetpotato">Sweet Potato</option>
+            <option value="beet">Beet</option>
+            <option value="radish">Radish</option>
+            <option value="turnip">Turnip</option>
+            <option value="onion">Onion</option>
+            <option value="garlic">Garlic</option>
+            <option value="cucumber">Cucumber</option>
+            <option value="pickle">Pickle</option>
+            <option value="zucchini">Zucchini</option>
+            <option value="eggplant">Eggplant</option>
+            <option value="bellpepper">Bell Pepper</option>
+            <option value="chilipepper">Chili Pepper</option>
+            <option value="corn">Corn</option>
+            <option value="broccoli">Broccoli</option>
+            <option value="cauliflower">Cauliflower</option>
+            <option value="cabbage">Cabbage</option>
+            <option value="lettuce">Lettuce</option>
+            <option value="pea">Pea Pod</option>
+            <option value="pumpkin">Pumpkin</option>
+            <option value="squash">Squash</option>
+            <option value="mushroom">Mushroom</option>
+            <option value="asparagus">Asparagus</option>
+            <option value="celery">Celery</option>
+            <option value="kale">Kale</option>
+            <option value="artichoke">Artichoke</option>
+            <option value="okra">Okra</option>
+            <option value="pizza">Pizza</option>
+            <option value="burger">Burger</option>
+            <option value="hotdog">Hot Dog</option>
+            <option value="taco">Taco</option>
+            <option value="sushi">Sushi Roll</option>
+            <option value="donut">Donut</option>
+            <option value="cookie">Cookie</option>
+            <option value="cupcake">Cupcake</option>
+            <option value="icecream">Ice Cream</option>
+            <option value="sandwich">Sandwich</option>
+            <option value="fries">Fries</option>
+            <option value="pancake">Pancake Stack</option>
+            <option value="waffle">Waffle</option>
+            <option value="pretzel">Pretzel</option>
+            <option value="bread">Bread Loaf</option>
+            <option value="cheese">Cheese</option>
+            <option value="egg">Egg</option>
+            <option value="noodles">Noodles</option>
+            <option value="popcorn">Popcorn</option>
+            <option value="candy">Wrapped Candy</option>
+            <option value="chocolate">Chocolate Bar</option>
+            <option value="marshmallow">Marshmallow</option>
+            <option value="pudding">Pudding</option>
+            <option value="soup">Soup Bowl</option>
+            <option value="cereal">Cereal Bowl</option>
+            <option value="burrito">Burrito</option>
+            <option value="dumpling">Dumpling</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="makeBtn">Generate My Food Buddy</button>
+      <button class="smallBtn" id="randomBtn">Surprise Food Buddy</button>
+      <button class="smallBtn" id="regenBtn">Regenerate Same Birthday</button>
+
+      <div class="words" id="wordChips">
+        <span class="wordChip">???</span>
+        <span class="wordChip">???</span>
+      </div>
+
+      <p class="hint">
+        Pick fruit, vegetables, snacks, desserts, or weird foods from the dropdown. Birthdays still control gradients, eye types, mouth types, colors, names, and weird little details.
+      </p>
+    </section>
+
+    <main class="panel stage">
+      <div class="berryName">
+        <strong id="berryName">Waiting Food Buddy</strong>
+        <span class="toast" id="toast">Ready.</span>
+      </div>
+
+      <div class="canvasBox" id="canvasBox">
+        <canvas id="berryCanvas" width="720" height="720" aria-label="Generated food character"></canvas>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>Food Type</b><span id="typeStat">Unknown</span></div>
+        <div class="stat"><b>Gender</b><span id="genderStat">Unknown</span></div>
+        <div class="stat"><b>Eyes</b><span id="faceStat">Unknown</span></div>
+        <div class="stat"><b>Mouth</b><span id="mouthStat">Unknown</span></div>
+        <div class="stat"><b>Color</b><span id="colorStat">Unknown</span></div>
+      </div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  const WORDS = [
+    "Bouncy","Moonlit","Silly","Ancient","Fizzy","Lucky","Sleepy","Glowy",
+    "Muddy","Tiny","Royal","Spooky","Snappy","Cloudy","Zesty","Wiggly",
+    "Brave","Jelly","Noisy","Velvet","Cosmic","Gloomy","Sunny","Chunky",
+    "Secret","Bubble","Turbo","Noodle","Sprinkle","Shadow","Hyper","Mellow",
+    "Pebble","Dreamy","Wobble","Cranky","Sugar","Mystic","Loopy","Puffy",
+    "Oddball","Berry","Goblin","Champion","Wizard","Blob","Muffin","Button",
+    "Static","Neon","Mossy","Frosted","Dizzy","Fancy","Haunted","Banana",
+    "Rubbery","Chewy","Pixel","Arcade","Saucy","Crumbly","Twinkle","Rumble",
+    "Jumpy","Sour","Toasty","Plush","Glass","Marble","Prism","Electric",
+    "Tiny","Witchy","Spark","Misty","Popcorn","Soda","Candy","Thunder"
+  ];
+
+  const FIRST_NAMES = {
+    female:["Berri","Lulu","Kiki","Momo","Zuzu","Razz","Pippa","Mimi","Tizzy","Nim","Bibi","Fifi","Lolly","Mizzle","Nana","Dottie","Glimma","Wava"],
+    male:["Bloo","Bobo","Doko","Gumbo","Pip","Grizz","Boppo","Zumbo","Blim","Floop","Glob","Bozi","Wimble","Gloob","Peb","Rumble","Nubbo","Chomp"],
+    neutral:["Yib","Oobi","Squim","Noodle","Wumpy","Globbit","Bibble","Fizz","Jelly","Puff","Moono","Bongo","Wig","Pebby","Mallow","Zig","Bloop","Loaf"]
+  };
+
+  const LAST_NAMES = [
+    "Blackpuff","Berrybop","Wobbletop","Fuzzring","Globbelly","Blinkbean",
+    "Moonchew","Jellymop","Roundsnack","Bubbleback","Mirthmouth","Bumpleaf",
+    "Sugarshade","Puffdoom","Gigglegrove","Splatsmile","Nighttuft","Bluechomp",
+    "Dotbelly","Gloopgrin","Softfang","Puffcrackle","Mushmop","Chucklecore",
+    "Frostmuff","Prismbelly","Starblink","Jellyshade","Wigglebite","Sparkmop"
+  ];
+
+  const PALETTES = [
+    {name:"Classic Blue", h:238, s:96, l:49, accent:350},
+    {name:"Aqua Pop", h:190, s:96, l:43, accent:330},
+    {name:"Grape Berry", h:270, s:88, l:48, accent:25},
+    {name:"Raspberry", h:325, s:88, l:48, accent:195},
+    {name:"Lime Berry", h:105, s:76, l:42, accent:285},
+    {name:"Orange Berry", h:28, s:94, l:53, accent:215},
+    {name:"Cherry", h:356, s:88, l:46, accent:200},
+    {name:"Gold Berry", h:48, s:94, l:52, accent:235},
+    {name:"Mint Night", h:155, s:75, l:42, accent:310},
+    {name:"Bubblegum", h:300, s:78, l:58, accent:160},
+    {name:"Ink Berry", h:225, s:72, l:28, accent:12},
+    {name:"Ghostberry", h:205, s:38, l:74, accent:280},
+    {name:"Watermelon", h:135, s:78, l:44, accent:350},
+    {name:"Lemon Slime", h:63, s:94, l:52, accent:215},
+    {name:"Hot Pink", h:333, s:94, l:55, accent:195},
+    {name:"Lavender", h:258, s:70, l:65, accent:35},
+    {name:"Radioactive", h:88, s:100, l:47, accent:300},
+    {name:"Deep Sea", h:203, s:88, l:34, accent:145},
+    {name:"Pumpkin Glow", h:22, s:100, l:48, accent:260},
+    {name:"Cotton Candy", h:312, s:74, l:68, accent:185},
+    {name:"Blood Orange", h:8, s:94, l:45, accent:48},
+    {name:"Alien Teal", h:170, s:92, l:39, accent:305},
+    {name:"Snow Cone", h:218, s:62, l:70, accent:330},
+    {name:"Chocolate Berry", h:24, s:50, l:31, accent:340},
+    {name:"Neon Melon", h:128, s:98, l:52, accent:336},
+    {name:"Cream Peach", h:18, s:76, l:68, accent:342},
+    {name:"Sour Lemon", h:57, s:100, l:56, accent:175},
+    {name:"Lime Punch", h:112, s:92, l:48, accent:290},
+    {name:"Blue Raspberry", h:198, s:100, l:48, accent:320},
+    {name:"Purple Punch", h:282, s:90, l:45, accent:58},
+    {name:"Rose Jam", h:340, s:82, l:46, accent:210},
+    {name:"Caramel Apple", h:36, s:82, l:43, accent:105},
+    {name:"Pomegranate", h:350, s:91, l:39, accent:44},
+    {name:"Dragon Pink", h:318, s:95, l:62, accent:124},
+    {name:"Kiwi Green", h:92, s:78, l:42, accent:22},
+    {name:"Coconut Cream", h:42, s:40, l:77, accent:210},
+    {name:"Night Plum", h:266, s:72, l:30, accent:330},
+    {name:"Electric Violet", h:288, s:100, l:52, accent:180},
+    {name:"Frozen Grape", h:248, s:56, l:70, accent:190},
+    {name:"Tangerine Flash", h:31, s:100, l:56, accent:205},
+    {name:"Pear Glow", h:80, s:70, l:56, accent:345},
+    {name:"Guava Sunset", h:12, s:89, l:62, accent:145},
+    {name:"Cloudberry", h:38, s:92, l:61, accent:322},
+    {name:"Candy Apple", h:359, s:100, l:43, accent:106},
+    {name:"Starfruit Shine", h:51, s:91, l:58, accent:185},
+    {name:"Lychee Blush", h:350, s:63, l:73, accent:112},
+    {name:"Mango Punch", h:43, s:100, l:50, accent:335},
+    {name:"Papaya Pop", h:27, s:96, l:57, accent:150},
+    {name:"Honeydew Soft", h:101, s:55, l:70, accent:250},
+    {name:"Cranberry Dark", h:346, s:83, l:32, accent:205},
+    {name:"Blackcurrant", h:278, s:64, l:24, accent:35},
+    {name:"Pearl Fruit", h:205, s:22, l:86, accent:330},
+    {name:"Arcade Green", h:142, s:100, l:39, accent:300},
+    {name:"Arcade Red", h:4, s:100, l:48, accent:204},
+    {name:"Arcade Yellow", h:50, s:100, l:51, accent:235},
+    {name:"Midnight Blue", h:232, s:73, l:24, accent:38},
+    {name:"Fairy Pink", h:326, s:78, l:72, accent:178},
+    {name:"Slime Mint", h:151, s:70, l:62, accent:285},
+    {name:"Warm Cocoa", h:21, s:53, l:38, accent:344},
+    {name:"Toxic Grape", h:296, s:94, l:40, accent:98}
+    ,{name:"Carrot Pop", h:24, s:95, l:52, accent:118}
+    ,{name:"Potato Skin", h:31, s:48, l:48, accent:210}
+    ,{name:"Sweet Potato", h:22, s:86, l:45, accent:100}
+    ,{name:"Beet Juice", h:326, s:76, l:36, accent:72}
+    ,{name:"Radish Snap", h:348, s:86, l:58, accent:112}
+    ,{name:"Onion Pearl", h:278, s:28, l:77, accent:80}
+    ,{name:"Garlic Cream", h:48, s:34, l:82, accent:280}
+    ,{name:"Pickle Neon", h:96, s:83, l:37, accent:35}
+    ,{name:"Cucumber Cool", h:132, s:56, l:50, accent:202}
+    ,{name:"Eggplant Night", h:274, s:70, l:31, accent:95}
+    ,{name:"Pepper Red", h:358, s:92, l:48, accent:110}
+    ,{name:"Chili Heat", h:7, s:100, l:46, accent:48}
+    ,{name:"Corn Butter", h:48, s:96, l:58, accent:132}
+    ,{name:"Broccoli Green", h:122, s:64, l:32, accent:285}
+    ,{name:"Cauliflower Cream", h:52, s:24, l:84, accent:128}
+    ,{name:"Cabbage Purple", h:288, s:52, l:47, accent:112}
+    ,{name:"Lettuce Crisp", h:97, s:70, l:61, accent:205}
+    ,{name:"Pumpkin Spice", h:28, s:94, l:50, accent:115}
+    ,{name:"Mushroom Beige", h:30, s:38, l:62, accent:335}
+    ,{name:"Avocado Flesh", h:84, s:62, l:57, accent:24}
+    ,{name:"Tomato Red", h:2, s:92, l:47, accent:122}
+    ,{name:"Olive Drab", h:68, s:45, l:34, accent:285}
+    ,{name:"Pizza Sauce", h:13, s:88, l:47, accent:48}
+    ,{name:"Pizza Cheese", h:45, s:94, l:62, accent:6}
+    ,{name:"Burger Bun", h:34, s:76, l:57, accent:12}
+    ,{name:"Hotdog Mustard", h:50, s:100, l:53, accent:0}
+    ,{name:"Taco Shell", h:39, s:82, l:57, accent:124}
+    ,{name:"Sushi Seaweed", h:154, s:42, l:20, accent:12}
+    ,{name:"Rice White", h:220, s:12, l:88, accent:330}
+    ,{name:"Donut Dough", h:28, s:68, l:63, accent:325}
+    ,{name:"Donut Frosting", h:318, s:82, l:66, accent:185}
+    ,{name:"Cookie Dough", h:34, s:61, l:55, accent:22}
+    ,{name:"Cupcake Frost", h:304, s:76, l:72, accent:42}
+    ,{name:"Ice Cream Vanilla", h:48, s:50, l:80, accent:315}
+    ,{name:"Ice Cream Mint", h:148, s:48, l:72, accent:335}
+    ,{name:"Sandwich Toast", h:36, s:70, l:62, accent:116}
+    ,{name:"Fries Gold", h:45, s:96, l:58, accent:4}
+    ,{name:"Pancake Syrup", h:30, s:72, l:48, accent:210}
+    ,{name:"Waffle Gold", h:40, s:82, l:54, accent:220}
+    ,{name:"Pretzel Brown", h:25, s:55, l:40, accent:48}
+    ,{name:"Cheese Melt", h:49, s:96, l:55, accent:12}
+    ,{name:"Egg Yolk", h:44, s:100, l:53, accent:205}
+    ,{name:"Noodle Yellow", h:43, s:78, l:64, accent:12}
+    ,{name:"Popcorn Butter", h:46, s:86, l:72, accent:6}
+    ,{name:"Candy Wrapper", h:332, s:88, l:57, accent:192}
+    ,{name:"Chocolate Bar", h:21, s:58, l:27, accent:350}
+    ,{name:"Marshmallow Puff", h:330, s:18, l:90, accent:210}
+    ,{name:"Pudding Caramel", h:31, s:72, l:42, accent:305}
+    ,{name:"Soup Tomato", h:8, s:82, l:50, accent:45}
+    ,{name:"Cereal Milk", h:210, s:20, l:84, accent:32}
+    ,{name:"Burrito Bean", h:28, s:48, l:43, accent:108}
+    ,{name:"Dumpling Dough", h:42, s:38, l:78, accent:14}
+  ];
+
+  const FRUIT_PROFILES = {
+    blueberry: {name:"Blueberry / Berry", hues:[218,228,238,248], sat:92, light:45, jitter:26, accent:335, minLight:30, maxLight:64, shape:"blueberry", texture:"blueberry", stem:true, leaf:false, bodyW:.90, bodyH:.88, types:["Classic Blueberry","Round Berry","Puff Berry","Tiny Top Berry","Orb Berry","Bean Berry","Bouncy Berry","Blue Blip","Berry Buddy","Frost Berry"]},
+    apple: {name:"Apple", hues:[352,4,94,112], sat:88, light:46, jitter:18, accent:24, minLight:34, maxLight:61, shape:"apple", texture:"apple", stem:true, leaf:true, bodyW:1.02, bodyH:.93, types:["Red Apple","Green Apple","Candy Apple","Round Apple","Tiny Stem Apple","Lunchbox Apple","Sour Apple","Glossy Apple","Garden Apple"]},
+    plum: {name:"Plum", hues:[272,286,304,255], sat:76, light:38, jitter:22, accent:335, minLight:25, maxLight:55, shape:"plum", texture:"plum", stem:true, leaf:true, bodyW:.82, bodyH:1.08, types:["Purple Plum","Velvet Plum","Oval Plum","Moon Plum","Squishy Plum","Sleepy Plum","Jam Plum","Dusky Plum"]},
+    orange: {name:"Orange", hues:[24,30,36,42], sat:96, light:52, jitter:12, accent:145, minLight:42, maxLight:64, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:.94, bodyH:.93, types:["Round Orange","Juicy Orange","Sun Orange","Tiny Peel Orange","Zesty Orange","Snack Orange","Peel Pop Orange"]},
+    grape: {name:"Grape", hues:[262,276,292,130], sat:82, light:43, jitter:20, accent:118, minLight:29, maxLight:58, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.92, bodyH:.98, types:["Grape Bunch","Round Grape","Juice Grape","Vine Grape","Tiny Grape","Arcade Grape","Purple Cluster"]},
+    blackberry: {name:"Blackberry", hues:[248,262,276,292], sat:70, light:25, jitter:16, accent:330, minLight:16, maxLight:42, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.95, bodyH:.94, types:["Blackberry Cluster","Dark Blackberry","Bumpy Blackberry","Midnight Berry","Wild Blackberry","Jam Blackberry","Shadow Bramble"]},
+    strawberry: {name:"Strawberry", hues:[348,356,4,338], sat:90, light:48, jitter:14, accent:54, minLight:36, maxLight:62, shape:"strawberry", texture:"seeded", stem:false, leaf:true, bodyW:.88, bodyH:1.04, types:["Strawberry","Heart Strawberry","Seeded Strawberry","Shortcake Strawberry","Tiny Leaf Strawberry","Jam Strawberry","Sweetheart Berry"]},
+    raspberry: {name:"Raspberry", hues:[336,346,355,326], sat:88, light:45, jitter:18, accent:58, minLight:30, maxLight:60, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.94, bodyH:.92, types:["Raspberry Cluster","Jam Raspberry","Round Raspberry","Bumpy Raspberry","Dessert Berry","Red Bramble"]},
+    cranberry: {name:"Cranberry", hues:[344,352,358,335], sat:88, light:37, jitter:12, accent:190, minLight:25, maxLight:52, shape:"round", texture:"speckle", stem:true, leaf:false, bodyW:.90, bodyH:.86, types:["Cranberry","Tart Cranberry","Tiny Cranberry","Holiday Berry","Gloss Cranberry"]},
+    cherry: {name:"Cherry", hues:[350,356,2,340], sat:95, light:42, jitter:10, accent:124, minLight:30, maxLight:56, shape:"round", texture:"shiny", stem:true, leaf:true, bodyW:.90, bodyH:.88, types:["Cherry","Glossy Cherry","Twin Cherry","Soda Cherry","Candy Cherry","Little Red Cherry"]},
+    banana: {name:"Banana", hues:[47,52,58,42], sat:92, light:57, jitter:10, accent:28, minLight:45, maxLight:70, shape:"banana", texture:"banana", stem:false, leaf:false, bodyW:1.05, bodyH:.74, types:["Banana","Curvy Banana","Peel Banana","Snack Banana","Moon Banana","Freckled Banana"]},
+    pear: {name:"Pear", hues:[70,82,94,48], sat:72, light:52, jitter:16, accent:24, minLight:40, maxLight:66, shape:"pear", texture:"speckle", stem:true, leaf:true, bodyW:.92, bodyH:1.10, types:["Pear","Chubby Pear","Garden Pear","Golden Pear","Green Pear","Bell Pear"]},
+    peach: {name:"Peach", hues:[18,28,344,36], sat:78, light:63, jitter:14, accent:338, minLight:50, maxLight:75, shape:"round", texture:"peach", stem:true, leaf:true, bodyW:.98, bodyH:.96, types:["Peach","Fuzzy Peach","Blush Peach","Soft Peach","Summer Peach","Round Peach"]},
+    apricot: {name:"Apricot", hues:[28,34,24,42], sat:86, light:58, jitter:12, accent:345, minLight:46, maxLight:70, shape:"round", texture:"peach", stem:true, leaf:true, bodyW:.90, bodyH:.90, types:["Apricot","Tiny Apricot","Golden Apricot","Soft Apricot","Snack Apricot"]},
+    nectarine: {name:"Nectarine", hues:[18,24,350,38], sat:88, light:56, jitter:14, accent:330, minLight:44, maxLight:69, shape:"round", texture:"shiny", stem:true, leaf:true, bodyW:.94, bodyH:.92, types:["Nectarine","Glossy Nectarine","Blush Nectarine","Sweet Nectarine","Summer Nectarine"]},
+    lemon: {name:"Lemon", hues:[54,58,62,49], sat:96, light:56, jitter:8, accent:205, minLight:44, maxLight:68, shape:"lemon", texture:"citrus", stem:true, leaf:true, bodyW:1.04, bodyH:.84, types:["Lemon","Sour Lemon","Oval Lemon","Lemon Drop","Zippy Lemon","Lemon Buddy"]},
+    lime: {name:"Lime", hues:[92,106,116,82], sat:85, light:44, jitter:11, accent:285, minLight:32, maxLight:58, shape:"lemon", texture:"citrus", stem:true, leaf:true, bodyW:1.00, bodyH:.84, types:["Lime","Sour Lime","Key Lime","Neon Lime","Tiny Lime","Zest Lime"]},
+    grapefruit: {name:"Grapefruit", hues:[12,22,330,38], sat:78, light:58, jitter:16, accent:145, minLight:43, maxLight:72, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:1.02, bodyH:.98, types:["Grapefruit","Pink Grapefruit","Breakfast Grapefruit","Juicy Grapefruit","Big Citrus"]},
+    tangerine: {name:"Tangerine", hues:[22,28,34,16], sat:96, light:53, jitter:10, accent:145, minLight:41, maxLight:65, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:.92, bodyH:.88, types:["Tangerine","Tiny Tangerine","Peel Tangerine","Snack Tangerine","Bright Tangerine"]},
+    watermelon: {name:"Watermelon", hues:[130,142,350,118], sat:82, light:43, jitter:16, accent:350, minLight:30, maxLight:58, shape:"melon", texture:"watermelon", stem:true, leaf:true, bodyW:1.08, bodyH:.92, types:["Watermelon","Striped Watermelon","Picnic Melon","Chunky Watermelon","Summer Melon"]},
+    cantaloupe: {name:"Cantaloupe", hues:[31,38,44,27], sat:82, light:60, jitter:12, accent:104, minLight:45, maxLight:72, shape:"melon", texture:"netted", stem:true, leaf:true, bodyW:1.02, bodyH:.96, types:["Cantaloupe","Net Melon","Breakfast Melon","Round Cantaloupe","Orange Melon"]},
+    honeydew: {name:"Honeydew", hues:[86,96,104,76], sat:52, light:68, jitter:10, accent:260, minLight:54, maxLight:80, shape:"melon", texture:"speckle", stem:true, leaf:true, bodyW:1.02, bodyH:.96, types:["Honeydew","Soft Honeydew","Green Melon","Smooth Melon","Sweet Honeydew"]},
+    pineapple: {name:"Pineapple", hues:[38,45,52,32], sat:92, light:50, jitter:12, accent:128, minLight:38, maxLight:62, shape:"pineapple", texture:"pineapple", stem:false, leaf:true, bodyW:.86, bodyH:1.10, types:["Pineapple","Diamond Pineapple","Tropical Pineapple","Spiky Pineapple","Golden Pineapple"]},
+    mango: {name:"Mango", hues:[36,45,18,350], sat:92, light:54, jitter:18, accent:335, minLight:40, maxLight:68, shape:"mango", texture:"mango", stem:true, leaf:true, bodyW:.88, bodyH:1.04, types:["Mango","Blush Mango","Golden Mango","Juice Mango","Oval Mango","Tropical Mango"]},
+    kiwi: {name:"Kiwi", hues:[80,92,104,34], sat:66, light:40, jitter:15, accent:22, minLight:28, maxLight:56, shape:"round", texture:"kiwi", stem:false, leaf:false, bodyW:.92, bodyH:.90, types:["Kiwi","Fuzzy Kiwi","Seed Ring Kiwi","Green Kiwi","Snack Kiwi"]},
+    coconut: {name:"Coconut", hues:[24,34,44,18], sat:42, light:37, jitter:12, accent:195, minLight:26, maxLight:54, shape:"round", texture:"coconut", stem:false, leaf:false, bodyW:.98, bodyH:.94, types:["Coconut","Hairy Coconut","Beach Coconut","Brown Coconut","Round Coconut"]},
+    dragonfruit: {name:"Dragonfruit", hues:[316,326,336,0], sat:88, light:58, jitter:16, accent:118, minLight:44, maxLight:72, shape:"dragon", texture:"dragonfruit", stem:false, leaf:true, bodyW:.94, bodyH:1.02, types:["Dragonfruit","Neon Dragonfruit","Scale Fruit","Pink Dragonfruit","Dragon Buddy"]},
+    passionfruit: {name:"Passionfruit", hues:[272,286,300,250], sat:82, light:37, jitter:16, accent:42, minLight:24, maxLight:55, shape:"round", texture:"speckle", stem:true, leaf:true, bodyW:.92, bodyH:.88, types:["Passionfruit","Purple Passionfruit","Tropical Orb","Wrinkly Passionfruit","Juice Fruit"]},
+    papaya: {name:"Papaya", hues:[26,34,40,18], sat:90, light:55, jitter:14, accent:126, minLight:42, maxLight:68, shape:"papaya", texture:"papaya", stem:true, leaf:true, bodyW:.86, bodyH:1.14, types:["Papaya","Long Papaya","Tropical Papaya","Orange Papaya","Seed Papaya"]},
+    pomegranate: {name:"Pomegranate", hues:[346,354,2,338], sat:88, light:40, jitter:12, accent:42, minLight:28, maxLight:55, shape:"round", texture:"pomegranate", stem:true, leaf:false, bodyW:.96, bodyH:.96, types:["Pomegranate","Ruby Pomegranate","Crown Fruit","Seed Jewel","Royal Pom"]},
+    fig: {name:"Fig", hues:[260,278,304,95], sat:58, light:39, jitter:18, accent:342, minLight:26, maxLight:58, shape:"fig", texture:"fig", stem:true, leaf:true, bodyW:.88, bodyH:1.03, types:["Fig","Teardrop Fig","Purple Fig","Garden Fig","Jam Fig"]},
+    currant: {name:"Currant", hues:[346,354,3,277], sat:82, light:34, jitter:18, accent:190, minLight:22, maxLight:52, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.88, bodyH:.88, types:["Currant","Red Currant","Black Currant","Tiny Currant","Jam Currant"]},
+    elderberry: {name:"Elderberry", hues:[250,262,274,288], sat:64, light:28, jitter:16, accent:330, minLight:18, maxLight:45, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.92, bodyH:.92, types:["Elderberry","Dark Elderberry","Tiny Cluster","Potion Berry","Night Berry"]},
+    gooseberry: {name:"Gooseberry", hues:[70,86,98,330], sat:62, light:55, jitter:18, accent:24, minLight:38, maxLight:72, shape:"round", texture:"striped", stem:true, leaf:true, bodyW:.90, bodyH:.88, types:["Gooseberry","Striped Gooseberry","Tiny Gooseberry","Garden Gooseberry","Sour Gooseberry"]},
+    mulberry: {name:"Mulberry", hues:[268,286,320,345], sat:70, light:30, jitter:20, accent:52, minLight:18, maxLight:49, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.92, bodyH:.98, types:["Mulberry","Long Mulberry","Dark Mulberry","Bumpy Mulberry","Jam Mulberry"]},
+    boysenberry: {name:"Boysenberry", hues:[290,306,324,338], sat:72, light:32, jitter:16, accent:50, minLight:20, maxLight:50, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.94, bodyH:.94, types:["Boysenberry","Jam Boysenberry","Bumpy Boysenberry","Dark Bramble","Dessert Berry"]},
+    cloudberry: {name:"Cloudberry", hues:[30,36,42,48], sat:90, light:58, jitter:12, accent:330, minLight:45, maxLight:72, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.91, bodyH:.90, types:["Cloudberry","Golden Cloudberry","Tiny Cloud","Arctic Berry","Soft Cluster"]},
+    huckleberry: {name:"Huckleberry", hues:[216,230,246,260], sat:72, light:35, jitter:18, accent:340, minLight:22, maxLight:52, shape:"round", texture:"speckle", stem:true, leaf:true, bodyW:.88, bodyH:.86, types:["Huckleberry","Blue Huckleberry","Wild Berry","Tiny Huckleberry","Forest Berry"]},
+    acai: {name:"Açaí Berry", hues:[252,266,280,292], sat:70, light:28, jitter:16, accent:50, minLight:18, maxLight:44, shape:"round", texture:"speckle", stem:true, leaf:false, bodyW:.88, bodyH:.86, types:["Açaí Berry","Dark Açaí","Bowl Berry","Tiny Açaí","Purple Orb"]},
+    starfruit: {name:"Starfruit", hues:[48,55,64,76], sat:88, light:55, jitter:10, accent:198, minLight:42, maxLight:68, shape:"starfruit", texture:"starfruit", stem:true, leaf:true, bodyW:1.02, bodyH:.94, types:["Starfruit","Five Point Fruit","Golden Starfruit","Shiny Starfruit","Arcade Star"]},
+    lychee: {name:"Lychee", hues:[350,0,8,340], sat:62, light:67, jitter:15, accent:114, minLight:52, maxLight:78, shape:"round", texture:"lychee", stem:true, leaf:true, bodyW:.88, bodyH:.86, types:["Lychee","Bumpy Lychee","Blush Lychee","Tiny Lychee","Pearl Lychee"]},
+    guava: {name:"Guava", hues:[94,112,342,28], sat:68, light:56, jitter:18, accent:330, minLight:42, maxLight:70, shape:"round", texture:"guava", stem:true, leaf:true, bodyW:.94, bodyH:.92, types:["Guava","Pink Guava","Green Guava","Tropical Guava","Seed Guava"]},
+    persimmon: {name:"Persimmon", hues:[23,29,35,15], sat:92, light:52, jitter:10, accent:112, minLight:40, maxLight:65, shape:"apple", texture:"shiny", stem:false, leaf:true, bodyW:.96, bodyH:.92, types:["Persimmon","Leaf Top Persimmon","Orange Persimmon","Gloss Persimmon","Autumn Fruit"]},
+    date: {name:"Date", hues:[18,25,32,12], sat:58, light:34, jitter:12, accent:330, minLight:22, maxLight:48, shape:"plum", texture:"date", stem:false, leaf:false, bodyW:.72, bodyH:1.12, types:["Date","Wrinkly Date","Desert Date","Sweet Date","Long Date"]},
+    durian: {name:"Durian", hues:[54,66,78,100], sat:62, light:49, jitter:16, accent:292, minLight:36, maxLight:63, shape:"spiky", texture:"spiky", stem:true, leaf:true, bodyW:.98, bodyH:1.00, types:["Durian","Spiky Durian","King Fruit","Stinky Buddy","Armor Fruit"]},
+    jackfruit: {name:"Jackfruit", hues:[58,70,84,96], sat:62, light:48, jitter:14, accent:32, minLight:36, maxLight:62, shape:"spiky", texture:"spiky", stem:true, leaf:true, bodyW:1.05, bodyH:1.02, types:["Jackfruit","Huge Jackfruit","Bumpy Jackfruit","Tropical Jackfruit","Armor Jackfruit"]},
+    rambutan: {name:"Rambutan", hues:[350,2,14,48], sat:88, light:50, jitter:16, accent:118, minLight:36, maxLight:64, shape:"round", texture:"rambutan", stem:false, leaf:true, bodyW:.92, bodyH:.90, types:["Rambutan","Hairy Rambutan","Red Rambutan","Wiggly Fruit","Tropical Hairball"]},
+    mangosteen: {name:"Mangosteen", hues:[276,292,306,258], sat:68, light:32, jitter:15, accent:110, minLight:20, maxLight:50, shape:"round", texture:"shiny", stem:false, leaf:true, bodyW:.94, bodyH:.92, types:["Mangosteen","Purple Mangosteen","Royal Mangosteen","Tropical Orb","Leaf Cap Fruit"]},
+    quince: {name:"Quince", hues:[48,56,66,78], sat:74, light:56, jitter:12, accent:25, minLight:42, maxLight:70, shape:"apple", texture:"speckle", stem:true, leaf:true, bodyW:.98, bodyH:.94, types:["Quince","Golden Quince","Garden Quince","Fuzzy Quince","Old-Time Fruit"]},
+    pawpaw: {name:"Pawpaw", hues:[78,90,102,42], sat:58, light:47, jitter:14, accent:24, minLight:34, maxLight:62, shape:"mango", texture:"speckle", stem:true, leaf:true, bodyW:.82, bodyH:1.14, types:["Pawpaw","Forest Pawpaw","Soft Pawpaw","Green Pawpaw","Long Fruit"]},
+    soursop: {name:"Soursop", hues:[94,106,118,80], sat:56, light:53, jitter:12, accent:285, minLight:38, maxLight:68, shape:"spiky", texture:"soursop", stem:true, leaf:true, bodyW:.96, bodyH:1.10, types:["Soursop","Spiky Soursop","Sour Buddy","Green Armor Fruit","Tropical Soursop"]}
+    ,avocado: {name:"Avocado", hues:[82,96,112,36], sat:62, light:42, jitter:16, accent:25, minLight:28, maxLight:64, shape:"pear", texture:"avocado", stem:true, leaf:true, bodyW:.90, bodyH:1.08, types:["Avocado","Pit Avocado","Guac Buddy","Green Avocado","Pear Avocado"]}
+    ,tomato: {name:"Tomato", hues:[352,0,8,118], sat:88, light:45, jitter:12, accent:118, minLight:32, maxLight:60, shape:"round", texture:"tomato", stem:false, leaf:true, bodyW:.96, bodyH:.90, types:["Tomato","Tiny Tomato","Sauce Tomato","Garden Tomato","Red Tomato"]}
+    ,olive: {name:"Olive", hues:[70,82,96,118], sat:48, light:33, jitter:14, accent:285, minLight:22, maxLight:50, shape:"plum", texture:"olive", stem:true, leaf:true, bodyW:.70, bodyH:1.02, types:["Olive","Green Olive","Black Olive","Tiny Olive","Jar Olive"]}
+    ,yuzu: {name:"Yuzu", hues:[45,52,58,36], sat:92, light:56, jitter:10, accent:142, minLight:42, maxLight:69, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:.92, bodyH:.88, types:["Yuzu","Zesty Yuzu","Yellow Yuzu","Tiny Citrus","Yuzu Buddy"]}
+    ,kumquat: {name:"Kumquat", hues:[28,34,42,22], sat:94, light:54, jitter:10, accent:130, minLight:41, maxLight:66, shape:"lemon", texture:"citrus", stem:true, leaf:true, bodyW:.88, bodyH:.74, types:["Kumquat","Tiny Kumquat","Snack Citrus","Oval Kumquat","Sweet-Tart Kumquat"]}
+    ,pomelo: {name:"Pomelo", hues:[46,58,72,100], sat:62, light:62, jitter:14, accent:210, minLight:48, maxLight:76, shape:"melon", texture:"citrus", stem:true, leaf:true, bodyW:1.10, bodyH:1.02, types:["Pomelo","Big Pomelo","Gentle Citrus","Thick Peel Pomelo","Mega Citrus"]}
+    ,bloodorange: {name:"Blood Orange", hues:[2,8,350,22], sat:92, light:43, jitter:12, accent:48, minLight:29, maxLight:58, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:.96, bodyH:.92, types:["Blood Orange","Ruby Orange","Dark Citrus","Juice Orange","Vampire Citrus"]}
+    ,plantain: {name:"Plantain", hues:[48,56,82,28], sat:72, light:46, jitter:14, accent:28, minLight:32, maxLight:64, shape:"banana", texture:"banana", stem:false, leaf:false, bodyW:1.10, bodyH:.76, types:["Plantain","Green Plantain","Fried Plantain","Long Plantain","Snack Plantain"]}
+    ,breadfruit: {name:"Breadfruit", hues:[72,88,106,38], sat:54, light:42, jitter:16, accent:28, minLight:30, maxLight:58, shape:"spiky", texture:"breadfruit", stem:true, leaf:true, bodyW:1.02, bodyH:.98, types:["Breadfruit","Bumpy Breadfruit","Island Breadfruit","Green Breadfruit","Big Breadfruit"]}
+    ,tamarind: {name:"Tamarind", hues:[24,30,36,18], sat:58, light:34, jitter:14, accent:345, minLight:22, maxLight:50, shape:"capsule", texture:"date", stem:true, leaf:false, bodyW:1.14, bodyH:.58, types:["Tamarind","Sour Tamarind","Pod Tamarind","Brown Tamarind","Snack Pod"]}
+    ,longan: {name:"Longan", hues:[34,42,52,22], sat:50, light:62, jitter:10, accent:205, minLight:48, maxLight:76, shape:"round", texture:"lychee", stem:true, leaf:true, bodyW:.86, bodyH:.84, types:["Longan","Dragon Eye Longan","Tiny Longan","Pearl Longan","Round Longan"]}
+    ,loquat: {name:"Loquat", hues:[34,42,28,48], sat:82, light:56, jitter:12, accent:330, minLight:42, maxLight:70, shape:"round", texture:"peach", stem:true, leaf:true, bodyW:.88, bodyH:.86, types:["Loquat","Golden Loquat","Tiny Loquat","Garden Loquat","Soft Loquat"]}
+    ,jujube: {name:"Jujube", hues:[8,18,30,350], sat:66, light:35, jitter:14, accent:110, minLight:24, maxLight:52, shape:"plum", texture:"date", stem:true, leaf:true, bodyW:.76, bodyH:1.02, types:["Jujube","Red Date","Wrinkly Jujube","Tiny Jujube","Sweet Jujube"]}
+    ,cherimoya: {name:"Cherimoya", hues:[88,102,116,72], sat:52, light:54, jitter:14, accent:282, minLight:39, maxLight:68, shape:"spiky", texture:"cherimoya", stem:true, leaf:true, bodyW:.98, bodyH:1.02, types:["Cherimoya","Custard Apple","Scale Cherimoya","Green Cherimoya","Cream Fruit"]}
+    ,feijoa: {name:"Feijoa", hues:[96,112,130,82], sat:52, light:46, jitter:14, accent:310, minLight:34, maxLight:62, shape:"lemon", texture:"speckle", stem:true, leaf:true, bodyW:.92, bodyH:.78, types:["Feijoa","Pineapple Guava","Oval Feijoa","Green Feijoa","Garden Feijoa"]}
+    ,sapote: {name:"Sapote", hues:[24,34,42,14], sat:58, light:43, jitter:14, accent:330, minLight:30, maxLight:60, shape:"round", texture:"speckle", stem:true, leaf:true, bodyW:.96, bodyH:.94, types:["Sapote","Brown Sapote","Cream Sapote","Tropical Sapote","Soft Sapote"]}
+    ,miracleberry: {name:"Miracle Berry", hues:[348,356,2,330], sat:90, light:42, jitter:10, accent:118, minLight:30, maxLight:58, shape:"plum", texture:"shiny", stem:true, leaf:true, bodyW:.70, bodyH:.96, types:["Miracle Berry","Tiny Miracle","Sweet Trick Berry","Magic Berry","Red Miracle"]}
+    ,carrot: {name:"Carrot", hues:[22,28,34,18], sat:92, light:50, jitter:12, accent:122, minLight:36, maxLight:64, shape:"carrot", texture:"carrot", stem:false, leaf:true, bodyW:.82, bodyH:1.14, types:["Carrot","Crunchy Carrot","Baby Carrot","Garden Carrot","Orange Root"]}
+    ,potato: {name:"Potato", hues:[30,38,46,24], sat:44, light:50, jitter:14, accent:205, minLight:35, maxLight:65, shape:"potato", texture:"potato", stem:false, leaf:false, bodyW:1.02, bodyH:.86, types:["Potato","Lumpy Potato","Baked Potato","Dirt Potato","Tater Buddy"]}
+    ,sweetpotato: {name:"Sweet Potato", hues:[20,28,340,34], sat:72, light:42, jitter:16, accent:106, minLight:28, maxLight:60, shape:"capsule", texture:"sweetpotato", stem:false, leaf:false, bodyW:1.08, bodyH:.72, types:["Sweet Potato","Yam Buddy","Orange Tater","Long Sweet Potato","Root Snack"]}
+    ,beet: {name:"Beet", hues:[316,328,340,288], sat:70, light:34, jitter:12, accent:110, minLight:22, maxLight:52, shape:"bulb", texture:"root", stem:false, leaf:true, bodyW:.92, bodyH:1.02, types:["Beet","Ruby Beet","Garden Beet","Juice Beet","Purple Root"]}
+    ,radish: {name:"Radish", hues:[344,354,0,330], sat:78, light:58, jitter:14, accent:112, minLight:45, maxLight:72, shape:"bulb", texture:"root", stem:false, leaf:true, bodyW:.82, bodyH:.98, types:["Radish","Tiny Radish","Crunch Radish","Pink Root","Garden Radish"]}
+    ,turnip: {name:"Turnip", hues:[274,292,320,52], sat:42, light:66, jitter:18, accent:112, minLight:50, maxLight:78, shape:"bulb", texture:"root", stem:false, leaf:true, bodyW:.96, bodyH:.94, types:["Turnip","Purple Top Turnip","Root Buddy","Garden Turnip","Old Turnip"]}
+    ,onion: {name:"Onion", hues:[38,48,282,318], sat:38, light:66, jitter:18, accent:122, minLight:48, maxLight:78, shape:"onion", texture:"onion", stem:true, leaf:false, bodyW:.90, bodyH:1.04, types:["Onion","Yellow Onion","Purple Onion","Tear Onion","Layer Onion"]}
+    ,garlic: {name:"Garlic", hues:[42,50,60,308], sat:28, light:75, jitter:12, accent:126, minLight:60, maxLight:84, shape:"garlic", texture:"garlic", stem:true, leaf:false, bodyW:.96, bodyH:.94, types:["Garlic","Garlic Bulb","Clove Buddy","Kitchen Garlic","Vampire Scare Garlic"]}
+    ,cucumber: {name:"Cucumber", hues:[118,132,146,96], sat:58, light:42, jitter:14, accent:30, minLight:30, maxLight:58, shape:"capsule", texture:"cucumber", stem:true, leaf:true, bodyW:1.18, bodyH:.58, types:["Cucumber","Cool Cucumber","Long Cucumber","Garden Cucumber","Crunch Cucumber"]}
+    ,pickle: {name:"Pickle", hues:[80,94,110,68], sat:62, light:34, jitter:14, accent:38, minLight:22, maxLight:48, shape:"capsule", texture:"pickle", stem:false, leaf:false, bodyW:1.10, bodyH:.56, types:["Pickle","Dill Pickle","Bumpy Pickle","Jar Pickle","Sour Pickle"]}
+    ,zucchini: {name:"Zucchini", hues:[104,124,140,84], sat:54, light:36, jitter:14, accent:42, minLight:24, maxLight:52, shape:"capsule", texture:"zucchini", stem:true, leaf:true, bodyW:1.16, bodyH:.60, types:["Zucchini","Green Zucchini","Garden Zucchini","Long Squash","Zuke Buddy"]}
+    ,eggplant: {name:"Eggplant", hues:[266,282,300,250], sat:72, light:34, jitter:16, accent:118, minLight:22, maxLight:50, shape:"eggplant", texture:"eggplant", stem:false, leaf:true, bodyW:.86, bodyH:1.08, types:["Eggplant","Purple Eggplant","Glossy Eggplant","Garden Eggplant","Night Veggie"]}
+    ,bellpepper: {name:"Bell Pepper", hues:[352,8,44,122], sat:88, light:46, jitter:18, accent:115, minLight:32, maxLight:62, shape:"pepper", texture:"pepper", stem:false, leaf:true, bodyW:.98, bodyH:.98, types:["Bell Pepper","Red Pepper","Green Pepper","Yellow Pepper","Chunky Pepper"]}
+    ,chilipepper: {name:"Chili Pepper", hues:[0,8,16,116], sat:96, light:45, jitter:12, accent:48, minLight:30, maxLight:60, shape:"chili", texture:"chili", stem:false, leaf:true, bodyW:1.18, bodyH:.52, types:["Chili Pepper","Hot Chili","Tiny Chili","Curvy Chili","Fire Pepper"]}
+    ,corn: {name:"Corn", hues:[44,50,56,68], sat:92, light:56, jitter:10, accent:122, minLight:42, maxLight:69, shape:"corn", texture:"corn", stem:false, leaf:true, bodyW:.74, bodyH:1.12, types:["Corn","Corn Cob","Buttery Corn","Kernel Buddy","Sweet Corn"]}
+    ,broccoli: {name:"Broccoli", hues:[108,122,138,90], sat:58, light:32, jitter:14, accent:282, minLight:22, maxLight:48, shape:"broccoli", texture:"broccoli", stem:false, leaf:false, bodyW:1.02, bodyH:.98, types:["Broccoli","Floret Broccoli","Tree Veggie","Green Crown","Tiny Forest"]}
+    ,cauliflower: {name:"Cauliflower", hues:[48,58,72,100], sat:28, light:76, jitter:10, accent:130, minLight:60, maxLight:86, shape:"broccoli", texture:"cauliflower", stem:false, leaf:false, bodyW:1.02, bodyH:.98, types:["Cauliflower","Cream Floret","White Broccoli","Cloud Veggie","Cauli Buddy"]}
+    ,cabbage: {name:"Cabbage", hues:[96,120,145,286], sat:48, light:50, jitter:18, accent:330, minLight:36, maxLight:66, shape:"leafy", texture:"leafy", stem:false, leaf:false, bodyW:1.02, bodyH:.94, types:["Cabbage","Leaf Ball","Green Cabbage","Purple Cabbage","Crunch Cabbage"]}
+    ,lettuce: {name:"Lettuce", hues:[86,100,116,132], sat:58, light:58, jitter:16, accent:205, minLight:42, maxLight:72, shape:"leafy", texture:"leafy", stem:false, leaf:false, bodyW:1.04, bodyH:.90, types:["Lettuce","Leafy Lettuce","Salad Buddy","Crisp Lettuce","Green Frill"]}
+    ,pea: {name:"Pea Pod", hues:[94,108,122,78], sat:68, light:44, jitter:12, accent:38, minLight:30, maxLight:60, shape:"capsule", texture:"pea", stem:true, leaf:true, bodyW:1.10, bodyH:.52, types:["Pea Pod","Tiny Peas","Garden Pea","Snap Pea","Pod Buddy"]}
+    ,pumpkin: {name:"Pumpkin", hues:[22,28,34,16], sat:92, light:48, jitter:10, accent:115, minLight:34, maxLight:62, shape:"pumpkin", texture:"pumpkin", stem:true, leaf:true, bodyW:1.12, bodyH:.94, types:["Pumpkin","Jack Pumpkin","Round Pumpkin","Autumn Pumpkin","Orange Squash"]}
+    ,squash: {name:"Squash", hues:[42,50,62,96], sat:80, light:54, jitter:16, accent:118, minLight:38, maxLight:68, shape:"mango", texture:"pumpkin", stem:true, leaf:true, bodyW:.92, bodyH:1.08, types:["Squash","Yellow Squash","Garden Squash","Crookneck Squash","Soft Squash"]}
+    ,mushroom: {name:"Mushroom", hues:[18,28,38,350], sat:44, light:58, jitter:18, accent:330, minLight:42, maxLight:72, shape:"mushroom", texture:"mushroom", stem:false, leaf:false, bodyW:1.00, bodyH:.96, types:["Mushroom","Toadstool","Button Mushroom","Forest Mushroom","Cap Buddy"]}
+    ,asparagus: {name:"Asparagus", hues:[96,112,128,80], sat:50, light:38, jitter:14, accent:28, minLight:26, maxLight:54, shape:"capsule", texture:"stalk", stem:false, leaf:false, bodyW:.52, bodyH:1.22, types:["Asparagus","Tall Asparagus","Spear Buddy","Green Spear","Garden Stalk"]}
+    ,celery: {name:"Celery", hues:[86,100,116,72], sat:42, light:58, jitter:12, accent:32, minLight:42, maxLight:72, shape:"capsule", texture:"celery", stem:false, leaf:true, bodyW:.64, bodyH:1.14, types:["Celery","Celery Stick","Crunch Stalk","Green Rib","Snack Celery"]}
+    ,kale: {name:"Kale", hues:[118,136,150,98], sat:48, light:34, jitter:14, accent:294, minLight:22, maxLight:50, shape:"leafy", texture:"leafy", stem:false, leaf:false, bodyW:1.00, bodyH:1.00, types:["Kale","Curly Kale","Leafy Kale","Salad Kale","Green Frill"]}
+    ,artichoke: {name:"Artichoke", hues:[82,100,120,150], sat:38, light:42, jitter:16, accent:284, minLight:28, maxLight:58, shape:"leafy", texture:"artichoke", stem:true, leaf:true, bodyW:.96, bodyH:1.02, types:["Artichoke","Layer Artichoke","Spiky Flower Veggie","Green Artichoke","Garden Globe"]}
+    ,okra: {name:"Okra", hues:[92,110,128,72], sat:48, light:40, jitter:14, accent:300, minLight:28, maxLight:56, shape:"capsule", texture:"okra", stem:true, leaf:true, bodyW:.72, bodyH:1.06, types:["Okra","Okra Pod","Star Pod","Green Okra","Garden Okra"]}
+    ,pizza: {name:"Pizza", hues:[38,44,12,52], sat:86, light:58, jitter:18, accent:4, minLight:42, maxLight:72, shape:"pizza", texture:"pizza", stem:false, leaf:false, bodyW:1.06, bodyH:.94, types:["Pizza Slice","Cheesy Pizza","Pepperoni Pizza","Arcade Pizza","Snack Slice"]}
+    ,burger: {name:"Burger", hues:[30,38,44,18], sat:66, light:50, jitter:14, accent:112, minLight:34, maxLight:66, shape:"burger", texture:"burger", stem:false, leaf:false, bodyW:1.18, bodyH:.74, types:["Burger","Cheeseburger","Tiny Burger","Diner Burger","Stack Burger"]}
+    ,hotdog: {name:"Hot Dog", hues:[18,28,42,350], sat:72, light:48, jitter:16, accent:50, minLight:34, maxLight:64, shape:"capsule", texture:"hotdog", stem:false, leaf:false, bodyW:1.22, bodyH:.55, types:["Hot Dog","Mustard Dog","Ballpark Buddy","Tiny Hot Dog","Snack Dog"]}
+    ,taco: {name:"Taco", hues:[34,42,50,18], sat:80, light:56, jitter:12, accent:118, minLight:42, maxLight:70, shape:"taco", texture:"taco", stem:false, leaf:false, bodyW:1.14, bodyH:.78, types:["Taco","Crunchy Taco","Snack Taco","Shell Buddy","Tuesday Taco"]}
+    ,sushi: {name:"Sushi Roll", hues:[154,200,12,40], sat:48, light:42, jitter:20, accent:12, minLight:28, maxLight:66, shape:"round", texture:"sushi", stem:false, leaf:false, bodyW:.94, bodyH:.88, types:["Sushi Roll","Maki Buddy","Rice Roll","Seaweed Roll","Tiny Sushi"]}
+    ,donut: {name:"Donut", hues:[28,34,326,42], sat:76, light:58, jitter:18, accent:320, minLight:42, maxLight:72, shape:"donut", texture:"donut", stem:false, leaf:false, bodyW:1.00, bodyH:.92, types:["Donut","Frosted Donut","Sprinkle Donut","Ring Snack","Bakery Buddy"]}
+    ,cookie: {name:"Cookie", hues:[30,36,44,24], sat:58, light:52, jitter:12, accent:20, minLight:38, maxLight:66, shape:"round", texture:"cookie", stem:false, leaf:false, bodyW:.98, bodyH:.92, types:["Cookie","Chocolate Chip Cookie","Round Cookie","Bakery Cookie","Crunch Cookie"]}
+    ,cupcake: {name:"Cupcake", hues:[316,42,28,200], sat:76, light:64, jitter:22, accent:44, minLight:48, maxLight:78, shape:"cupcake", texture:"cupcake", stem:false, leaf:false, bodyW:.98, bodyH:1.02, types:["Cupcake","Frosted Cupcake","Sprinkle Cupcake","Tiny Cake","Bakery Buddy"]}
+    ,icecream: {name:"Ice Cream", hues:[304,48,150,200], sat:58, light:72, jitter:24, accent:34, minLight:54, maxLight:84, shape:"icecream", texture:"icecream", stem:false, leaf:false, bodyW:.96, bodyH:1.10, types:["Ice Cream","Cone Buddy","Soft Serve","Scoop Friend","Frozen Treat"]}
+    ,sandwich: {name:"Sandwich", hues:[34,42,50,24], sat:62, light:60, jitter:14, accent:110, minLight:46, maxLight:74, shape:"sandwich", texture:"sandwich", stem:false, leaf:false, bodyW:1.18, bodyH:.70, types:["Sandwich","Lunch Sandwich","Triangle Sandwich","Toast Buddy","Snack Stack"]}
+    ,fries: {name:"Fries", hues:[42,48,55,34], sat:88, light:56, jitter:12, accent:4, minLight:42, maxLight:70, shape:"fries", texture:"fries", stem:false, leaf:false, bodyW:1.00, bodyH:1.02, types:["Fries","Fry Box","Crispy Fries","Snack Fries","Golden Fries"]}
+    ,pancake: {name:"Pancake Stack", hues:[32,38,44,25], sat:64, light:56, jitter:12, accent:24, minLight:42, maxLight:70, shape:"burger", texture:"pancake", stem:false, leaf:false, bodyW:1.14, bodyH:.70, types:["Pancake Stack","Syrup Pancake","Breakfast Buddy","Flapjack","Stack Cake"]}
+    ,waffle: {name:"Waffle", hues:[36,44,50,30], sat:78, light:54, jitter:12, accent:220, minLight:40, maxLight:68, shape:"round", texture:"waffle", stem:false, leaf:false, bodyW:1.00, bodyH:.90, types:["Waffle","Grid Waffle","Breakfast Waffle","Golden Waffle","Syrup Waffle"]}
+    ,pretzel: {name:"Pretzel", hues:[22,30,36,16], sat:58, light:42, jitter:12, accent:48, minLight:28, maxLight:58, shape:"pretzel", texture:"pretzel", stem:false, leaf:false, bodyW:1.00, bodyH:.88, types:["Pretzel","Twist Pretzel","Salty Pretzel","Bakery Pretzel","Loop Buddy"]}
+    ,bread: {name:"Bread Loaf", hues:[32,40,48,24], sat:62, light:58, jitter:12, accent:200, minLight:44, maxLight:72, shape:"bread", texture:"bread", stem:false, leaf:false, bodyW:1.10, bodyH:.78, types:["Bread Loaf","Toast Loaf","Bakery Bread","Soft Bread","Crust Buddy"]}
+    ,cheese: {name:"Cheese", hues:[45,50,56,38], sat:94, light:56, jitter:10, accent:12, minLight:42, maxLight:68, shape:"cheese", texture:"cheese", stem:false, leaf:false, bodyW:1.04, bodyH:.86, types:["Cheese","Cheese Wedge","Swiss Cheese","Melt Cheese","Snack Cheese"]}
+    ,egg: {name:"Egg", hues:[42,50,58,32], sat:36, light:78, jitter:12, accent:42, minLight:62, maxLight:86, shape:"egg", texture:"egg", stem:false, leaf:false, bodyW:.86, bodyH:1.06, types:["Egg","Sunny Egg","Breakfast Egg","Oval Egg","Yolk Buddy"]}
+    ,noodles: {name:"Noodles", hues:[38,44,50,30], sat:66, light:64, jitter:12, accent:8, minLight:50, maxLight:76, shape:"bowl", texture:"noodles", stem:false, leaf:false, bodyW:1.08, bodyH:.82, types:["Noodles","Noodle Bowl","Ramen Buddy","Wiggly Noodles","Snack Bowl"]}
+    ,popcorn: {name:"Popcorn", hues:[45,52,58,30], sat:72, light:76, jitter:16, accent:6, minLight:58, maxLight:86, shape:"cluster", texture:"popcorn", stem:false, leaf:false, bodyW:1.00, bodyH:.98, types:["Popcorn","Movie Popcorn","Kernel Cluster","Butter Popcorn","Pop Buddy"]}
+    ,candy: {name:"Wrapped Candy", hues:[328,192,50,276], sat:90, light:56, jitter:35, accent:190, minLight:40, maxLight:72, shape:"candy", texture:"candy", stem:false, leaf:false, bodyW:1.16, bodyH:.60, types:["Wrapped Candy","Hard Candy","Arcade Candy","Sweet Candy","Wrapper Buddy"]}
+    ,chocolate: {name:"Chocolate Bar", hues:[18,24,30,12], sat:56, light:28, jitter:10, accent:345, minLight:18, maxLight:44, shape:"chocolate", texture:"chocolate", stem:false, leaf:false, bodyW:1.05, bodyH:.82, types:["Chocolate Bar","Candy Bar","Dark Chocolate","Snack Square","Cocoa Buddy"]}
+    ,marshmallow: {name:"Marshmallow", hues:[330,40,210,300], sat:22, light:86, jitter:20, accent:330, minLight:72, maxLight:92, shape:"capsule", texture:"marshmallow", stem:false, leaf:false, bodyW:.86, bodyH:.90, types:["Marshmallow","Puffy Marshmallow","Campfire Buddy","Soft Puff","Sugar Pillow"]}
+    ,pudding: {name:"Pudding", hues:[30,42,330,24], sat:62, light:48, jitter:18, accent:335, minLight:34, maxLight:64, shape:"pudding", texture:"pudding", stem:false, leaf:false, bodyW:1.02, bodyH:.86, types:["Pudding","Caramel Pudding","Dessert Cup","Jiggle Pudding","Custard Buddy"]}
+    ,soup: {name:"Soup Bowl", hues:[8,28,44,100], sat:74, light:50, jitter:20, accent:48, minLight:36, maxLight:66, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.10, bodyH:.78, types:["Soup Bowl","Tomato Soup","Warm Soup","Bowl Buddy","Spoonless Soup"]}
+    ,cereal: {name:"Cereal Bowl", hues:[38,45,210,330], sat:60, light:68, jitter:22, accent:28, minLight:50, maxLight:82, shape:"bowl", texture:"cereal", stem:false, leaf:false, bodyW:1.10, bodyH:.78, types:["Cereal Bowl","Breakfast Cereal","Milk Bowl","Crunch Cereal","Morning Buddy"]}
+    ,burrito: {name:"Burrito", hues:[34,42,48,24], sat:58, light:58, jitter:12, accent:110, minLight:44, maxLight:72, shape:"capsule", texture:"burrito", stem:false, leaf:false, bodyW:1.18, bodyH:.62, types:["Burrito","Wrapped Burrito","Bean Burrito","Foil-Free Burrito","Snack Wrap"]}
+    ,dumpling: {name:"Dumpling", hues:[40,48,54,32], sat:38, light:72, jitter:12, accent:14, minLight:56, maxLight:82, shape:"dumpling", texture:"dumpling", stem:false, leaf:false, bodyW:1.02, bodyH:.76, types:["Dumpling","Pocket Dumpling","Steamy Dumpling","Dough Buddy","Snack Pocket"]}
+  };
+
+
+  const FOOD_CATEGORIES = {
+    "Fruits": [
+      "blueberry","apple","plum","orange","grape","blackberry","strawberry","raspberry","cranberry","cherry","banana","pear","peach","apricot","nectarine","lemon","lime","grapefruit","tangerine","watermelon","cantaloupe","honeydew","pineapple","mango","kiwi","coconut","dragonfruit","passionfruit","papaya","pomegranate","fig","currant","elderberry","gooseberry","mulberry","boysenberry","cloudberry","huckleberry","acai","starfruit","lychee","guava","persimmon","date","durian","jackfruit","rambutan","mangosteen","quince","pawpaw","soursop","avocado","tomato","olive","yuzu","kumquat","pomelo","bloodorange","plantain","breadfruit","tamarind","longan","loquat","jujube","cherimoya","feijoa","sapote","miracleberry"
+    ],
+    "Vegetables": [
+      "carrot","potato","sweetpotato","beet","radish","turnip","onion","garlic","cucumber","pickle","zucchini","eggplant","bellpepper","chilipepper","corn","broccoli","cauliflower","cabbage","lettuce","pea","pumpkin","squash","mushroom","asparagus","celery","kale","artichoke","okra"
+    ],
+    "Foods / Snacks": [
+      "pizza","burger","hotdog","taco","sushi","donut","cookie","cupcake","icecream","sandwich","fries","pancake","waffle","pretzel","bread","cheese","egg","noodles","popcorn","candy","chocolate","marshmallow","pudding","soup","cereal","burrito","dumpling"
+    ]
+  };
+
+  const GRADIENT_TYPES = [
+    "Flat Color","Soft Radial","Top Shine","Two Tone","Diagonal Glow",
+    "Candy Split","Sunset Fade","Dark Bottom","Center Pop","Prism Wash",
+    "Left Glow","Right Glow","Bubble Shine","Frosted Rim","Neon Core",
+    "Night Fade","Sour Candy","Creamy Stripe","Juice Swirl","Rainbow Wash",
+    "Pastel Melt","Lava Lamp","Candy Stripe","Leafy Fade","Shadow Pop",
+    "Glossy Dome","Bottom Glow","Split Splash","Tri-Tone","Aurora Fade",
+    "Sherbet Blend","Metallic Pop","Pearl Shine","Toxic Fade","Velvet Fade",
+    "Electric Split","Jam Shine","Moonlit Glow","Fruit Punch","Soft Vinyl"
+    ,"Vegetable Glow","Root Cellar","Garden Mist","Soup Swirl","Snack Wrapper","Fried Shine","Icy Scoop","Sauce Splash","Cheese Pull","Chocolate Drip","Glazed Frosting","Pickle Sheen","Butter Melt","Toasty Crust","Gummy Glow","Leaf Vein Fade","Bowl Shine","Popcorn Puff","Candy Wrapper Split","Oil Slick","Kitchen Neon","Diner Chrome","Breakfast Glow","Freezer Burn","Fizzy Soda","Speckled Skin","Farm Fresh","Arcade Glaze","Rainbow Sauce","Cream Core"
+  ];
+
+  const TYPES = [
+    "Round Berry","Puff Berry","Squash Berry","Tall Berry","Tiny Top Berry",
+    "Lumpy Berry","Heartish Berry","Droopy Berry","Mega Cheek Berry","Bean Berry",
+    "Wide Berry","Mush Berry","Orb Berry","Pear Berry","Chubby Berry"
+  ];
+
+  const FACE_TYPES = [
+    "Googly","Sleepy","Dotty","Huge Eyes","Squinty","Star Pupils",
+    "Side Eye","Old Lids","Shiny","Tiny Pupils","Crazy Eyes","Heart Pupils",
+    "Spiral Pupils","Diamond Pupils","Button Eyes","Ring Eyes","Cross Eyes",
+    "Wink","Half Moon","Sparkle Eyes","Angry Eyes","Three Eyes","Cyclops",
+    "Heterochromia","Square Eyes","Droopy Eyes","Cat Eyes","Pinwheel Eyes",
+    "Tiny Beads","Wide Awake","Uneven Eyes","Rainbow Pupils","Pie Cut Pupils",
+    "Glitch Eyes","Flower Pupils","Moon Pupils","Plus Pupils","Smiley Eyes",
+    "Drowsy Dots","Robot Eyes","Bean Eyes","Fish Eyes","Oval Pupils",
+    "Comic Shine","Gem Eyes","Bug Eyes","Soft Eyes","Bottom Lids",
+    "Top Heavy","Confused Eyes","Sideways Ovals","Pixel Eyes","Sleep Mask",
+    "Comma Pupils","Sun Pupils","Target Eyes","Tired Stars","Tiny Rings",
+    "Big Whites","Little Whites","Noodle Eyes","Shocked Eyes","Mischief Eyes"
+    ,"Leaf Pupils","Seed Pupils","Pepper Pupils","Cheese Hole Eyes","Pizza Pupils","Fork Pupils","Spoon Pupils","Steam Eyes","Sauce Eyes","Frosting Eyes","Sprinkle Eyes","Kernel Eyes","Cucumber Slices","Avocado Pit Eyes","Mushroom Dot Eyes","Burger Stack Eyes","Candy Swirl Eyes","Bowl Eyes","Nervous Beads","Deadpan Ovals","Sticker Eyes","Tiny TV Eyes","Wide TV Eyes","Gloss Dots","Triple Dot Eyes","Floating Pupils","Lowered Lids","Raised Lids","Tiny Spark Dots","Big Spark Dots"
+  ];
+
+  const MOUTH_TYPES = [
+    "Big Grin","Side Smile","Tiny Smile","Surprised O","Flat Line",
+    "Cat Mouth","Toothy Smile","Tongue Grin","Wavy Mouth","Bean Mouth",
+    "Zigzag","Kissy Face","Frown","Square Chomp","Underbite","Lip Smile",
+    "Open Laugh","Nervous Smile","Tiny O","Moustache Mouth","Vampire Smile",
+    "Scribble Mouth","Crooked Smirk","Bubble Mouth","Beak Smile","Sleepy Drool",
+    "U Smile","Doodle Smile","Gumdrop Frown","Triangle Mouth","Cheese Grin",
+    "Robot Mouth","Tiny Teeth","Open Bean","Slanted Smile","Double Smile",
+    "Pac Mouth","Shark Smile","Blob Smile","Cute W","Bored Mouth",
+    "Ooo Mouth","Yell Mouth","Snack Chomp","Chin Smile","Lollipop Tongue",
+    "Pixel Mouth","Melty Smile","Buck Teeth","Side O","Sneeze Mouth",
+    "Square Smile","Mega Laugh","Tiny Fangs","Puffy Lips","Awkward Bite",
+    "Whistle Mouth","Oval Chomp","Cloud Smile","Sour Pucker","Gummy Grin"
+    ,"Pizza Slice Smile","Sauce Smile","Crumb Smile","Seed Smile","Leafy Grin","Root Frown","Spicy Yell","Cheese Pull Mouth","Donut Hole O","Cookie Bite","Cupcake Smile","Ice Cream Drip","Soup Slurp","Noodle Slurp","Burger Bite","Taco Crunch","Hotdog Smile","Sushi Smile","Pretzel Twist Mouth","Candy Wrapper Grin","Chocolate Chomp","Marshmallow Puff Mouth","Pudding Jiggle","Breakfast Smile","Cereal Crunch","Burrito Bite","Dumpling Smile","Veggie Munch","Tiny Nibble","Mega Snack Laugh"
+  ];
+
+  const FUZZ_TYPES = ["Smooth Wrap","Soft Fuzz","Bumpy Wrap","Spiky Fuzz","Cloud Wrap","Tiny Bristles","Rubber Edge","Static Fuzz","Sugar Crust","Jelly Edge","Spore Fuzz","Puffy Rim","Pebble Rim","Scribble Edge","Sticker Edge","Crumb Rim","Salt Rim","Leafy Edge","Fried Edge","Frosting Edge","Candy Crinkle","Cheesy Rim","Toasty Rim","Steam Wisps","Wrapper Crimp"];
+
+  const canvas = document.getElementById("berryCanvas");
+  const ctx = canvas.getContext("2d");
+  const box = document.getElementById("canvasBox");
+  const yearEl = document.getElementById("birthYear");
+  const monthEl = document.getElementById("birthMonth");
+  const dayEl = document.getElementById("birthDay");
+  const genderEl = document.getElementById("gender");
+  const fruitEl = document.getElementById("fruitKind");
+  const makeBtn = document.getElementById("makeBtn");
+  const randomBtn = document.getElementById("randomBtn");
+  const regenBtn = document.getElementById("regenBtn");
+  const nameEl = document.getElementById("berryName");
+  const typeStat = document.getElementById("typeStat");
+  const genderStat = document.getElementById("genderStat");
+  const faceStat = document.getElementById("faceStat");
+  const mouthStat = document.getElementById("mouthStat");
+  const colorStat = document.getElementById("colorStat");
+  const toast = document.getElementById("toast");
+  const wordChips = document.getElementById("wordChips");
+
+
+  function rebuildFoodDropdown(){
+    const selected = fruitEl.value || "blueberry";
+    const seen = new Set();
+    fruitEl.innerHTML = "";
+    for(const [label, keys] of Object.entries(FOOD_CATEGORIES)){
+      const group = document.createElement("optgroup");
+      group.label = label;
+      for(const key of keys){
+        const profile = FRUIT_PROFILES[key];
+        if(!profile) continue;
+        seen.add(key);
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = profile.name;
+        group.appendChild(opt);
+      }
+      fruitEl.appendChild(group);
+    }
+    const leftovers = Object.keys(FRUIT_PROFILES).filter(key => !seen.has(key));
+    if(leftovers.length){
+      const group = document.createElement("optgroup");
+      group.label = "Other";
+      for(const key of leftovers){
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = FRUIT_PROFILES[key].name;
+        group.appendChild(opt);
+      }
+      fruitEl.appendChild(group);
+    }
+    fruitEl.value = FRUIT_PROFILES[selected] ? selected : "blueberry";
+  }
+
+  let berry = null;
+  let wobble = 0;
+  let tapCount = 0;
+  let regenSalt = 0;
+
+  function fillDays(){
+    const current = Number(dayEl.value) || 1;
+    dayEl.innerHTML = "";
+    for(let i=1;i<=31;i++){
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = i;
+      dayEl.appendChild(opt);
+    }
+    dayEl.value = Math.min(current,31);
+  }
+
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h,16777619);
+    }
+    return h >>> 0;
+  }
+
+  function rng(seed){
+    let s = seed >>> 0;
+    return function(){
+      s += 0x6D2B79F5;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function pick(rand, arr){
+    return arr[Math.floor(rand() * arr.length)];
+  }
+
+  function hsl(h,s,l){ return `hsl(${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%)`; }
+
+  function parsedYearValue(raw){
+    const clean = String(raw).trim().toLowerCase();
+    const digits = Number((clean.match(/-?\d+/) || ["0"])[0]) || 0;
+    return clean.includes("bc") || clean.includes("bce") ? -Math.abs(digits) : digits;
+  }
+
+  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+
+  function chooseGender(rand){
+    const val = genderEl.value;
+    if(val !== "any") return val;
+    return pick(rand, ["female","male","neutral"]);
+  }
+
+  function displayGender(g){
+    return g === "female" ? "Female" : g === "male" ? "Male" : "Neutral";
+  }
+
+  function makeBerry(keepSalt=false){
+    if(!keepSalt) regenSalt = 0;
+    const rawYear = yearEl.value.trim() || "0";
+    const year = parsedYearValue(rawYear);
+    const month = Number(monthEl.value);
+    const day = Number(dayEl.value);
+    const selectedGender = genderEl.value;
+    const fruitKind = fruitEl.value || "blueberry";
+    const fruitProfile = FRUIT_PROFILES[fruitKind] || FRUIT_PROFILES.blueberry;
+    const seed = hashString(`${rawYear}|${month}|${day}|${selectedGender}|${fruitKind}|${regenSalt}`);
+    const rand = rng(seed);
+
+    const gender = chooseGender(rand);
+    const palette = pick(rand, PALETTES);
+    const gradientType = pick(rand, GRADIENT_TYPES);
+    const usePaletteColor = rand() > .58;
+    const fruitBaseHue = usePaletteColor ? palette.h : pick(rand, fruitProfile.hues);
+    const hueShift = (month * 1.2 + day * .7 + (rand()-.5) * (fruitProfile.jitter || 20));
+    const bodyHue = (fruitBaseHue + hueShift + 360) % 360;
+    const secondHue = (bodyHue + 25 + Math.floor(rand()*165)) % 360;
+    const thirdHue = (bodyHue + 170 + Math.floor(rand()*70)) % 360;
+    const baseLight = usePaletteColor ? (palette.l * .72 + (fruitProfile.light ?? palette.l) * .28) : (fruitProfile.light ?? palette.l);
+    const baseSat = usePaletteColor ? (palette.s * .72 + (fruitProfile.sat ?? palette.s) * .28) : (fruitProfile.sat ?? palette.s);
+    const light = clamp(baseLight + (rand()-.5)*12, fruitProfile.minLight ?? 24, fruitProfile.maxLight ?? 72);
+    const sat = clamp(baseSat + (rand()-.5)*12, 38, 100);
+    const accentHue = usePaletteColor ? palette.accent : (fruitProfile.accent ?? palette.accent);
+
+    const nowYear = new Date().getFullYear();
+    const age = nowYear - year;
+    const ancient = year < 0 || age > 90;
+    const lidAmount = ancient ? .85 : clamp(age / 180, 0, .34);
+
+    let w1 = pick(rand, WORDS);
+    let w2 = pick(rand, WORDS);
+    if(w1 === w2) w2 = WORDS[(WORDS.indexOf(w2) + 7) % WORDS.length];
+
+    const first = pick(rand, FIRST_NAMES[gender]);
+    const last = pick(rand, LAST_NAMES);
+    const faceType = pick(rand, FACE_TYPES);
+    const mouthType = pick(rand, MOUTH_TYPES);
+    const type = pick(rand, fruitProfile.types || TYPES);
+    const fuzzType = pick(rand, FUZZ_TYPES);
+
+    berry = {
+      seed,
+      year: rawYear,
+      month,
+      day,
+      gender,
+      fruitKind,
+      fruitName: fruitProfile.name,
+      name: `${first} ${last}`,
+      word1: w1,
+      word2: w2,
+      type,
+      faceType,
+      mouthType,
+      fuzzType,
+      gradientType,
+      paletteName: palette.name,
+      colorName: usePaletteColor ? palette.name : fruitProfile.name,
+      bodyHue,
+      secondHue,
+      thirdHue,
+      sat,
+      light,
+      body: hsl(bodyHue, sat, light),
+      bodyDark: hsl(bodyHue, sat, Math.max(16, light-20)),
+      bodyLight: hsl(bodyHue, Math.max(35,sat-14), Math.min(82, light+18)),
+      bodyAlt: hsl(secondHue, clamp(sat-4,45,100), clamp(light+3,27,75)),
+      bodyAlt2: hsl(thirdHue, clamp(sat-12,35,100), clamp(light+8,30,78)),
+      outline: "#010101",
+      blush: hsl(accentHue, 95, 55),
+      lip: hsl((accentHue + 12) % 360, 94, 50),
+      eyeColorA: hsl((accentHue + 40) % 360, 90, 45),
+      eyeColorB: hsl((accentHue + 180) % 360, 90, 48),
+      eyeTilt: (rand() - .5) * .34,
+      eyeSize: .82 + rand() * .42,
+      eyeGap: 112 + Math.floor(rand()*64),
+      pupilX: Math.floor((rand()-.5)*18),
+      pupilY: Math.floor((rand()-.5)*12),
+      browStyle: Math.floor(rand()*8),
+      hasBrows: rand() > .22,
+      lashes: rand() > (gender === "female" ? .55 : .78),
+      freckles: rand() > .48,
+      cheek: rand() > .26,
+      tinyStem: fruitProfile.stem ? rand() > .16 : rand() > .58,
+      leaf: fruitProfile.leaf ? rand() > .08 : rand() > (gender === "female" ? .55 : .68),
+      bow: gender === "female" && rand() > .7,
+      cap: gender === "male" && rand() > .72,
+      antenna: rand() > .87,
+      spots: rand() > .45,
+      stripes: rand() > .72,
+      starCount: Math.floor(rand()*7),
+      bodyW: (fruitProfile.bodyW ?? .90) + rand()*.18,
+      bodyH: (fruitProfile.bodyH ?? .88) + rand()*.18,
+      topDip: .75 + rand()*.5,
+      leftLump: (rand()-.5)*24,
+      rightLump: (rand()-.5)*24,
+      bellyShift: (rand()-.5)*22,
+      mouthWidth: 88 + Math.floor(rand()*112),
+      mouthHeight: 38 + Math.floor(rand()*72),
+      lid: lidAmount,
+      wobblePhase: rand()*999
+    };
+
+    if(berry.faceType === "Cyclops") berry.eyeGap = 0;
+    if(berry.faceType === "Three Eyes") berry.eyeGap = 118;
+    tapCount = 0;
+    wobble = 1.1;
+    updateUI();
+  }
+
+  function regenerateSameBirthday(){
+    regenSalt++;
+    makeBerry(true);
+  }
+
+  function updateUI(){
+    if(!berry) return;
+    nameEl.textContent = berry.name;
+    typeStat.textContent = `${berry.fruitName} · ${berry.type}`;
+    genderStat.textContent = displayGender(berry.gender);
+    faceStat.textContent = berry.faceType;
+    mouthStat.textContent = berry.mouthType;
+    colorStat.textContent = `${berry.colorName} · ${berry.gradientType}`;
+    wordChips.innerHTML = `<span class="wordChip">${berry.word1}</span><span class="wordChip">${berry.word2}</span>`;
+    toast.textContent = `${berry.word1} ${berry.word2} · ${berry.fruitName} · ${berry.gradientType}`;
+  }
+
+  function berryBodyPath(expand=0){
+    const ew = expand;
+    const kind = berry.fruitKind || "blueberry";
+    const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
+    const shape = profile.shape || kind;
+    const t = berry.topDip;
+    const lx = berry.leftLump;
+    const rx = berry.rightLump;
+    const bs = berry.bellyShift;
+
+    if(shape === "apple"){
+      ctx.beginPath();
+      ctx.moveTo(-168-ew, -103-ew);
+      ctx.bezierCurveTo(-224-ew, -158-ew, -165-ew, -244-ew, -72+lx*.35, -184-ew*.6);
+      ctx.bezierCurveTo(-34-ew*.15, -229-ew, 35+ew*.15, -229-ew, 72+rx*.25, -184-ew*.6);
+      ctx.bezierCurveTo(165+rx*.35, -244-ew, 226+ew, -158-ew, 168+ew, -103-ew);
+      ctx.bezierCurveTo(236+ew, -20, 216+ew, 178+ew*.25, 84+ew*.35, 232+ew);
+      ctx.bezierCurveTo(18+bs, 262+ew, -78-ew*.15, 252+ew, -142-ew*.55, 190+ew*.28);
+      ctx.bezierCurveTo(-236-ew, 98+ew*.1, -224-ew, -28-ew*.15, -168-ew, -103-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "plum" || shape === "date"){
+      ctx.beginPath();
+      ctx.ellipse(0, 14, 188+ew, 242+ew, -.07, 0, Math.PI*2);
+      return;
+    }
+
+    if(shape === "citrus" || shape === "melon" || shape === "round"){
+      ctx.beginPath();
+      ctx.ellipse(0, 10, 206+ew, 210+ew, .03, 0, Math.PI*2);
+      return;
+    }
+
+    if(shape === "lemon"){
+      ctx.beginPath();
+      ctx.moveTo(-224-ew, 0);
+      ctx.bezierCurveTo(-150-ew, -210-ew, 150+ew, -210-ew, 224+ew, 0);
+      ctx.bezierCurveTo(150+ew, 210+ew, -150-ew, 210+ew, -224-ew, 0);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "cluster"){
+      ctx.beginPath();
+      ctx.moveTo(0, -230-ew);
+      ctx.bezierCurveTo(-132-ew, -238-ew, -212-ew, -142-ew, -180-ew, -50);
+      ctx.bezierCurveTo(-242-ew, 14, -174-ew, 146+ew*.2, -88-ew*.3, 156+ew*.2);
+      ctx.bezierCurveTo(-70-ew*.2, 248+ew, 70+ew*.2, 248+ew, 88+ew*.3, 156+ew*.2);
+      ctx.bezierCurveTo(174+ew, 146+ew*.2, 242+ew, 14, 180+ew, -50);
+      ctx.bezierCurveTo(212+ew, -142-ew, 132+ew, -238-ew, 0, -230-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "strawberry"){
+      ctx.beginPath();
+      ctx.moveTo(0, -210-ew);
+      ctx.bezierCurveTo(-152-ew, -226-ew, -242-ew, -92-ew, -192-ew, 42);
+      ctx.bezierCurveTo(-150-ew, 162+ew*.2, -54-ew*.2, 232+ew, 0, 264+ew);
+      ctx.bezierCurveTo(54+ew*.2, 232+ew, 150+ew, 162+ew*.2, 192+ew, 42);
+      ctx.bezierCurveTo(242+ew, -92-ew, 152+ew, -226-ew, 0, -210-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "pear" || shape === "fig"){
+      ctx.beginPath();
+      ctx.moveTo(0,-238-ew);
+      ctx.bezierCurveTo(-86-ew,-220-ew,-116-ew,-138-ew,-96-ew,-73-ew);
+      ctx.bezierCurveTo(-198-ew,-45-ew,-228-ew,90+ew*.1,-162-ew,186+ew*.35);
+      ctx.bezierCurveTo(-92-ew,286+ew,92+ew,286+ew,162+ew,186+ew*.35);
+      ctx.bezierCurveTo(228+ew,90+ew*.1,198+ew,-45-ew,96+ew,-73-ew);
+      ctx.bezierCurveTo(116+ew,-138-ew,86+ew,-220-ew,0,-238-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "banana"){
+      ctx.beginPath();
+      ctx.moveTo(-226-ew,-96-ew);
+      ctx.bezierCurveTo(-152-ew,-178-ew,40-ew*.1,-220-ew,210+ew,-94-ew);
+      ctx.bezierCurveTo(124+ew,-84-ew,15+ew*.2,-16-ew*.2,-32+ew*.1,86+ew);
+      ctx.bezierCurveTo(-78-ew,60+ew*.1,-160-ew,18+ew*.2,-226-ew,-96-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "pineapple" || shape === "papaya" || shape === "mango"){
+      ctx.beginPath();
+      ctx.moveTo(0,-242-ew);
+      ctx.bezierCurveTo(-134-ew,-230-ew,-210-ew,-114-ew,-194-ew,34);
+      ctx.bezierCurveTo(-178-ew,178+ew*.2,-84-ew*.3,260+ew,0,262+ew);
+      ctx.bezierCurveTo(84+ew*.3,260+ew,178+ew,178+ew*.2,194+ew,34);
+      ctx.bezierCurveTo(210+ew,-114-ew,134+ew,-230-ew,0,-242-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "dragon"){
+      ctx.beginPath();
+      ctx.moveTo(0,-238-ew);
+      ctx.bezierCurveTo(-150-ew,-230-ew,-214-ew,-120-ew,-198-ew,28);
+      ctx.bezierCurveTo(-180-ew,182+ew*.2,-72-ew*.2,260+ew,0,262+ew);
+      ctx.bezierCurveTo(72+ew*.2,260+ew,180+ew,182+ew*.2,198+ew,28);
+      ctx.bezierCurveTo(214+ew,-120-ew,150+ew,-230-ew,0,-238-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "starfruit"){
+      ctx.beginPath();
+      for(let i=0;i<10;i++){
+        const r = i%2 ? 128+ew*.3 : 224+ew;
+        const a = -Math.PI/2 + i*Math.PI/5;
+        const x = Math.cos(a)*r;
+        const y = Math.sin(a)*r + 20;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "spiky"){
+      ctx.beginPath();
+      for(let i=0;i<28;i++){
+        const r = i%2 ? 198+ew*.45 : 228+ew;
+        const a = -Math.PI/2 + i*Math.PI/14;
+        const x = Math.cos(a)*r;
+        const y = Math.sin(a)*r + 16;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      return;
+    }
+
+
+
+    if(shape === "capsule"){
+      ctx.beginPath();
+      ctx.roundRect(-218-ew, -118-ew, 436+ew*2, 236+ew*2, 118+ew);
+      return;
+    }
+
+    if(shape === "potato"){
+      ctx.beginPath();
+      ctx.moveTo(-178-ew,-116-ew);
+      ctx.bezierCurveTo(-226-ew,-72-ew,-230-ew,82+ew,-148-ew,166+ew);
+      ctx.bezierCurveTo(-72-ew*.3,242+ew,78+ew*.2,220+ew,158+ew,150+ew);
+      ctx.bezierCurveTo(235+ew,80+ew,224+ew,-78-ew,142+ew,-150-ew);
+      ctx.bezierCurveTo(62+ew*.2,-220-ew,-105-ew,-196-ew,-178-ew,-116-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "carrot"){
+      ctx.beginPath();
+      ctx.moveTo(-130-ew,-210-ew);
+      ctx.bezierCurveTo(-218-ew,-88-ew,-130-ew,130+ew*.4,0,260+ew);
+      ctx.bezierCurveTo(130+ew,130+ew*.4,218+ew,-88-ew,130+ew,-210-ew);
+      ctx.bezierCurveTo(72+ew*.3,-238-ew,-72-ew*.3,-238-ew,-130-ew,-210-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "bulb" || shape === "onion" || shape === "garlic"){
+      ctx.beginPath();
+      ctx.moveTo(0,-236-ew);
+      ctx.bezierCurveTo(-76-ew,-194-ew,-150-ew,-120-ew,-166-ew,-18);
+      ctx.bezierCurveTo(-184-ew,102+ew*.2,-106-ew,236+ew,0,260+ew);
+      ctx.bezierCurveTo(106+ew,236+ew,184+ew,102+ew*.2,166+ew,-18);
+      ctx.bezierCurveTo(150+ew,-120-ew,76+ew,-194-ew,0,-236-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "eggplant"){
+      ctx.beginPath();
+      ctx.moveTo(38,-232-ew);
+      ctx.bezierCurveTo(-74-ew,-226-ew,-166-ew,-130-ew,-176-ew,-8);
+      ctx.bezierCurveTo(-190-ew,154+ew*.2,-70-ew*.4,274+ew,62+ew,240+ew);
+      ctx.bezierCurveTo(192+ew,206+ew,206+ew,22,144+ew,-92-ew);
+      ctx.bezierCurveTo(110+ew,-156-ew,86+ew,-214-ew,38,-232-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "pepper"){
+      ctx.beginPath();
+      ctx.moveTo(0,-218-ew);
+      ctx.bezierCurveTo(-58-ew,-246-ew,-126-ew,-200-ew,-122-ew,-124-ew);
+      ctx.bezierCurveTo(-220-ew,-116-ew,-230-ew,80+ew*.1,-156-ew,174+ew*.4);
+      ctx.bezierCurveTo(-92-ew,254+ew,-18-ew,220+ew,0,174+ew*.2);
+      ctx.bezierCurveTo(18+ew,220+ew,92+ew,254+ew,156+ew,174+ew*.4);
+      ctx.bezierCurveTo(230+ew,80+ew*.1,220+ew,-116-ew,122+ew,-124-ew);
+      ctx.bezierCurveTo(126+ew,-200-ew,58+ew,-246-ew,0,-218-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "chili"){
+      ctx.beginPath();
+      ctx.moveTo(-220-ew,-84-ew);
+      ctx.bezierCurveTo(-112-ew,-184-ew,86-ew*.1,-184-ew,216+ew,-54-ew);
+      ctx.bezierCurveTo(124+ew,-52-ew,40+ew*.1,18+ew*.2,-20+ew,114+ew);
+      ctx.bezierCurveTo(-90-ew,98+ew*.1,-162-ew,40+ew*.2,-220-ew,-84-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "corn"){
+      ctx.beginPath();
+      ctx.moveTo(0,-236-ew);
+      ctx.bezierCurveTo(-94-ew,-220-ew,-142-ew,-112-ew,-132-ew,28);
+      ctx.bezierCurveTo(-122-ew,174+ew*.2,-58-ew*.2,254+ew,0,264+ew);
+      ctx.bezierCurveTo(58+ew*.2,254+ew,122+ew,174+ew*.2,132+ew,28);
+      ctx.bezierCurveTo(142+ew,-112-ew,94+ew,-220-ew,0,-236-ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "broccoli"){
+      ctx.beginPath();
+      ctx.moveTo(-66-ew,244+ew);
+      ctx.lineTo(-46-ew,48);
+      ctx.bezierCurveTo(-174-ew,44,-220-ew,-68-ew,-156-ew,-142-ew);
+      ctx.bezierCurveTo(-136-ew,-220-ew,-44-ew,-236-ew,0,-178-ew);
+      ctx.bezierCurveTo(54-ew*.1,-246-ew,152+ew,-212-ew,160+ew,-126-ew);
+      ctx.bezierCurveTo(244+ew,-72-ew,198+ew,58+ew,70+ew,48);
+      ctx.lineTo(66+ew,244+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "leafy"){
+      ctx.beginPath();
+      const pts = 18;
+      for(let i=0;i<pts;i++){
+        const a = -Math.PI/2 + i*Math.PI*2/pts;
+        const r = (i%2 ? 196 : 224) + ew;
+        const x = Math.cos(a)*r;
+        const y = Math.sin(a)*r + 18;
+        if(i===0) ctx.moveTo(x,y); else ctx.quadraticCurveTo(Math.cos(a-.16)*(r+18), Math.sin(a-.16)*(r+18)+18, x,y);
+      }
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "mushroom"){
+      ctx.beginPath();
+      ctx.moveTo(-190-ew,-14);
+      ctx.bezierCurveTo(-180-ew,-168-ew,-84-ew,-232-ew,0,-232-ew);
+      ctx.bezierCurveTo(84+ew,-232-ew,180+ew,-168-ew,190+ew,-14);
+      ctx.bezierCurveTo(132+ew,34+ew*.1,72+ew,32+ew*.1,52+ew,10);
+      ctx.lineTo(74+ew,210+ew);
+      ctx.bezierCurveTo(24+ew,238+ew,-24-ew,238+ew,-74-ew,210+ew);
+      ctx.lineTo(-52-ew,10);
+      ctx.bezierCurveTo(-72-ew,32+ew*.1,-132-ew,34+ew*.1,-190-ew,-14);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "pumpkin"){
+      ctx.beginPath();
+      ctx.ellipse(0, 12, 220+ew, 202+ew, 0, 0, Math.PI*2);
+      return;
+    }
+
+    if(shape === "pizza"){
+      ctx.beginPath();
+      ctx.moveTo(-214-ew,-194-ew);
+      ctx.quadraticCurveTo(0,-250-ew,214+ew,-194-ew);
+      ctx.lineTo(18,250+ew);
+      ctx.quadraticCurveTo(0,270+ew,-18,250+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "taco" || shape === "dumpling"){
+      ctx.beginPath();
+      ctx.moveTo(-224-ew,72+ew*.2);
+      ctx.quadraticCurveTo(0,-242-ew,224+ew,72+ew*.2);
+      ctx.quadraticCurveTo(126+ew,176+ew,-126-ew,176+ew);
+      ctx.quadraticCurveTo(-190-ew,134+ew,-224-ew,72+ew*.2);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "burger" || shape === "bowl" || shape === "bread"){
+      ctx.beginPath();
+      ctx.roundRect(-230-ew, -142-ew, 460+ew*2, 284+ew*2, 92+ew);
+      return;
+    }
+
+    if(shape === "sandwich"){
+      ctx.beginPath();
+      ctx.moveTo(-230-ew,132+ew);
+      ctx.lineTo(0,-218-ew);
+      ctx.lineTo(230+ew,132+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "fries"){
+      ctx.beginPath();
+      ctx.moveTo(-180-ew,-116-ew);
+      ctx.lineTo(180+ew,-116-ew);
+      ctx.lineTo(132+ew,240+ew);
+      ctx.lineTo(-132-ew,240+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "cupcake"){
+      ctx.beginPath();
+      ctx.moveTo(-164-ew,18);
+      ctx.bezierCurveTo(-216-ew,-70-ew,-108-ew,-154-ew,-44-ew,-104-ew);
+      ctx.bezierCurveTo(-26-ew,-206-ew,106+ew,-196-ew,108+ew,-82-ew);
+      ctx.bezierCurveTo(206+ew,-82-ew,214+ew,26,152+ew,54);
+      ctx.lineTo(106+ew,244+ew);
+      ctx.lineTo(-106-ew,244+ew);
+      ctx.lineTo(-164-ew,18);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "icecream"){
+      ctx.beginPath();
+      ctx.moveTo(-154-ew,-40);
+      ctx.bezierCurveTo(-210-ew,-154-ew,-94-ew,-236-ew,0,-196-ew);
+      ctx.bezierCurveTo(92+ew,-252-ew,216+ew,-152-ew,154+ew,-36);
+      ctx.lineTo(36+ew,252+ew);
+      ctx.quadraticCurveTo(0,286+ew,-36-ew,252+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "donut"){
+      ctx.beginPath();
+      ctx.ellipse(0, 8, 212+ew, 196+ew, 0, 0, Math.PI*2);
+      return;
+    }
+
+    if(shape === "pretzel"){
+      ctx.beginPath();
+      ctx.ellipse(-72,18,102+ew,154+ew,.35,0,Math.PI*2);
+      ctx.ellipse(72,18,102+ew,154+ew,-.35,0,Math.PI*2);
+      ctx.roundRect(-122-ew,70,244+ew*2,92+ew,46+ew);
+      return;
+    }
+
+    if(shape === "cheese"){
+      ctx.beginPath();
+      ctx.moveTo(-200-ew,168+ew);
+      ctx.lineTo(-172-ew,-124-ew);
+      ctx.lineTo(212+ew,-198-ew);
+      ctx.lineTo(182+ew,180+ew);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "egg"){
+      ctx.beginPath();
+      ctx.ellipse(0, 26, 178+ew, 234+ew, 0, 0, Math.PI*2);
+      return;
+    }
+
+    if(shape === "candy"){
+      ctx.beginPath();
+      ctx.moveTo(-238-ew,-68-ew);
+      ctx.lineTo(-154-ew,-122-ew);
+      ctx.roundRect(-154-ew,-120-ew,308+ew*2,240+ew*2,90+ew);
+      ctx.moveTo(154+ew,-68-ew);
+      ctx.lineTo(238+ew,-122-ew);
+      ctx.lineTo(212+ew,0);
+      ctx.lineTo(238+ew,122+ew);
+      ctx.lineTo(154+ew,68+ew);
+      ctx.moveTo(-154-ew,68+ew);
+      ctx.lineTo(-238-ew,122+ew);
+      ctx.lineTo(-212-ew,0);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "chocolate"){
+      ctx.beginPath();
+      ctx.roundRect(-192-ew,-178-ew,384+ew*2,356+ew*2,28+ew);
+      return;
+    }
+
+    if(shape === "pudding"){
+      ctx.beginPath();
+      ctx.moveTo(-180-ew,-96-ew);
+      ctx.bezierCurveTo(-206-ew,-190-ew,206+ew,-190-ew,180+ew,-96-ew);
+      ctx.lineTo(126+ew,210+ew);
+      ctx.bezierCurveTo(76+ew,254+ew,-76-ew,254+ew,-126-ew,210+ew);
+      ctx.closePath();
+      return;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(-190-ew, -126-ew);
+    ctx.bezierCurveTo(-184-ew, -192-ew, -95+lx, -210-ew, -48-ew*.3, -166-ew*t);
+    ctx.bezierCurveTo(-35-ew*.25, -232-ew, 43+ew*.2, -235-ew, 58+ew*.25, -166-ew*t);
+    ctx.bezierCurveTo(92+ew*.3, -236-ew, 183+rx, -210-ew, 210+ew, -102-ew*.55);
+    ctx.bezierCurveTo(246+ew, 40, 219+ew, 174+ew*.25, 119+ew*.4, 231+ew);
+    ctx.bezierCurveTo(42+bs, 274+ew, -91-ew*.15, 267+ew, -165-ew*.7, 191+ew*.35);
+    ctx.bezierCurveTo(-235-ew, 119+ew*.15, -240-ew, -34-ew*.2, -190-ew, -126-ew);
+    ctx.closePath();
+  }
+
+  function bodyPaint(){
+    if(berry.gradientType === "Flat Color") return berry.body;
+
+    let g;
+    const type = berry.gradientType;
+    if(type === "Soft Radial" || type === "Center Pop" || type === "Bubble Shine" || type === "Neon Core" || type === "Glossy Dome" || type === "Moonlit Glow"){
+      g = ctx.createRadialGradient(-82,-95,20,20,45,290);
+      g.addColorStop(0, type === "Neon Core" ? berry.bodyAlt2 : berry.bodyLight);
+      g.addColorStop(.36, berry.bodyLight);
+      g.addColorStop(.7, berry.body);
+      g.addColorStop(1, berry.bodyDark);
+    } else if(type === "Top Shine" || type === "Pearl Shine"){
+      g = ctx.createLinearGradient(0,-240,0,245);
+      g.addColorStop(0, type === "Pearl Shine" ? "rgba(255,255,255,.95)" : berry.bodyLight);
+      g.addColorStop(.36, berry.body);
+      g.addColorStop(1, berry.bodyDark);
+    } else if(type === "Two Tone" || type === "Electric Split" || type === "Split Splash"){
+      g = ctx.createLinearGradient(-230,-120,230,150);
+      g.addColorStop(0, berry.body);
+      g.addColorStop(.49, berry.body);
+      g.addColorStop(.51, berry.bodyAlt);
+      g.addColorStop(1, berry.bodyAlt);
+    } else if(type === "Candy Split" || type === "Creamy Stripe"){
+      g = ctx.createLinearGradient(-220,0,220,0);
+      g.addColorStop(0, berry.bodyAlt);
+      g.addColorStop(.43, berry.bodyAlt);
+      g.addColorStop(.50, "#ffffff");
+      g.addColorStop(.57, berry.body);
+      g.addColorStop(1, berry.body);
+    } else if(type === "Sunset Fade" || type === "Fruit Punch" || type === "Sherbet Blend"){
+      g = ctx.createLinearGradient(0,-230,0,245);
+      g.addColorStop(0, berry.bodyAlt2);
+      g.addColorStop(.48, berry.bodyAlt);
+      g.addColorStop(1, berry.bodyDark);
+    } else if(type === "Dark Bottom" || type === "Night Fade" || type === "Velvet Fade"){
+      g = ctx.createLinearGradient(0,-230,0,250);
+      g.addColorStop(0, berry.bodyLight);
+      g.addColorStop(.62, berry.body);
+      g.addColorStop(1, type === "Night Fade" ? "hsl(240 44% 15%)" : berry.bodyDark);
+    } else if(type === "Prism Wash" || type === "Rainbow Wash" || type === "Aurora Fade"){
+      g = ctx.createLinearGradient(-230,-210,230,210);
+      g.addColorStop(0, berry.body);
+      g.addColorStop(.33, berry.bodyAlt);
+      g.addColorStop(.66, berry.bodyAlt2);
+      g.addColorStop(1, berry.bodyLight);
+    } else if(type === "Left Glow"){
+      g = ctx.createLinearGradient(-235,0,235,0);
+      g.addColorStop(0, berry.bodyLight);
+      g.addColorStop(.55, berry.body);
+      g.addColorStop(1, berry.bodyDark);
+    } else if(type === "Right Glow"){
+      g = ctx.createLinearGradient(-235,0,235,0);
+      g.addColorStop(0, berry.bodyDark);
+      g.addColorStop(.55, berry.body);
+      g.addColorStop(1, berry.bodyLight);
+    } else if(type === "Frosted Rim"){
+      g = ctx.createRadialGradient(0,10,55,0,10,275);
+      g.addColorStop(0, berry.body);
+      g.addColorStop(.74, berry.bodyDark);
+      g.addColorStop(1, "rgba(255,255,255,.85)");
+    } else if(type === "Sour Candy" || type === "Toxic Fade" || type === "Leafy Fade"){
+      g = ctx.createLinearGradient(-220,-220,220,220);
+      g.addColorStop(0, berry.bodyAlt2);
+      g.addColorStop(.42, berry.bodyLight);
+      g.addColorStop(1, berry.bodyAlt);
+    } else if(type === "Juice Swirl" || type === "Lava Lamp" || type === "Pastel Melt"){
+      g = ctx.createRadialGradient(-120,-130,18,60,90,310);
+      g.addColorStop(0, berry.bodyAlt2);
+      g.addColorStop(.35, berry.bodyLight);
+      g.addColorStop(.67, berry.body);
+      g.addColorStop(1, berry.bodyAlt);
+    } else if(type === "Candy Stripe" || type === "Metallic Pop" || type === "Soft Vinyl" || type === "Shadow Pop"){
+      g = ctx.createLinearGradient(-230,-40,230,40);
+      g.addColorStop(0, berry.bodyDark);
+      g.addColorStop(.25, berry.body);
+      g.addColorStop(.48, berry.bodyLight);
+      g.addColorStop(.72, berry.bodyAlt);
+      g.addColorStop(1, berry.bodyDark);
+    } else if(type === "Bottom Glow" || type === "Jam Shine"){
+      g = ctx.createLinearGradient(0,-240,0,250);
+      g.addColorStop(0, berry.bodyDark);
+      g.addColorStop(.62, berry.body);
+      g.addColorStop(1, berry.bodyLight);
+    } else if(type === "Tri-Tone"){
+      g = ctx.createLinearGradient(-225,-130,225,180);
+      g.addColorStop(0, berry.body);
+      g.addColorStop(.5, berry.bodyAlt);
+      g.addColorStop(1, berry.bodyAlt2);
+    } else {
+      g = ctx.createLinearGradient(-220,-220,220,220);
+      g.addColorStop(0, berry.bodyLight);
+      g.addColorStop(.58, berry.body);
+      g.addColorStop(1, berry.bodyAlt);
+    }
+    return g;
+  }
+
+  function drawWrappedOutline(t){
+    const fuzz = berry.fuzzType;
+    ctx.save();
+
+    // Thinner + tighter: the black wrap is only slightly larger than the berry now.
+    const tightness = 24 + Math.sin(t/130 + berry.wobblePhase)*wobble*1.1;
+    berryBodyPath(tightness);
+    ctx.fillStyle = berry.outline;
+    ctx.fill();
+
+    if(fuzz !== "Smooth Wrap" && fuzz !== "Rubber Edge"){
+      ctx.save();
+      berryBodyPath(28);
+      ctx.clip();
+      ctx.strokeStyle = berry.outline;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      const spikes = fuzz === "Spiky Fuzz" ? 30 : fuzz === "Cloud Wrap" ? 18 : fuzz === "Bumpy Wrap" ? 24 : fuzz === "Tiny Bristles" ? 36 : 16;
+      const amp = fuzz === "Spiky Fuzz" ? 10 : fuzz === "Tiny Bristles" ? 6 : fuzz === "Soft Fuzz" ? 5 : 8;
+      ctx.lineWidth = fuzz === "Cloud Wrap" ? 13 : 8;
+      for(let i=0;i<spikes;i++){
+        const a = (i / spikes) * Math.PI * 2 - Math.PI/2;
+        const rx = 224 + Math.sin(i*1.8)*5;
+        const ry = 236 + Math.cos(i*1.4)*5;
+        const x1 = Math.cos(a) * rx;
+        const y1 = Math.sin(a) * ry + 20;
+        const x2 = Math.cos(a) * (rx + amp + wobble*1.5);
+        const y2 = Math.sin(a) * (ry + amp + wobble*1.5) + 20;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      if(fuzz === "Cloud Wrap"){
+        ctx.fillStyle = berry.outline;
+        for(let i=0;i<10;i++){
+          const a = (i/10)*Math.PI*2 - Math.PI/2;
+          const rx = 222;
+          const ry = 238;
+          ctx.beginPath();
+          ctx.ellipse(Math.cos(a)*rx, Math.sin(a)*ry + 18, 15 + (i%3)*4, 13 + (i%2)*4, a, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawFruitTexture(){
+    const kind = berry.fruitKind || "blueberry";
+    const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
+    const texture = profile.texture || kind;
+
+    if(texture === "seeded"){
+      ctx.fillStyle = "rgba(255,240,150,.9)";
+      ctx.strokeStyle = "rgba(0,0,0,.28)";
+      ctx.lineWidth = 2;
+      for(let y=-135;y<=154;y+=44){
+        const rowWidth = 155 - Math.abs(y-20) * .35;
+        const offset = ((Math.floor((y+200)/44) % 2) * 22);
+        for(let x=-rowWidth+offset;x<=rowWidth;x+=48){
+          ctx.save();
+          ctx.translate(x,y);
+          ctx.rotate(.28);
+          ctx.beginPath();
+          ctx.ellipse(0,0,7,12,0,0,Math.PI*2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      return;
+    }
+
+    if(texture === "cluster"){
+      const lobes = [
+        [-92,-115,62],[-10,-136,66],[76,-112,58],[-126,-32,64],[-42,-44,70],[48,-38,72],[126,-28,58],
+        [-94,56,68],[-8,60,76],[86,58,64],[-42,148,64],[52,150,62]
+      ];
+      for(const [x,y,r] of lobes){
+        const grad = ctx.createRadialGradient(x-r*.3,y-r*.35,6,x,y,r);
+        grad.addColorStop(0,"rgba(255,255,255,.18)");
+        grad.addColorStop(1,"rgba(0,0,0,.12)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.88,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 5;
+      for(const [x,y,r] of lobes){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.88,0,0,Math.PI*2);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "citrus"){
+      ctx.fillStyle = "rgba(255,255,255,.28)";
+      for(let i=0;i<48;i++){
+        const x = -180 + ((i*73) % 360);
+        const y = -155 + ((i*41) % 325);
+        if((x*x)/(210*210) + ((y-10)*(y-10))/(212*212) < .92){
+          ctx.beginPath();
+          ctx.ellipse(x,y,3+(i%3),2+(i%2),0,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = 9;
+      for(let i=0;i<8;i++){
+        const a = (i/8)*Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(0,10);
+        ctx.lineTo(Math.cos(a)*175,10+Math.sin(a)*175);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "apple" || texture === "shiny"){
+      ctx.fillStyle = "rgba(255,255,255,.16)";
+      ctx.beginPath();
+      ctx.ellipse(-84,-70,44,120,-.35,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.08)";
+      ctx.beginPath();
+      ctx.ellipse(70,135,90,42,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "plum"){
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(-6,-202);
+      ctx.bezierCurveTo(28,-90,30,45,-2,211);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.12)";
+      ctx.beginPath();
+      ctx.ellipse(-82,-72,50,120,-.45,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "blueberry"){
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.beginPath();
+      ctx.ellipse(0,-170,48,22,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      for(let i=0;i<6;i++){
+        const a = (i/6)*Math.PI*2;
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(a)*28, -170 + Math.sin(a)*10, 15, 6, a, 0, Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "banana"){
+      ctx.strokeStyle = "rgba(0,0,0,.16)";
+      ctx.lineWidth = 8;
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath();
+        ctx.moveTo(-175,-54+i*42);
+        ctx.bezierCurveTo(-70,-110+i*34,80,-114+i*28,176,-50+i*14);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(0,0,0,.28)";
+      ctx.beginPath();
+      ctx.ellipse(-202,-92,18,18,0,0,Math.PI*2);
+      ctx.ellipse(205,-94,16,14,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "watermelon"){
+      ctx.strokeStyle = "rgba(0,70,30,.28)";
+      ctx.lineWidth = 22;
+      for(let x=-170;x<=170;x+=64){
+        ctx.beginPath();
+        ctx.moveTo(x,-198);
+        ctx.bezierCurveTo(x-38,-95,x+34,55,x-8,205);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "pineapple"){
+      ctx.strokeStyle = "rgba(0,0,0,.18)";
+      ctx.lineWidth = 8;
+      for(let x=-210;x<=210;x+=48){
+        ctx.beginPath();
+        ctx.moveTo(x,-220);
+        ctx.lineTo(x+160,230);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x,230);
+        ctx.lineTo(x+160,-220);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      for(let y=-130;y<=160;y+=62){
+        for(let x=-120;x<=120;x+=68){
+          ctx.beginPath();
+          ctx.ellipse(x,y,8,8,0,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+      return;
+    }
+
+    if(texture === "kiwi"){
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.beginPath();
+      ctx.ellipse(0,15,60,70,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.5)";
+      for(let i=0;i<24;i++){
+        const a = (i/24)*Math.PI*2;
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(a)*92,15+Math.sin(a)*92,5,8,a,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "coconut"){
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      for(let i=0;i<55;i++){
+        const x = -180 + ((i*91)%360);
+        const y = -170 + ((i*47)%330);
+        if((x*x)/(205*205) + ((y-10)*(y-10))/(210*210) < .9){
+          ctx.beginPath();
+          ctx.ellipse(x,y,3,13,(i%7)*.4,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+      ctx.fillStyle = "rgba(0,0,0,.26)";
+      for(const [x,y] of [[-45,-92],[0,-105],[42,-88]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,13,16,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "dragonfruit" || texture === "guava" || texture === "papaya"){
+      ctx.fillStyle = "rgba(255,255,255,.28)";
+      ctx.beginPath();
+      ctx.ellipse(0,20,125,155,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.42)";
+      for(let i=0;i<32;i++){
+        const x = -95 + ((i*47)%190);
+        const y = -110 + ((i*61)%230);
+        if((x*x)/(125*125) + ((y-5)*(y-5))/(155*155) < .86){
+          ctx.beginPath();
+          ctx.ellipse(x,y,4,6,0,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+      return;
+    }
+
+    if(texture === "pomegranate"){
+      ctx.fillStyle = "rgba(255,255,255,.13)";
+      for(let i=0;i<32;i++){
+        const x = -150 + ((i*63)%300);
+        const y = -145 + ((i*43)%295);
+        ctx.beginPath();
+        ctx.ellipse(x,y,8,8,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(-110,-130);
+      ctx.bezierCurveTo(-10,-40,20,70,98,150);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "starfruit"){
+      ctx.strokeStyle = "rgba(0,0,0,.13)";
+      ctx.lineWidth = 10;
+      for(let i=0;i<5;i++){
+        const a = -Math.PI/2 + i*Math.PI*2/5;
+        ctx.beginPath();
+        ctx.moveTo(0,20);
+        ctx.lineTo(Math.cos(a)*185,20+Math.sin(a)*185);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "peach" || texture === "mango" || texture === "fig"){
+      ctx.strokeStyle = "rgba(255,255,255,.25)";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(-5,-198);
+      ctx.bezierCurveTo(28,-70,20,70,-8,205);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,80,120,.18)";
+      ctx.beginPath();
+      ctx.ellipse(-88,-28,58,130,-.45,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "netted"){
+      ctx.strokeStyle = "rgba(255,255,255,.19)";
+      ctx.lineWidth = 5;
+      for(let x=-210;x<=210;x+=38){
+        ctx.beginPath();
+        ctx.moveTo(x,-205);
+        ctx.lineTo(x+120,215);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x,215);
+        ctx.lineTo(x+120,-205);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "striped"){
+      ctx.strokeStyle = "rgba(255,255,255,.26)";
+      ctx.lineWidth = 9;
+      for(let x=-150;x<=150;x+=55){
+        ctx.beginPath();
+        ctx.moveTo(x,-188);
+        ctx.bezierCurveTo(x-28,-68,x+30,72,x-8,198);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "lychee" || texture === "rambutan" || texture === "spiky" || texture === "soursop"){
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.strokeStyle = "rgba(0,0,0,.17)";
+      ctx.lineWidth = 3;
+      for(let i=0;i<34;i++){
+        const x = -168 + ((i*79)%336);
+        const y = -154 + ((i*53)%316);
+        if((x*x)/(205*205) + ((y-5)*(y-5))/(216*216) < .84){
+          ctx.beginPath();
+          ctx.moveTo(x,y-11);
+          ctx.lineTo(x+10,y+10);
+          ctx.lineTo(x-10,y+10);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+      return;
+    }
+
+    if(texture === "date"){
+      ctx.strokeStyle = "rgba(0,0,0,.18)";
+      ctx.lineWidth = 7;
+      for(let x=-100;x<=100;x+=45){
+        ctx.beginPath();
+        ctx.moveTo(x,-190);
+        ctx.bezierCurveTo(x-20,-50,x+22,50,x,205);
+        ctx.stroke();
+      }
+      return;
+    }
+
+
+
+    if(texture === "avocado"){
+      ctx.fillStyle = "rgba(235,255,170,.5)";
+      ctx.beginPath();
+      ctx.ellipse(0,22,126,166,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(80,43,15,.58)";
+      ctx.beginPath();
+      ctx.ellipse(0,92,48,58,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "tomato"){
+      ctx.strokeStyle = "rgba(0,0,0,.11)";
+      ctx.lineWidth = 8;
+      for(let x=-110;x<=110;x+=55){
+        ctx.beginPath();
+        ctx.moveTo(x,-190);
+        ctx.bezierCurveTo(x-18,-70,x+18,80,x,196);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "olive"){
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.beginPath();
+      ctx.ellipse(-50,-74,28,74,-.4,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.24)";
+      ctx.beginPath();
+      ctx.ellipse(0,42,30,24,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "breadfruit" || texture === "cherimoya"){
+      ctx.strokeStyle = "rgba(0,0,0,.16)";
+      ctx.lineWidth = 4;
+      for(let y=-150;y<=170;y+=46){
+        for(let x=-150;x<=150;x+=54){
+          ctx.beginPath();
+          ctx.moveTo(x,y-18);
+          ctx.lineTo(x+20,y);
+          ctx.lineTo(x,y+18);
+          ctx.lineTo(x-20,y);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+      return;
+    }
+
+    if(texture === "carrot"){
+      ctx.strokeStyle = "rgba(0,0,0,.18)";
+      ctx.lineWidth = 7;
+      for(let y=-148;y<=150;y+=54){
+        ctx.beginPath();
+        ctx.moveTo(-86+Math.sin(y)*12,y);
+        ctx.lineTo(80+Math.cos(y)*12,y-18);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "potato" || texture === "sweetpotato"){
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      for(let i=0;i<30;i++){
+        const x = -155 + ((i*79)%310);
+        const y = -132 + ((i*53)%280);
+        ctx.beginPath();
+        ctx.ellipse(x,y,6+(i%4),4+(i%3),.2,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "root"){
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 6;
+      for(let x=-90;x<=90;x+=45){
+        ctx.beginPath();
+        ctx.moveTo(x,-170);
+        ctx.bezierCurveTo(x-22,-40,x+20,90,x,210);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "onion" || texture === "garlic"){
+      ctx.strokeStyle = "rgba(0,0,0,.15)";
+      ctx.lineWidth = 6;
+      for(let x=-96;x<=96;x+=48){
+        ctx.beginPath();
+        ctx.moveTo(x,-196);
+        ctx.bezierCurveTo(x-34,-62,x+28,74,x,218);
+        ctx.stroke();
+      }
+      if(texture === "garlic"){
+        ctx.strokeStyle = "rgba(0,0,0,.2)";
+        ctx.lineWidth = 5;
+        for(let x=-70;x<=70;x+=35){
+          ctx.beginPath();
+          ctx.moveTo(x,-110);
+          ctx.quadraticCurveTo(x+15,20,x,150);
+          ctx.stroke();
+        }
+      }
+      return;
+    }
+
+    if(texture === "cucumber" || texture === "pickle" || texture === "zucchini" || texture === "okra"){
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 8;
+      for(let y=-78;y<=78;y+=38){
+        ctx.beginPath();
+        ctx.moveTo(-190,y);
+        ctx.bezierCurveTo(-80,y-18,82,y+18,190,y);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      for(let i=0;i<22;i++){
+        const x = -168 + ((i*61)%336);
+        const y = -82 + ((i*37)%164);
+        ctx.beginPath();
+        ctx.ellipse(x,y,4,3,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "eggplant"){
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.beginPath();
+      ctx.ellipse(-64,-70,38,116,-.4,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "pepper"){
+      ctx.strokeStyle = "rgba(0,0,0,.14)";
+      ctx.lineWidth = 8;
+      for(let x=-94;x<=94;x+=47){
+        ctx.beginPath();
+        ctx.moveTo(x,-186);
+        ctx.bezierCurveTo(x-24,-60,x+20,70,x,198);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "chili"){
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(-162,-62);
+      ctx.bezierCurveTo(-46,-102,92,-88,178,-42);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "corn"){
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 3;
+      for(let y=-158;y<=170;y+=35){
+        const row = Math.floor((y+200)/35);
+        for(let x=-92+(row%2)*18;x<=92;x+=36){
+          ctx.beginPath();
+          ctx.ellipse(x,y,14,18,0,0,Math.PI*2);
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+      return;
+    }
+
+    if(texture === "broccoli" || texture === "cauliflower"){
+      ctx.fillStyle = texture === "cauliflower" ? "rgba(255,255,255,.32)" : "rgba(0,0,0,.12)";
+      for(const [x,y,r] of [[-95,-120,54],[-38,-156,62],[36,-150,58],[98,-106,54],[-118,-42,60],[-36,-50,70],[48,-45,68],[126,-32,54],[0,38,62]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.85,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(0,0,0,.14)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-42,232);
+      ctx.lineTo(-18,28);
+      ctx.moveTo(42,232);
+      ctx.lineTo(18,28);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "leafy" || texture === "artichoke"){
+      ctx.strokeStyle = "rgba(255,255,255,.25)";
+      ctx.lineWidth = 7;
+      for(let i=0;i<12;i++){
+        const a = -Math.PI/2 + i*Math.PI*2/12;
+        ctx.beginPath();
+        ctx.moveTo(0,12);
+        ctx.quadraticCurveTo(Math.cos(a)*75,Math.sin(a)*75+18,Math.cos(a)*176,Math.sin(a)*176+18);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "pea"){
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 5;
+      for(let x=-132;x<=132;x+=66){
+        ctx.beginPath();
+        ctx.ellipse(x,0,30,34,0,0,Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "pumpkin"){
+      ctx.strokeStyle = "rgba(0,0,0,.17)";
+      ctx.lineWidth = 10;
+      for(let x=-130;x<=130;x+=52){
+        ctx.beginPath();
+        ctx.moveTo(x,-178);
+        ctx.bezierCurveTo(x-42,-58,x+38,70,x,194);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "mushroom"){
+      ctx.fillStyle = "rgba(255,255,255,.42)";
+      for(const [x,y,r] of [[-86,-94,28],[10,-128,34],[96,-74,24],[-30,-50,20]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.75,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(-58,20);
+      ctx.bezierCurveTo(-44,90,-54,158,-74,208);
+      ctx.moveTo(58,20);
+      ctx.bezierCurveTo(44,90,54,158,74,208);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "stalk" || texture === "celery"){
+      ctx.strokeStyle = "rgba(255,255,255,.24)";
+      ctx.lineWidth = 9;
+      for(let x=-70;x<=70;x+=35){
+        ctx.beginPath();
+        ctx.moveTo(x,-198);
+        ctx.lineTo(x,206);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "pizza"){
+      ctx.fillStyle = "rgba(255,245,110,.55)";
+      ctx.beginPath();
+      ctx.moveTo(-164,-168);
+      ctx.quadraticCurveTo(0,-214,164,-168);
+      ctx.lineTo(10,190);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(160,0,0,.65)";
+      for(const [x,y] of [[-74,-86],[48,-112],[96,-22],[-30,14],[32,96]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,20,20,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "burger" || texture === "pancake"){
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      for(let x=-130;x<=130;x+=50){
+        ctx.beginPath();
+        ctx.ellipse(x,-98,8,5,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = texture === "pancake" ? "rgba(90,40,0,.32)" : "rgba(0,0,0,.22)";
+      ctx.lineWidth = 12;
+      for(const y of [-42,18,74]){
+        ctx.beginPath();
+        ctx.moveTo(-190,y);
+        ctx.bezierCurveTo(-80,y+16,80,y-16,190,y);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "hotdog" || texture === "burrito"){
+      ctx.strokeStyle = texture === "hotdog" ? "rgba(255,232,30,.85)" : "rgba(0,0,0,.16)";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-176,-10);
+      for(let x=-142;x<=170;x+=46){
+        ctx.quadraticCurveTo(x,-46,x+23,-10);
+        ctx.quadraticCurveTo(x+46,26,x+69,-10);
+      }
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "taco" || texture === "dumpling"){
+      ctx.fillStyle = "rgba(0,0,0,.16)";
+      for(let x=-130;x<=130;x+=44){
+        ctx.beginPath();
+        ctx.ellipse(x,34+Math.sin(x)*10,15,10,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(255,255,255,.25)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-170,78);
+      ctx.quadraticCurveTo(0,-132,170,78);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "sushi"){
+      ctx.fillStyle = "rgba(255,255,255,.82)";
+      ctx.beginPath();
+      ctx.ellipse(0,10,128,120,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.bodyAlt;
+      ctx.beginPath();
+      ctx.ellipse(-20,8,45,42,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.bodyAlt2;
+      ctx.beginPath();
+      ctx.ellipse(38,22,30,34,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "donut"){
+      ctx.fillStyle = berry.bodyAlt;
+      ctx.beginPath();
+      ctx.ellipse(0,0,168,142,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.96)";
+      ctx.beginPath();
+      ctx.ellipse(0,12,56,50,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.4)";
+      for(let i=0;i<36;i++){
+        const a = i*.91;
+        const r = 86 + (i%4)*18;
+        ctx.beginPath();
+        ctx.roundRect(Math.cos(a)*r-7,Math.sin(a)*r-3,14,6,3);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "cookie"){
+      ctx.fillStyle = "rgba(45,20,8,.55)";
+      for(const [x,y,r] of [[-82,-70,17],[20,-94,13],[92,-22,18],[-48,38,15],[40,74,20],[-100,100,12]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "cupcake"){
+      ctx.fillStyle = berry.bodyAlt;
+      ctx.beginPath();
+      ctx.moveTo(-130,34);
+      ctx.bezierCurveTo(-144,140,-104,232,0,232);
+      ctx.bezierCurveTo(104,232,144,140,130,34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.16)";
+      ctx.lineWidth = 7;
+      for(let x=-90;x<=90;x+=45){
+        ctx.beginPath();
+        ctx.moveTo(x,52);
+        ctx.lineTo(x*.55,220);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "icecream"){
+      ctx.strokeStyle = "rgba(110,60,20,.24)";
+      ctx.lineWidth = 6;
+      for(let x=-100;x<=100;x+=40){
+        ctx.beginPath();
+        ctx.moveTo(x,28);
+        ctx.lineTo(x+70,224);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x,224);
+        ctx.lineTo(x+70,28);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,255,255,.38)";
+      ctx.beginPath();
+      ctx.ellipse(-44,-100,50,32,-.25,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "sandwich"){
+      ctx.fillStyle = "rgba(255,255,255,.24)";
+      ctx.beginPath();
+      ctx.moveTo(-124,66);
+      ctx.lineTo(0,-128);
+      ctx.lineTo(124,66);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.18)";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(-166,82);
+      ctx.lineTo(166,82);
+      ctx.stroke();
+      return;
+    }
+
+    if(texture === "fries"){
+      ctx.fillStyle = "rgba(255,230,80,.88)";
+      ctx.strokeStyle = "rgba(0,0,0,.2)";
+      ctx.lineWidth = 5;
+      for(let x=-130;x<=130;x+=52){
+        ctx.beginPath();
+        ctx.roundRect(x,-216+(Math.abs(x)%3)*18,34,250,10);
+        ctx.fill();
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "waffle"){
+      ctx.strokeStyle = "rgba(95,45,0,.22)";
+      ctx.lineWidth = 10;
+      for(let x=-120;x<=120;x+=55){
+        ctx.beginPath();
+        ctx.moveTo(x,-150);
+        ctx.lineTo(x,170);
+        ctx.stroke();
+      }
+      for(let y=-115;y<=130;y+=55){
+        ctx.beginPath();
+        ctx.moveTo(-150,y);
+        ctx.lineTo(150,y);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "pretzel"){
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      for(let i=0;i<24;i++){
+        const a = i*.9;
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(a)*130,Math.sin(a)*88+20,5,3,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "bread"){
+      ctx.fillStyle = "rgba(80,35,10,.22)";
+      ctx.beginPath();
+      ctx.ellipse(0,0,190,96,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.2)";
+      ctx.lineWidth = 7;
+      for(let x=-88;x<=88;x+=44){
+        ctx.beginPath();
+        ctx.moveTo(x,-68);
+        ctx.quadraticCurveTo(x+30,0,x,68);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "cheese"){
+      ctx.fillStyle = "rgba(0,0,0,.25)";
+      for(const [x,y,r] of [[-86,-66,22],[40,-88,17],[96,8,28],[-40,62,20],[68,112,14]]){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.8,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "egg"){
+      ctx.fillStyle = "rgba(255,185,0,.9)";
+      ctx.beginPath();
+      ctx.ellipse(0,56,58,52,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "noodles"){
+      ctx.strokeStyle = "rgba(255,240,130,.82)";
+      ctx.lineWidth = 9;
+      for(let y=-70;y<=90;y+=28){
+        ctx.beginPath();
+        ctx.moveTo(-150,y);
+        for(let x=-110;x<=150;x+=40){
+          ctx.quadraticCurveTo(x,y-28,x+20,y);
+          ctx.quadraticCurveTo(x+40,y+28,x+60,y);
+        }
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "popcorn"){
+      ctx.fillStyle = "rgba(255,255,255,.44)";
+      for(let i=0;i<30;i++){
+        const x = -150 + ((i*73)%300);
+        const y = -140 + ((i*47)%270);
+        ctx.beginPath();
+        ctx.ellipse(x,y,18+(i%3)*4,14+(i%2)*5,(i%5)*.4,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "candy"){
+      ctx.strokeStyle = "rgba(255,255,255,.5)";
+      ctx.lineWidth = 18;
+      for(let x=-130;x<=130;x+=80){
+        ctx.beginPath();
+        ctx.moveTo(x,-120);
+        ctx.lineTo(x+70,120);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "chocolate"){
+      ctx.strokeStyle = "rgba(255,255,255,.13)";
+      ctx.lineWidth = 8;
+      for(let x=-96;x<=96;x+=64){
+        ctx.beginPath();
+        ctx.moveTo(x,-168);
+        ctx.lineTo(x,168);
+        ctx.stroke();
+      }
+      for(let y=-84;y<=84;y+=84){
+        ctx.beginPath();
+        ctx.moveTo(-178,y);
+        ctx.lineTo(178,y);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    if(texture === "marshmallow"){
+      ctx.fillStyle = "rgba(255,160,190,.18)";
+      ctx.beginPath();
+      ctx.ellipse(-70,-40,50,34,0,0,Math.PI*2);
+      ctx.ellipse(68,42,46,30,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "pudding"){
+      ctx.fillStyle = "rgba(255,255,255,.24)";
+      ctx.beginPath();
+      ctx.ellipse(0,-96,150,42,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(90,35,0,.22)";
+      ctx.beginPath();
+      ctx.ellipse(0,-40,128,34,0,0,Math.PI*2);
+      ctx.fill();
+      return;
+    }
+
+    if(texture === "soup" || texture === "cereal"){
+      ctx.fillStyle = "rgba(255,255,255,.48)";
+      ctx.beginPath();
+      ctx.ellipse(0,-54,166,72,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = texture === "cereal" ? "rgba(180,95,30,.55)" : "rgba(0,0,0,.18)";
+      for(let i=0;i<22;i++){
+        const x = -118 + ((i*53)%236);
+        const y = -90 + ((i*31)%75);
+        ctx.beginPath();
+        ctx.ellipse(x,y,8+(i%4),6+(i%3),0,0,Math.PI*2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    if(texture === "speckle"){
+      ctx.fillStyle = "rgba(0,0,0,.14)";
+      for(let i=0;i<34;i++){
+        const x = -170 + ((i*83)%340);
+        const y = -160 + ((i*59)%320);
+        if((x*x)/(205*205) + ((y-5)*(y-5))/(210*210) < .9){
+          ctx.beginPath();
+          ctx.ellipse(x,y,3+(i%3),3+(i%2),0,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  function drawBodyFill(){
+    berryBodyPath(0);
+    ctx.fillStyle = bodyPaint();
+    ctx.fill();
+
+    ctx.save();
+    berryBodyPath(-4);
+    ctx.clip();
+
+    ctx.fillStyle = "rgba(255,255,255,.11)";
+    ctx.beginPath();
+    ctx.ellipse(-95,-105,70,105,-.55,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(0,0,0,.09)";
+    ctx.beginPath();
+    ctx.ellipse(54,156,138,58,0,0,Math.PI*2);
+    ctx.fill();
+
+    drawFruitTexture();
+
+    if(berry.spots && !["strawberry","blackberry","grape","orange"].includes(berry.fruitKind)){
+      ctx.fillStyle = "rgba(0,0,0,.13)";
+      const spots = [
+        [-122,68,10],[-84,145,7],[142,93,9],[112,-18,6],[-15,-174,5],
+        [172,-70,5],[-160,-36,6],[44,188,8],[20,-122,6],[-10,112,5]
+      ];
+      for(const [x,y,r] of spots){
+        ctx.beginPath();
+        ctx.ellipse(x,y,r,r*.8,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    if(berry.stripes){
+      ctx.strokeStyle = "rgba(255,255,255,.2)";
+      ctx.lineWidth = 18;
+      for(let x=-180;x<=180;x+=70){
+        ctx.beginPath();
+        ctx.moveTo(x-100,-225);
+        ctx.bezierCurveTo(x-40,-80,x+25,70,x+8,245);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(0,0,0,.2)";
+    berryBodyPath(0);
+    ctx.stroke();
+  }
+
+  function drawStemExtras(){
+    const profile = FRUIT_PROFILES[berry.fruitKind] || FRUIT_PROFILES.blueberry;
+    const shape = profile.shape || berry.fruitKind;
+
+
+    if(["carrot","beet","radish","turnip","corn","eggplant","bellpepper","chilipepper"].includes(berry.fruitKind) || shape === "carrot" || shape === "corn"){
+      ctx.save();
+      ctx.fillStyle = "#18853e";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      for(let i=0;i<5;i++){
+        const a = -Math.PI*.82 + i*Math.PI*.34;
+        ctx.beginPath();
+        ctx.moveTo(0,-226);
+        ctx.quadraticCurveTo(Math.cos(a)*46, -286 + Math.sin(a)*34, Math.cos(a)*90, -268 + Math.sin(a)*72);
+        ctx.quadraticCurveTo(Math.cos(a)*24, -250 + Math.sin(a)*24, 0, -226);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if(shape === "mushroom"){
+      return;
+    }
+
+    if(shape === "strawberry" || berry.fruitKind === "persimmon"){
+      ctx.save();
+      ctx.fillStyle = "#18853e";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      for(let i=0;i<6;i++){
+        const a = -Math.PI*.9 + i*Math.PI*.36;
+        ctx.beginPath();
+        ctx.moveTo(0,-214);
+        ctx.quadraticCurveTo(Math.cos(a)*54, -226 + Math.sin(a)*34, Math.cos(a)*92, -202 + Math.sin(a)*58);
+        ctx.quadraticCurveTo(Math.cos(a)*42, -194 + Math.sin(a)*30, 0, -214);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if(shape === "pineapple"){
+      ctx.save();
+      ctx.fillStyle = "#219447";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      for(let i=0;i<7;i++){
+        const a = -Math.PI*.95 + i*Math.PI*.32;
+        ctx.beginPath();
+        ctx.moveTo(0,-236);
+        ctx.quadraticCurveTo(Math.cos(a)*45, -292 + Math.sin(a)*42, Math.cos(a)*92, -270 + Math.sin(a)*80);
+        ctx.quadraticCurveTo(Math.cos(a)*30, -256 + Math.sin(a)*30, 0, -236);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if(shape === "apple" || shape === "pear" || berry.fruitKind === "cherry" || berry.fruitKind === "quince"){
+      ctx.fillStyle = "#5d2d12";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.roundRect(-14,-270,30,78,12);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    if(shape === "banana"){
+      ctx.fillStyle = "#1b1208";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.ellipse(-230,-98,26,24,0,0,Math.PI*2);
+      ctx.ellipse(226,-92,21,19,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    if(berry.fruitKind === "pomegranate"){
+      ctx.fillStyle = berry.bodyDark;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(-35,-212);
+      ctx.lineTo(-18,-260);
+      ctx.lineTo(0,-223);
+      ctx.lineTo(18,-260);
+      ctx.lineTo(35,-212);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    if((berry.tinyStem || profile.stem) && !["apple","pear","strawberry","pineapple","banana"].includes(shape) && !["persimmon","pomegranate","quince"].includes(berry.fruitKind)){
+      ctx.fillStyle = "#020202";
+      ctx.beginPath();
+      ctx.ellipse(5,-263,20,36,.24,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#1f7a39";
+      ctx.beginPath();
+      ctx.ellipse(20,-277,11,24,.7,0,Math.PI*2);
+      ctx.fill();
+    }
+    if(berry.leaf && shape !== "pineapple" && shape !== "strawberry" && berry.fruitKind !== "persimmon"){
+      ctx.fillStyle = "#1f8b43";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(-35,-249,18,38,-.85,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    if(berry.bow){
+      ctx.fillStyle = berry.blush;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.ellipse(-43,-230,23,16,-.2,0,Math.PI*2);
+      ctx.ellipse(3,-230,23,16,.2,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(-20,-230,10,10,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    if(berry.cap){
+      ctx.fillStyle = "#111";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.ellipse(18,-238,70,20,0,Math.PI,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillRect(-38,-268,90,32);
+      ctx.strokeRect(-38,-268,90,32);
+    }
+    if(berry.antenna){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-38,-240);
+      ctx.quadraticCurveTo(-79,-296,-39,-317);
+      ctx.stroke();
+      ctx.fillStyle = berry.blush;
+      ctx.beginPath();
+      ctx.ellipse(-36,-320,14,14,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  function drawStar(x,y,r1,r2,points,color){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.beginPath();
+    for(let i=0;i<points*2;i++){
+      const r = i%2 ? r2 : r1;
+      const a = -Math.PI/2 + i*Math.PI/points;
+      const px = Math.cos(a)*r;
+      const py = Math.sin(a)*r;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawHeart(x,y,s,color){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(s,s);
+    ctx.beginPath();
+    ctx.moveTo(0,12);
+    ctx.bezierCurveTo(-32,-10,-16,-34,0,-18);
+    ctx.bezierCurveTo(16,-34,32,-10,0,12);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawEyeShape(x,y,whiteW,whiteH,kind){
+    ctx.beginPath();
+    if(kind === "Square Eyes" || kind === "Robot Eyes" || kind === "Pixel Eyes" || kind === "Tiny TV Eyes" || kind === "Wide TV Eyes" || kind === "Cheese Hole Eyes"){
+      ctx.roundRect(x-whiteW, y-whiteH, whiteW*2, whiteH*2, kind === "Pixel Eyes" ? 3 : 14);
+    } else if(kind === "Cat Eyes" || kind === "Fish Eyes" || kind === "Leaf Pupils" || kind === "Cucumber Slices"){
+      ctx.moveTo(x-whiteW-8,y);
+      ctx.quadraticCurveTo(x,y-whiteH-10,x+whiteW+8,y);
+      ctx.quadraticCurveTo(x,y+whiteH+10,x-whiteW-8,y);
+    } else if(kind === "Bean Eyes"){
+      ctx.ellipse(x,y,whiteW*.72,whiteH*1.06,.34,0,Math.PI*2);
+    } else if(kind === "Sleep Mask"){
+      ctx.roundRect(x-whiteW*1.15,y-whiteH*.55,whiteW*2.3,whiteH*1.1,whiteH*.55);
+    } else if(kind === "Bug Eyes" || kind === "Sprinkle Eyes" || kind === "Kernel Eyes" || kind === "Avocado Pit Eyes"){
+      ctx.ellipse(x,y,whiteW*1.18,whiteH*1.18,0,0,Math.PI*2);
+    } else if(kind === "Smiley Eyes"){
+      ctx.ellipse(x,y+8,whiteW,whiteH*.52,0,0,Math.PI*2);
+    } else if(kind === "Half Moon" || kind === "Drowsy Dots" || kind === "Lowered Lids" || kind === "Raised Lids" || kind === "Steam Eyes"){
+      ctx.ellipse(x,y+5,whiteW,whiteH*.55,0,0,Math.PI*2);
+    } else {
+      ctx.ellipse(x,y,whiteW,whiteH,0,0,Math.PI*2);
+    }
+  }
+
+  function drawPupil(px,py,scale,side){
+    ctx.fillStyle = "#050505";
+    if(berry.faceType === "Star Pupils" || berry.faceType === "Tired Stars"){
+      drawStar(px,py,14*scale,7*scale,5,"#000");
+    } else if(berry.faceType === "Heart Pupils"){
+      drawHeart(px,py,scale*.65,"#000");
+    } else if(berry.faceType === "Flower Pupils"){
+      ctx.fillStyle = side < 0 ? berry.eyeColorA : berry.eyeColorB;
+      for(let i=0;i<6;i++){
+        const a = i*Math.PI/3;
+        ctx.beginPath();
+        ctx.ellipse(px+Math.cos(a)*10*scale,py+Math.sin(a)*10*scale,7*scale,11*scale,a,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(px,py,6*scale,6*scale,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Spiral Pupils" || berry.faceType === "Pinwheel Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6*scale;
+      ctx.beginPath();
+      for(let a=0;a<Math.PI*4.4;a+=.25){
+        const r = a*2.3*scale;
+        const x = px + Math.cos(a*side)*r;
+        const y = py + Math.sin(a*side)*r;
+        if(a===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    } else if(berry.faceType === "Diamond Pupils" || berry.faceType === "Gem Eyes"){
+      ctx.beginPath();
+      ctx.moveTo(px,py-18*scale);
+      ctx.lineTo(px+13*scale,py);
+      ctx.lineTo(px,py+18*scale);
+      ctx.lineTo(px-13*scale,py);
+      ctx.closePath();
+      ctx.fill();
+    } else if(berry.faceType === "Moon Pupils"){
+      ctx.beginPath();
+      ctx.ellipse(px,py,18*scale,24*scale,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.ellipse(px+8*scale,py-4*scale,16*scale,22*scale,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Plus Pupils"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8*scale;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(px-17*scale,py);
+      ctx.lineTo(px+17*scale,py);
+      ctx.moveTo(px,py-17*scale);
+      ctx.lineTo(px,py+17*scale);
+      ctx.stroke();
+    } else if(berry.faceType === "Pie Cut Pupils"){
+      ctx.beginPath();
+      ctx.moveTo(px,py);
+      ctx.arc(px,py,22*scale,-Math.PI*.35,Math.PI*1.25);
+      ctx.closePath();
+      ctx.fill();
+    } else if(berry.faceType === "Rainbow Pupils"){
+      ctx.fillStyle = side < 0 ? berry.eyeColorA : berry.eyeColorB;
+      ctx.beginPath();
+      ctx.ellipse(px,py,22*scale,28*scale,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.bodyAlt2;
+      ctx.beginPath();
+      ctx.ellipse(px+5*scale,py,10*scale,27*scale,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(px,py,6*scale,10*scale,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Button Eyes"){
+      ctx.beginPath();
+      ctx.ellipse(px,py,17*scale,17*scale,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(const dx of [-6,6]){
+        for(const dy of [-6,6]){
+          ctx.beginPath();
+          ctx.ellipse(px+dx*scale,py+dy*scale,3*scale,3*scale,0,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+    } else if(berry.faceType === "Ring Eyes" || berry.faceType === "Tiny Rings" || berry.faceType === "Target Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 9*scale;
+      ctx.beginPath();
+      ctx.ellipse(px,py,18*scale,24*scale,0,0,Math.PI*2);
+      ctx.stroke();
+      if(berry.faceType === "Target Eyes"){
+        ctx.lineWidth = 4*scale;
+        ctx.beginPath();
+        ctx.ellipse(px,py,9*scale,12*scale,0,0,Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(px,py,5*scale,7*scale,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Cross Eyes" || berry.faceType === "Glitch Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8*scale;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(px-14*scale,py-14*scale);
+      ctx.lineTo(px+14*scale,py+14*scale);
+      ctx.moveTo(px+14*scale,py-14*scale);
+      ctx.lineTo(px-14*scale,py+14*scale);
+      if(berry.faceType === "Glitch Eyes"){
+        ctx.moveTo(px-21*scale,py+2*scale);
+        ctx.lineTo(px+23*scale,py-4*scale);
+      }
+      ctx.stroke();
+    } else if(berry.faceType === "Smiley Eyes" || berry.faceType === "Noodle Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8*scale;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(px-18*scale,py+2*scale);
+      ctx.quadraticCurveTo(px,py+18*scale,px+20*scale,py+1*scale);
+      ctx.stroke();
+    } else if(berry.faceType === "Pixel Eyes"){
+      ctx.fillRect(px-13*scale,py-13*scale,26*scale,26*scale);
+    } else if(berry.faceType === "Sun Pupils"){
+      drawStar(px,py,21*scale,9*scale,10,"#000");
+    } else if(berry.faceType === "Comma Pupils"){
+      ctx.beginPath();
+      ctx.ellipse(px,py-5,13*scale,20*scale,.35*side,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(px+8*side,py+17,6*scale,12*scale,.35*side,0,Math.PI*2);
+      ctx.fill();
+
+    } else if(berry.faceType === "Leaf Pupils"){
+      ctx.beginPath();
+      ctx.ellipse(px,py,13*scale,24*scale,.55*side,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 3*scale;
+      ctx.beginPath();
+      ctx.moveTo(px-8*side,py+10*scale);
+      ctx.lineTo(px+8*side,py-10*scale);
+      ctx.stroke();
+    } else if(["Seed Pupils","Kernel Eyes","Sprinkle Eyes","Mushroom Dot Eyes","Gloss Dots","Tiny Spark Dots"].includes(berry.faceType)){
+      ctx.fillStyle = berry.faceType === "Sprinkle Eyes" ? (side < 0 ? berry.eyeColorA : berry.eyeColorB) : "#000";
+      ctx.beginPath();
+      ctx.ellipse(px,py,9*scale,18*scale,.35*side,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Pizza Pupils"){
+      ctx.beginPath();
+      ctx.moveTo(px,py-20*scale);
+      ctx.lineTo(px+18*scale,py+18*scale);
+      ctx.lineTo(px-18*scale,py+18*scale);
+      ctx.closePath();
+      ctx.fill();
+    } else if(berry.faceType === "Cheese Hole Eyes"){
+      ctx.beginPath();
+      ctx.ellipse(px,py,19*scale,19*scale,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.ellipse(px+4*scale,py-3*scale,8*scale,7*scale,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.faceType === "Fork Pupils" || berry.faceType === "Spoon Pupils"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6*scale;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(px,py-22*scale);
+      ctx.lineTo(px,py+22*scale);
+      if(berry.faceType === "Fork Pupils"){
+        ctx.moveTo(px-10*scale,py-18*scale); ctx.lineTo(px+10*scale,py-18*scale);
+        ctx.moveTo(px-8*scale,py-8*scale); ctx.lineTo(px+8*scale,py-8*scale);
+      } else {
+        ctx.ellipse(px,py-15*scale,10*scale,13*scale,0,0,Math.PI*2);
+      }
+      ctx.stroke();
+    } else if(berry.faceType === "Candy Swirl Eyes" || berry.faceType === "Sauce Eyes" || berry.faceType === "Frosting Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5*scale;
+      ctx.beginPath();
+      for(let a=0;a<Math.PI*3.4;a+=.25){
+        const r = a*2.9*scale;
+        const x = px + Math.cos(a*side)*r;
+        const y = py + Math.sin(a*side)*r;
+        if(a===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    } else if(berry.faceType === "Burger Stack Eyes" || berry.faceType === "Bowl Eyes"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6*scale;
+      ctx.beginPath();
+      ctx.ellipse(px,py,22*scale,16*scale,0,0,Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(px-18*scale,py);
+      ctx.lineTo(px+18*scale,py);
+      ctx.stroke();
+
+    } else if(berry.faceType === "Crazy Eyes"){
+      ctx.beginPath();
+      ctx.ellipse(px-5,py,8*scale,22*scale,.35*side,0,Math.PI*2);
+      ctx.fill();
+    } else {
+      const pW = ["Tiny Pupils","Tiny Beads","Drowsy Dots","Little Whites"].includes(berry.faceType) ? 8 : berry.faceType === "Sparkle Eyes" || berry.faceType === "Comic Shine" ? 11 : 15;
+      const pH = berry.faceType === "Dotty" || berry.faceType === "Tiny Beads" ? 15 : 25;
+      if(berry.faceType === "Sparkle Eyes" || berry.faceType === "Comic Shine"){
+        ctx.fillStyle = side < 0 ? berry.eyeColorA : berry.eyeColorB;
+      }
+      ctx.beginPath();
+      ctx.ellipse(px,py,pW*scale,pH*scale,0,0,Math.PI*2);
+      ctx.fill();
+      if(berry.faceType === "Sparkle Eyes" || berry.faceType === "Comic Shine"){
+        drawStar(px+1,py,7*scale,3*scale,4,"#fff");
+      }
+    }
+  }
+
+  function drawOneEye(x,y,scale,tilt,side,forcedKind=null){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(tilt);
+
+    const kind = forcedKind || berry.faceType;
+    let whiteW = 38*scale, whiteH = 52*scale;
+    if(kind === "Huge Eyes" || kind === "Big Spark Dots" || kind === "Wide TV Eyes"){ whiteW*=1.32; whiteH*=1.22; }
+    if(kind === "Squinty" || kind === "Deadpan Ovals" || kind === "Sticker Eyes"){ whiteH*=.5; }
+    if(kind === "Dotty" || kind === "Tiny Pupils" || kind === "Nervous Beads" || kind === "Tiny TV Eyes"){ whiteW*=.86; whiteH*=.9; }
+    if(kind === "Droopy Eyes"){ whiteH*=1.05; }
+    if(kind === "Cat Eyes"){ whiteW*=1.08; whiteH*=.72; }
+    if(kind === "Square Eyes" || kind === "Robot Eyes" || kind === "Pixel Eyes" || kind === "Tiny TV Eyes" || kind === "Wide TV Eyes" || kind === "Cheese Hole Eyes"){ whiteW*=1.03; whiteH*=.86; }
+    if(["Wide Awake","Bug Eyes","Big Whites","Shocked Eyes"].includes(kind)){ whiteW*=1.18; whiteH*=1.18; }
+    if(["Tiny Beads","Little Whites"].includes(kind)){ whiteW*=.68; whiteH*=.72; }
+    if(["Sideways Ovals","Fish Eyes"].includes(kind)){ whiteW*=1.25; whiteH*=.62; }
+    if(["Bean Eyes","Soft Eyes"].includes(kind)){ whiteW*=.86; whiteH*=1.08; }
+
+    ctx.fillStyle = "#000";
+    drawEyeShape(0,0,whiteW+11,whiteH+12,kind);
+    ctx.fill();
+
+    ctx.fillStyle = "#fff";
+    drawEyeShape(-2,-4,whiteW,whiteH,kind);
+    ctx.fill();
+
+    if(kind === "Heterochromia"){
+      ctx.fillStyle = side < 0 ? berry.eyeColorA : berry.eyeColorB;
+      ctx.beginPath();
+      ctx.ellipse(berry.pupilX,berry.pupilY,23*scale,30*scale,0,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    const px = kind === "Side Eye" ? side * 13 : kind === "Cross Eyes" ? -side * 10 : berry.pupilX;
+    const py = kind === "Sleepy" || kind === "Droopy Eyes" ? 11 : berry.pupilY;
+    drawPupil(px,py,scale,side);
+
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+    ctx.beginPath();
+    ctx.ellipse(px-7,py-13,4*scale,6*scale,0,0,Math.PI*2);
+    ctx.fill();
+
+    if(berry.lid > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind)){
+      const lidBoost = ["Sleepy","Old Lids","Half Moon","Droopy Eyes"].includes(kind) ? .45 : kind === "Angry Eyes" ? .25 : 0;
+      const amount = Math.min(.88, berry.lid + lidBoost);
+      ctx.fillStyle = berry.body;
+      ctx.beginPath();
+      ctx.ellipse(0,-whiteH*(.95 - amount*.45),whiteW+9,whiteH*amount,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      if(kind === "Angry Eyes"){
+        ctx.moveTo(-whiteW*.9,-whiteH*.25 - side*7);
+        ctx.lineTo(whiteW*.9,-whiteH*.55 + side*7);
+      } else {
+        ctx.moveTo(-whiteW*.86,-whiteH*.38);
+        ctx.quadraticCurveTo(0,-whiteH*(.58 + amount*.22),whiteW*.88,-whiteH*.38);
+      }
+      ctx.stroke();
+    }
+
+    if(kind === "Wink"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-whiteW*.75,0);
+      ctx.quadraticCurveTo(0,14,whiteW*.75,0);
+      ctx.stroke();
+    }
+
+    if(berry.lashes){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath();
+        ctx.moveTo(side*(whiteW+8),-18+i*12);
+        ctx.lineTo(side*(whiteW+20),-25+i*12);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawEyes(){
+    const gap = berry.eyeGap;
+    if(berry.faceType === "Cyclops"){
+      drawOneEye(0,-87,berry.eyeSize*1.22,0,1,"Huge Eyes");
+      return;
+    }
+    if(berry.faceType === "Three Eyes"){
+      drawOneEye(-gap/2,-80,berry.eyeSize*.88,berry.eyeTilt,-1);
+      drawOneEye(gap/2,-80,berry.eyeSize*.88,-berry.eyeTilt,1);
+      drawOneEye(0,-145,berry.eyeSize*.72,0,1,"Dotty");
+      return;
+    }
+    if(berry.faceType === "Wink"){
+      drawOneEye(-gap/2,-82,berry.eyeSize,berry.eyeTilt,-1,"Wink");
+      drawOneEye(gap/2,-82,berry.eyeSize,-berry.eyeTilt,1,"Googly");
+      return;
+    }
+    drawOneEye(-gap/2,-82,berry.eyeSize,berry.eyeTilt,-1);
+    drawOneEye(gap/2,-82,berry.eyeSize,-berry.eyeTilt,1);
+  }
+
+  function drawBrows(gap){
+    if(!berry.hasBrows || berry.faceType === "Cyclops") return;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    const y = berry.faceType === "Huge Eyes" ? -173 : -158;
+    const leftX = -gap/2;
+    const rightX = gap/2;
+
+    function brow(x, flip){
+      ctx.beginPath();
+      if(berry.browStyle === 0){
+        ctx.moveTo(x-40,y+4);
+        ctx.quadraticCurveTo(x,y-19,x+43,y+1);
+      } else if(berry.browStyle === 1){
+        ctx.moveTo(x-39,y-8*flip);
+        ctx.lineTo(x+40,y+10*flip);
+      } else if(berry.browStyle === 2){
+        ctx.moveTo(x-39,y+8);
+        ctx.quadraticCurveTo(x,y+20,x+40,y+7);
+      } else if(berry.browStyle === 3){
+        ctx.moveTo(x-38,y);
+        ctx.lineTo(x+38,y);
+      } else if(berry.browStyle === 4){
+        ctx.moveTo(x-39,y+6);
+        ctx.quadraticCurveTo(x-10,y-24,x+42,y-15);
+      } else if(berry.browStyle === 5){
+        ctx.moveTo(x-38,y-10);
+        ctx.quadraticCurveTo(x,y-28,x+38,y-10);
+      } else if(berry.browStyle === 6){
+        ctx.moveTo(x-38,y+13);
+        ctx.lineTo(x+38,y-16);
+      } else {
+        ctx.moveTo(x-38,y-16);
+        ctx.lineTo(x+38,y+13);
+      }
+      ctx.stroke();
+    }
+    brow(leftX,1);
+    brow(rightX,-1);
+  }
+
+  function drawTongue(x,y,w,h){
+    ctx.fillStyle = berry.lip;
+    ctx.beginPath();
+    ctx.ellipse(x,y,w,h,0,Math.PI,Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawMouth(cx, cy){
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    const w = berry.mouthWidth;
+    const h = berry.mouthHeight;
+
+    function fillBlack(){
+      ctx.fillStyle = "#000";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+    }
+
+    if(berry.mouthType === "Big Grin"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(-w*.52, -5);
+      ctx.bezierCurveTo(-w*.35, 18, -w*.1, 27, 0, 21);
+      ctx.bezierCurveTo(w*.18, 12, w*.36, -8, w*.51, -18);
+      ctx.bezierCurveTo(w*.73, -34, w*.77, 21, w*.32, h);
+      ctx.bezierCurveTo(-w*.13, h+31, -w*.54, 56, -w*.52, -5);
+      ctx.fill();
+      drawTongue(0,h*.78,30,13);
+    } else if(berry.mouthType === "Side Smile"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(-w*.45,10);
+      ctx.bezierCurveTo(-w*.1,44,w*.35,27,w*.55,-18);
+      ctx.bezierCurveTo(w*.48,46,w*.05,74,-w*.22,48);
+      ctx.bezierCurveTo(-w*.42,29,-w*.51,16,-w*.45,10);
+      ctx.fill();
+      drawTongue(w*.1,h*.75,24,10);
+    } else if(berry.mouthType === "Tiny Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-42,10);
+      ctx.quadraticCurveTo(0,38,46,8);
+      ctx.stroke();
+    } else if(berry.mouthType === "Surprised O"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,18,w*.25,h*.58,0,0,Math.PI*2);
+      ctx.fill();
+      drawTongue(0,42,18,8);
+    } else if(berry.mouthType === "Flat Line"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.4,16);
+      ctx.quadraticCurveTo(0,8,w*.4,16);
+      ctx.stroke();
+    } else if(berry.mouthType === "Cat Mouth"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(-30,36,-62,10);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(30,36,62,10);
+      ctx.stroke();
+    } else if(berry.mouthType === "Toothy Smile"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,25,w*.45,h*.45,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=-2;i<=2;i++){
+        ctx.beginPath();
+        ctx.roundRect(i*22-9,-5,18,25,4);
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Tongue Grin"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,18,w*.42,h*.46,0,0,Math.PI*2);
+      ctx.fill();
+      drawTongue(0,42,w*.25,22);
+      ctx.strokeStyle = "rgba(0,0,0,.35)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0,33);
+      ctx.lineTo(0,59);
+      ctx.stroke();
+    } else if(berry.mouthType === "Wavy Mouth"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.42,14);
+      ctx.bezierCurveTo(-w*.25,-6,-w*.08,36,w*.08,14);
+      ctx.bezierCurveTo(w*.2,-4,w*.32,36,w*.48,12);
+      ctx.stroke();
+    } else if(berry.mouthType === "Zigzag"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(-w*.42,8);
+      for(let i=0;i<6;i++) ctx.lineTo(-w*.42 + (i+1)*w*.14, i%2 ? 8 : 30);
+      ctx.stroke();
+    } else if(berry.mouthType === "Kissy Face"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(-24,10);
+      ctx.quadraticCurveTo(-4,-8,18,10);
+      ctx.quadraticCurveTo(-4,28,-24,10);
+      ctx.stroke();
+    } else if(berry.mouthType === "Frown"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.35,34);
+      ctx.quadraticCurveTo(0,0,w*.35,34);
+      ctx.stroke();
+    } else if(berry.mouthType === "Square Chomp"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.roundRect(-w*.35,-5,w*.7,h*.75,12);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=0;i<4;i++){
+        ctx.beginPath();
+        ctx.moveTo(-w*.27+i*w*.18,-5);
+        ctx.lineTo(-w*.19+i*w*.18,22);
+        ctx.lineTo(-w*.11+i*w*.18,-5);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Underbite"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,26,w*.38,h*.36,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath();
+        ctx.moveTo(i*24,48);
+        ctx.lineTo(i*24+9,18);
+        ctx.lineTo(i*24+18,48);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Lip Smile"){
+      ctx.strokeStyle = berry.lip;
+      ctx.lineWidth = 13;
+      ctx.beginPath();
+      ctx.moveTo(-w*.38,16);
+      ctx.quadraticCurveTo(0,44,w*.38,16);
+      ctx.stroke();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    } else if(berry.mouthType === "Open Laugh"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,18,w*.44,h*.55,0,0,Math.PI*2);
+      ctx.fill();
+      drawTongue(0,50,w*.28,18);
+    } else if(berry.mouthType === "Nervous Smile"){
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.roundRect(-w*.38,2,w*.76,30,9);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,.35)";
+      ctx.lineWidth = 3;
+      for(let i=-3;i<=3;i++){
+        ctx.beginPath();
+        ctx.moveTo(i*18,4);
+        ctx.lineTo(i*18,30);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Tiny O"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,19,20,24,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.mouthType === "Moustache Mouth"){
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(-25,12,35,14,-.25,0,Math.PI*2);
+      ctx.ellipse(25,12,35,14,.25,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(-28,36);
+      ctx.quadraticCurveTo(0,52,28,36);
+      ctx.stroke();
+    } else if(berry.mouthType === "Vampire Smile"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,22,w*.38,h*.4,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(const x of [-22,22]){
+        ctx.beginPath();
+        ctx.moveTo(x-9,0);
+        ctx.lineTo(x+9,0);
+        ctx.lineTo(x,35);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Scribble Mouth"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      let x = -w*.35;
+      ctx.moveTo(x,15);
+      for(let i=0;i<8;i++){
+        x += w*.09;
+        ctx.quadraticCurveTo(x, i%2 ? -4 : 34, x+w*.045,15);
+      }
+      ctx.stroke();
+    } else if(berry.mouthType === "Crooked Smirk"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.4,18);
+      ctx.bezierCurveTo(-w*.1,40,w*.18,8,w*.48,-4);
+      ctx.stroke();
+    } else if(berry.mouthType === "Bubble Mouth"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(-18,16,22,24,0,0,Math.PI*2);
+      ctx.ellipse(18,16,22,24,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.mouthType === "Beak Smile"){
+      ctx.fillStyle = berry.lip;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-40,12);
+      ctx.lineTo(0,-12);
+      ctx.lineTo(44,14);
+      ctx.lineTo(0,34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if(berry.mouthType === "Sleepy Drool"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.32,16);
+      ctx.quadraticCurveTo(0,31,w*.32,14);
+      ctx.stroke();
+      ctx.strokeStyle = "#77d8ff";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(w*.2,24);
+      ctx.quadraticCurveTo(w*.27,45,w*.18,60);
+      ctx.stroke();
+    } else if(berry.mouthType === "U Smile" || berry.mouthType === "Cloud Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.35,-2);
+      ctx.quadraticCurveTo(0,62,w*.35,-2);
+      ctx.stroke();
+    } else if(berry.mouthType === "Doodle Smile" || berry.mouthType === "Melty Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(-w*.42,6);
+      ctx.bezierCurveTo(-w*.18,44,-w*.06,-8,w*.12,28);
+      ctx.bezierCurveTo(w*.22,49,w*.34,5,w*.48,18);
+      ctx.stroke();
+      if(berry.mouthType === "Melty Smile"){
+        ctx.strokeStyle = berry.lip;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(w*.18,30);
+        ctx.quadraticCurveTo(w*.22,55,w*.14,72);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Gumdrop Frown" || berry.mouthType === "Bored Mouth"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.35,36);
+      ctx.quadraticCurveTo(0,2,w*.35,36);
+      ctx.stroke();
+    } else if(berry.mouthType === "Triangle Mouth"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(0,-10);
+      ctx.lineTo(w*.28,42);
+      ctx.lineTo(-w*.28,42);
+      ctx.closePath();
+      ctx.fill();
+    } else if(berry.mouthType === "Cheese Grin" || berry.mouthType === "Tiny Teeth" || berry.mouthType === "Gummy Grin"){
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.roundRect(-w*.42,0,w*.84,38,12);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,.38)";
+      ctx.lineWidth = 3;
+      for(let i=-3;i<=3;i++){
+        ctx.beginPath();
+        ctx.moveTo(i*18,2);
+        ctx.lineTo(i*18,36);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Robot Mouth" || berry.mouthType === "Pixel Mouth" || berry.mouthType === "Square Smile"){
+      ctx.fillStyle = berry.mouthType === "Square Smile" ? "#fff" : "#000";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.roundRect(-w*.36,4,w*.72,34,berry.mouthType === "Pixel Mouth" ? 2 : 8);
+      ctx.fill();
+      ctx.stroke();
+      if(berry.mouthType !== "Square Smile"){
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        for(let x=-w*.25;x<w*.28;x+=22){
+          ctx.moveTo(x,20);
+          ctx.lineTo(x+11,20);
+        }
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Open Bean" || berry.mouthType === "Blob Smile" || berry.mouthType === "Oval Chomp"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,22,w*.34,h*.48,.35,0,Math.PI*2);
+      ctx.fill();
+      drawTongue(4,46,w*.18,10);
+    } else if(berry.mouthType === "Slanted Smile" || berry.mouthType === "Chin Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(-w*.38,22);
+      ctx.bezierCurveTo(-w*.12,44,w*.18,25,w*.48,-4);
+      ctx.stroke();
+      if(berry.mouthType === "Chin Smile"){
+        ctx.strokeStyle = "rgba(0,0,0,.22)";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(-24,70);
+        ctx.quadraticCurveTo(0,82,24,70);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Double Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 10;
+      for(const off of [0,22]){
+        ctx.beginPath();
+        ctx.moveTo(-w*.32,off);
+        ctx.quadraticCurveTo(0,off+26,w*.32,off);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Pac Mouth"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(0,18);
+      ctx.arc(0,18,w*.32,-Math.PI*.38,Math.PI*.38);
+      ctx.closePath();
+      ctx.fill();
+    } else if(berry.mouthType === "Shark Smile" || berry.mouthType === "Snack Chomp" || berry.mouthType === "Mega Laugh"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,24,w*.44,h*.52,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=-3;i<=3;i++){
+        ctx.beginPath();
+        ctx.moveTo(i*23-8,0);
+        ctx.lineTo(i*23+8,0);
+        ctx.lineTo(i*23,28);
+        ctx.closePath();
+        ctx.fill();
+      }
+      drawTongue(0,54,w*.24,14);
+    } else if(berry.mouthType === "Cute W"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(-54,12);
+      ctx.quadraticCurveTo(-27,42,0,14);
+      ctx.quadraticCurveTo(27,42,54,12);
+      ctx.stroke();
+    } else if(berry.mouthType === "Ooo Mouth" || berry.mouthType === "Side O" || berry.mouthType === "Whistle Mouth"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(berry.mouthType === "Side O" ? w*.16 : 0,18,berry.mouthType === "Whistle Mouth" ? 16 : 24,berry.mouthType === "Whistle Mouth" ? 18 : 34,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(berry.mouthType === "Yell Mouth"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.roundRect(-w*.27,-8,w*.54,h*.85,18);
+      ctx.fill();
+      drawTongue(0,52,w*.2,14);
+    } else if(berry.mouthType === "Lollipop Tongue"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,14,w*.32,h*.38,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.lip;
+      ctx.beginPath();
+      ctx.ellipse(w*.18,46,22,22,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    } else if(berry.mouthType === "Buck Teeth"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(-w*.28,8);
+      ctx.quadraticCurveTo(0,34,w*.28,8);
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      for(const x of [-11,11]){
+        ctx.beginPath();
+        ctx.roundRect(x-10,18,20,34,4);
+        ctx.fill();
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Sneeze Mouth" || berry.mouthType === "Sour Pucker" || berry.mouthType === "Puffy Lips"){
+      ctx.strokeStyle = berry.lip;
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.ellipse(0,16,34,18,0,0,Math.PI*2);
+      ctx.stroke();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    } else if(berry.mouthType === "Tiny Fangs"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      ctx.moveTo(-w*.28,8);
+      ctx.quadraticCurveTo(0,34,w*.28,8);
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      for(const x of [-20,20]){
+        ctx.beginPath();
+        ctx.moveTo(x-8,13);
+        ctx.lineTo(x+8,13);
+        ctx.lineTo(x,34);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Awkward Bite"){
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.roundRect(-w*.32,4,w*.64,32,9);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,.35)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-w*.1,5);
+      ctx.lineTo(-w*.03,35);
+      ctx.moveTo(w*.16,5);
+      ctx.lineTo(w*.09,35);
+      ctx.stroke();
+
+    } else if(["Pizza Slice Smile","Taco Crunch","Dumpling Smile"].includes(berry.mouthType)){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(-w*.42,4);
+      ctx.lineTo(w*.42,4);
+      ctx.lineTo(0,h*.65);
+      ctx.closePath();
+      ctx.fill();
+    } else if(["Cookie Bite","Burger Bite","Burrito Bite","Veggie Munch"].includes(berry.mouthType)){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,22,w*.38,h*.38,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=-2;i<=2;i++){
+        ctx.beginPath();
+        ctx.ellipse(i*18,-2,9,12,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    } else if(["Cheese Pull Mouth","Noodle Slurp","Soup Slurp"].includes(berry.mouthType)){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,18,w*.34,h*.36,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = berry.lip;
+      ctx.lineWidth = 7;
+      for(let x=-28;x<=28;x+=28){
+        ctx.beginPath();
+        ctx.moveTo(x,34);
+        ctx.bezierCurveTo(x+12,58,x-12,76,x,102);
+        ctx.stroke();
+      }
+    } else if(["Donut Hole O","Side O"].includes(berry.mouthType)){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.ellipse(0,19,27,27,0,0,Math.PI*2);
+      ctx.stroke();
+    } else if(["Ice Cream Drip","Pudding Jiggle"].includes(berry.mouthType)){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(-w*.34,8);
+      ctx.bezierCurveTo(-w*.22,32,-w*.08,0,0,22);
+      ctx.bezierCurveTo(w*.12,52,w*.27,14,w*.42,26);
+      ctx.stroke();
+    } else if(["Marshmallow Puff Mouth","Tiny Nibble"].includes(berry.mouthType)){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 9;
+      ctx.beginPath();
+      ctx.moveTo(-32,12);
+      ctx.quadraticCurveTo(0,28,32,12);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.7)";
+      ctx.beginPath();
+      ctx.ellipse(0,27,18,10,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(["Spicy Yell","Mega Snack Laugh"].includes(berry.mouthType)){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,20,w*.43,h*.58,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.lip;
+      ctx.beginPath();
+      ctx.ellipse(0,52,w*.24,18,0,0,Math.PI*2);
+      ctx.fill();
+
+    } else {
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,28,w*.32,h*.34,.05,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    if(["Big Grin","Side Smile","Surprised O","Bean Mouth","Open Bean","Mega Laugh","Snack Chomp"].includes(berry.mouthType) && berry.starCount > 2){
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(-8,9);
+      ctx.lineTo(13,9);
+      ctx.lineTo(2,31);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function drawFaceBits(){
+    if(berry.cheek){
+      ctx.fillStyle = "rgba(255,80,120,.25)";
+      ctx.beginPath();
+      ctx.ellipse(-137,22,38,18,-.1,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(153,16,32,15,.1,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    if(berry.freckles){
+      ctx.fillStyle = "rgba(0,0,0,.33)";
+      const freckles = [[-142,10],[-118,24],[-155,34],[137,10],[160,22],[129,34]];
+      for(const [x,y] of freckles){
+        ctx.beginPath();
+        ctx.ellipse(x,y,4,3,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    for(let i=0;i<berry.starCount;i++){
+      const x = -185 + i*34 + (berry.seed % 11);
+      drawStar(x, -208 + (i%2)*21, 8, 4, 5, "rgba(255,255,255,.45)");
+    }
+
+    drawEyes();
+    drawBrows(berry.eyeGap);
+    drawMouth(42,48);
+  }
+
+  function drawBerry(t){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(!berry){
+      ctx.fillStyle = "#111";
+      ctx.font = "900 34px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Generate a Food Buddy!",360,360);
+      return;
+    }
+
+    const pulse = Math.max(0,wobble);
+    const bounce = Math.sin(t/80 + berry.wobblePhase) * pulse * 14;
+    const squash = 1 + Math.sin(t/70 + berry.wobblePhase) * pulse * .035;
+    const rot = Math.sin(t/110 + berry.wobblePhase) * pulse * .045;
+
+    ctx.save();
+    ctx.translate(360,366 + bounce);
+    ctx.rotate(rot);
+    ctx.scale(berry.bodyW * (1 + pulse*.015), berry.bodyH * squash);
+
+    drawWrappedOutline(t);
+    drawStemExtras();
+    drawBodyFill();
+    drawFaceBits();
+
+    ctx.restore();
+
+    wobble *= .94;
+    if(wobble < .01) wobble = 0;
+  }
+
+  function animate(t){
+    drawBerry(t || 0);
+    requestAnimationFrame(animate);
+  }
+
+  function popText(text, x, y){
+    const el = document.createElement("div");
+    el.className = "floaty";
+    el.textContent = text;
+    const rect = box.getBoundingClientRect();
+    el.style.left = `${x - rect.left}px`;
+    el.style.top = `${y - rect.top}px`;
+    box.appendChild(el);
+    setTimeout(()=>el.remove(),900);
+  }
+
+  function tapBerry(ev){
+    if(!berry) makeBerry();
+    tapCount++;
+    wobble = Math.min(2.5,wobble + .55);
+    const rect = canvas.getBoundingClientRect();
+    const x = (ev.touches ? ev.touches[0].clientX : ev.clientX) || rect.left + rect.width/2;
+    const y = (ev.touches ? ev.touches[0].clientY : ev.clientY) || rect.top + rect.height/2;
+    popText(["boing!","snack!","food!","bloop!","wiggle!","squish!","crunch!","sploing!","nom!"][tapCount%8], x, y);
+    toast.textContent = tapCount % 7 === 0 ? "Mega wobble achieved." : `${berry.word1} ${berry.word2} · ${berry.fruitName} · ${berry.gradientType}`;
+  }
+
+  function randomBirthday(){
+    const y = Math.random() > .08 ? 1900 + Math.floor(Math.random()*140) : `${50 + Math.floor(Math.random()*900)} BC`;
+    yearEl.value = y;
+    monthEl.value = 1 + Math.floor(Math.random()*12);
+    dayEl.value = 1 + Math.floor(Math.random()*31);
+    genderEl.value = pick(Math.random, ["any","female","male","neutral"]);
+    fruitEl.value = pick(Math.random, Object.keys(FRUIT_PROFILES));
+    makeBerry();
+  }
+
+  makeBtn.addEventListener("click", makeBerry);
+  regenBtn.addEventListener("click", regenerateSameBirthday);
+  randomBtn.addEventListener("click", randomBirthday);
+  genderEl.addEventListener("change", makeBerry);
+  fruitEl.addEventListener("change", makeBerry);
+  canvas.addEventListener("pointerdown", tapBerry);
+  rebuildFoodDropdown();
+  fillDays();
+  makeBerry();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

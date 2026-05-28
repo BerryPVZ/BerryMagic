@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Interactive Food Buddy Maker</title>
+<title>BerryMagic</title>
 <style>
   :root{
     --bg1:#fbfdff;
@@ -393,6 +393,225 @@
     cursor:pointer;
   }
 
+
+
+  .canvasBox.backgroundless{
+    background-color:#fff;
+    background-image:
+      linear-gradient(45deg,#e5e7eb 25%,transparent 25%),
+      linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#e5e7eb 75%),
+      linear-gradient(-45deg,transparent 75%,#e5e7eb 75%);
+    background-size:34px 34px;
+    background-position:0 0,0 17px,17px -17px,-17px 0;
+  }
+
+  .dexPanel{
+    background:linear-gradient(180deg,#2e8d82 0%,#1f6670 48%,#174a5a 100%);
+    border-color:#06323c;
+    box-shadow:8px 8px 0 #031b21;
+    color:#eaffff;
+  }
+  .dexHeader{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    padding:4px 4px 10px;
+    border-bottom:3px solid rgba(3,27,33,.65);
+    margin-bottom:10px;
+  }
+  .dexHeader h2{
+    color:#fff;
+    text-shadow:2px 2px 0 #062f37;
+    font-size:1.35rem;
+    margin:0;
+  }
+  .dexPanel .tinyText{
+    color:#d9ffff;
+  }
+  .dexShell{
+    display:grid;
+    grid-template-columns:78px 1fr;
+    gap:10px;
+    min-height:280px;
+  }
+  .dexSideTabs{
+    display:grid;
+    gap:8px;
+    align-content:start;
+  }
+  .dexSideTabs span{
+    display:block;
+    border:3px solid #062f37;
+    border-radius:9px 0 0 9px;
+    padding:10px 6px;
+    background:#0d78b2;
+    color:#fff;
+    font-weight:950;
+    font-size:.78rem;
+    text-align:center;
+    box-shadow:3px 3px 0 rgba(0,0,0,.45);
+  }
+  .dexSideTabs span:first-child{
+    background:#3f8a16;
+  }
+  .dexSideTabs span:nth-child(2){
+    background:#8a1ca7;
+  }
+  .dexSideTabs span:nth-child(3){
+    background:#176fb8;
+  }
+  .dexBoard{
+    border:3px solid #083941;
+    background:rgba(10,57,63,.72);
+    border-radius:8px;
+    padding:8px;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.08);
+  }
+  .dexTier{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:8px;
+    padding:5px 8px;
+    border:2px solid rgba(0,0,0,.45);
+    border-radius:5px;
+    background:linear-gradient(90deg,#77d3c6,#1f706c);
+    color:#07353a;
+    font-size:.75rem;
+    font-weight:950;
+    text-transform:uppercase;
+  }
+  .dexGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(76px,1fr));
+    gap:10px;
+    max-height:360px;
+    overflow:auto;
+    padding:6px;
+  }
+  .dexCard{
+    position:relative;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:4px;
+    align-items:start;
+    min-height:122px;
+    border:3px solid #9fd7c5;
+    border-radius:5px;
+    background:linear-gradient(180deg,#385f5f,#20484d);
+    padding:5px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.18), 3px 3px 0 rgba(0,0,0,.35);
+    cursor:pointer;
+  }
+  .dexCard:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.1);
+  }
+  .dexCard img{
+    width:62px;
+    height:62px;
+    justify-self:center;
+    object-fit:contain;
+    border:2px solid #061f24;
+    border-radius:4px;
+    background:#b7e2d6;
+  }
+  .dexCard b{
+    display:block;
+    color:#fff;
+    font-size:.68rem;
+    line-height:1.05;
+    text-align:center;
+    text-shadow:1px 1px 0 #000;
+    max-height:1.45rem;
+    overflow:hidden;
+  }
+  .dexCard small{
+    display:block;
+    font-weight:900;
+    color:#d7ffff;
+    font-size:.58rem;
+    line-height:1.1;
+    text-align:center;
+  }
+  .dexLevel{
+    position:absolute;
+    left:-5px;
+    bottom:25px;
+    min-width:22px;
+    height:22px;
+    display:grid;
+    place-items:center;
+    border:2px solid #071b20;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#071b20;
+    font-size:.65rem;
+    font-weight:950;
+  }
+  .dexRarityBadge{
+    position:absolute;
+    top:-8px;
+    left:-7px;
+    min-width:22px;
+    height:22px;
+    display:grid;
+    place-items:center;
+    border:2px solid #071b20;
+    border-radius:999px;
+    color:#071b20;
+    font-size:.65rem;
+    font-weight:950;
+  }
+  .dexDelete{
+    position:absolute;
+    right:-7px;
+    top:-8px;
+    width:24px;
+    height:24px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    margin:0;
+    border:2px solid #071b20;
+    border-radius:999px;
+    box-shadow:none;
+    background:#ef4444;
+    color:#fff;
+    font-size:.8rem;
+  }
+  .dexEmpty{
+    grid-column:1/-1;
+    border:3px dashed #a7f3d0;
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    color:#efffff;
+    font-weight:950;
+    background:rgba(255,255,255,.08);
+  }
+  .familyHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .familyHeader h2{
+    margin:0;
+  }
+  .familyHeader button{
+    width:auto;
+    margin:0;
+    padding:8px 10px;
+    border-radius:14px;
+    font-size:.78rem;
+    box-shadow:0 3px 0 #000;
+  }
+
   @media (max-width:850px){
     .wrap{grid-template-columns:1fr}
     .stage{min-height:auto}
@@ -406,11 +625,11 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>Interactive Food Buddy Maker</h1>
-      <p class="tagline">Enter a birthday and the food machine builds a weird little snack friend from it.</p>
+      <h1>BerryMagic</h1>
+      <p class="tagline">Build Berry PVZ-style snack characters with fully open colors, faces, mouths, moods, and food types.</p>
     </header>
 
-    <section class="panel controls" aria-label="Food buddy controls">
+    <section class="panel controls" aria-label="BerryMagic controls">
       <div class="tabBar" role="tablist" aria-label="Maker tabs">
         <button type="button" class="tabBtn active" id="birthdayTabBtn" data-maker-tab="birthday">Bday Berry Maker</button>
         <button type="button" class="tabBtn" id="manualTabBtn" data-maker-tab="manual">Manual Berry Maker</button>
@@ -703,8 +922,8 @@
         </div>
       </div>
 
-      <button id="makeBtn">Generate My Food Buddy</button>
-      <button class="smallBtn" id="randomBtn">Surprise Food Buddy</button>
+      <button id="makeBtn">Generate My Berry</button>
+      <button class="smallBtn" id="randomBtn">Surprise Berry</button>
       <button class="smallBtn" id="regenBtn">Regenerate Same Birthday</button>
       </div>
 
@@ -939,22 +1158,37 @@
         Pick fruit, vegetables, snacks, desserts, drinks, breakfast foods, sauces, and weird event foods. Birthdays still control gradients, eyes, mouths, rarities, backgrounds, names, and tiny details.
       </p>
 
-      <div class="miniPanel">
-        <h2>Berry Dex</h2>
-        <div class="tinyText" id="dexCount">No buddies saved yet.</div>
-        <div class="dexGrid" id="dexList"></div>
+      <div class="miniPanel dexPanel">
+        <div class="dexHeader">
+          <h2>Almanac Berry Dex</h2>
+          <div class="tinyText" id="dexCount">No buddies saved yet.</div>
+        </div>
+        <div class="dexShell" aria-label="Berry Dex Almanac">
+          <div class="dexSideTabs" aria-hidden="true">
+            <span>Foods</span>
+            <span>Faces</span>
+            <span>Stuff</span>
+          </div>
+          <div class="dexBoard">
+            <div class="dexTier"><span>Mega Tier</span><span>Saved Buddies</span></div>
+            <div class="dexGrid" id="dexList"></div>
+          </div>
+        </div>
       </div>
 
       <div class="miniPanel">
-        <h2>Family Tree</h2>
+        <div class="familyHeader">
+          <h2>Family Tree</h2>
+          <button class="redBtn" id="clearFamilyBtn" type="button">Clear Family Tree</button>
+        </div>
         <div class="familyBox" id="familyTree">Generate a buddy to start a family line.</div>
       </div>
     </section>
 
     <main class="panel stage">
       <div class="berryName">
-        <strong id="berryName">Waiting Food Buddy</strong>
-        <span class="toast" id="toast">Ready.</span>
+        <strong id="berryName">Waiting Berry</strong>
+        <span class="toast" id="toast">BerryMagic ready.</span>
       </div>
 
       <div class="canvasBox" id="canvasBox">
@@ -1126,7 +1360,7 @@
   const FRUIT_PROFILES = {
     blueberry: {name:"Blueberry / Berry", hues:[218,228,238,248], sat:92, light:45, jitter:26, accent:335, minLight:30, maxLight:64, shape:"blueberry", texture:"blueberry", stem:true, leaf:false, bodyW:.90, bodyH:.88, types:["Classic Blueberry","Round Berry","Puff Berry","Tiny Top Berry","Orb Berry","Bean Berry","Bouncy Berry","Blue Blip","Berry Buddy","Frost Berry"]},
     apple: {name:"Apple", hues:[352,4,94,112], sat:88, light:46, jitter:18, accent:24, minLight:34, maxLight:61, shape:"apple", texture:"apple", stem:true, leaf:true, bodyW:1.02, bodyH:.93, types:["Red Apple","Green Apple","Candy Apple","Round Apple","Tiny Stem Apple","Lunchbox Apple","Sour Apple","Glossy Apple","Garden Apple"]},
-    plum: {name:"Plum", hues:[272,286,304,255], sat:76, light:38, jitter:22, accent:335, minLight:25, maxLight:55, shape:"plum", texture:"plum", stem:true, leaf:true, bodyW:.82, bodyH:1.08, types:["Purple Plum","Velvet Plum","Oval Plum","Moon Plum","Squishy Plum","Sleepy Plum","Jam Plum","Dusky Plum"]},
+    plum: {name:"Plum", hues:[266,272,278,284], sat:82, light:34, jitter:9, accent:112, minLight:27, maxLight:46, shape:"plum", texture:"plum", stem:true, leaf:true, bodyW:.96, bodyH:.86, types:["Purple Plum","PVZ-Style Plum","Round Plum","Velvet Plum","Moon Plum","Squishy Plum","Sleepy Plum","Jam Plum","Dusky Plum"]},
     orange: {name:"Orange", hues:[24,30,36,42], sat:96, light:52, jitter:12, accent:145, minLight:42, maxLight:64, shape:"citrus", texture:"citrus", stem:true, leaf:true, bodyW:.94, bodyH:.93, types:["Round Orange","Juicy Orange","Sun Orange","Tiny Peel Orange","Zesty Orange","Snack Orange","Peel Pop Orange"]},
     grape: {name:"Grape", hues:[262,276,292,130], sat:82, light:43, jitter:20, accent:118, minLight:29, maxLight:58, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.92, bodyH:.98, types:["Grape Bunch","Round Grape","Juice Grape","Vine Grape","Tiny Grape","Arcade Grape","Purple Cluster"]},
     blackberry: {name:"Blackberry", hues:[248,262,276,292], sat:70, light:25, jitter:16, accent:330, minLight:16, maxLight:42, shape:"cluster", texture:"cluster", stem:true, leaf:true, bodyW:.95, bodyH:.94, types:["Blackberry Cluster","Dark Blackberry","Bumpy Blackberry","Midnight Berry","Wild Blackberry","Jam Blackberry","Shadow Bramble"]},
@@ -1292,7 +1526,9 @@
     "Comic Shine","Gem Eyes","Bug Eyes","Soft Eyes","Bottom Lids",
     "Top Heavy","Confused Eyes","Sideways Ovals","Pixel Eyes","Sleep Mask",
     "Comma Pupils","Sun Pupils","Target Eyes","Tired Stars","Tiny Rings",
-    "Big Whites","Little Whites","Noodle Eyes","Shocked Eyes","Mischief Eyes"
+    "Big Whites","Little Whites","Noodle Eyes","Shocked Eyes","Mischief Eyes",
+    "Berry PVZ Face","Aethos Face","Aethos Left Face","Aethos Right Face","Ink Dot PVZ",
+    "Static Pupils","Split Screen Eyes","Void Whites","Whiteout Pupils","Tiny Horror Dots"
     ,"Leaf Pupils","Seed Pupils","Pepper Pupils","Cheese Hole Eyes","Pizza Pupils","Fork Pupils","Spoon Pupils","Steam Eyes","Sauce Eyes","Frosting Eyes","Sprinkle Eyes","Kernel Eyes","Cucumber Slices","Avocado Pit Eyes","Mushroom Dot Eyes","Burger Stack Eyes","Candy Swirl Eyes","Bowl Eyes","Nervous Beads","Deadpan Ovals","Sticker Eyes","Tiny TV Eyes","Wide TV Eyes","Gloss Dots","Triple Dot Eyes","Floating Pupils","Lowered Lids","Raised Lids","Tiny Spark Dots","Big Spark Dots"
   ];
 
@@ -1308,9 +1544,57 @@
     "Ooo Mouth","Yell Mouth","Snack Chomp","Chin Smile","Lollipop Tongue",
     "Pixel Mouth","Melty Smile","Buck Teeth","Side O","Sneeze Mouth",
     "Square Smile","Mega Laugh","Tiny Fangs","Puffy Lips","Awkward Bite",
-    "Whistle Mouth","Oval Chomp","Cloud Smile","Sour Pucker","Gummy Grin"
+    "Whistle Mouth","Oval Chomp","Cloud Smile","Sour Pucker","Gummy Grin",
+    "Berry PVZ Open Smile","PVZ Side Laugh","Aethos Slash Mouth","Shadow Grin","White Noise Smile",
+    "Split Color Smile","Huge PVZ Laugh","Thin Horror Smile","Corner Bite","Cartoon Gasp"
     ,"Pizza Slice Smile","Sauce Smile","Crumb Smile","Seed Smile","Leafy Grin","Root Frown","Spicy Yell","Cheese Pull Mouth","Donut Hole O","Cookie Bite","Cupcake Smile","Ice Cream Drip","Soup Slurp","Noodle Slurp","Burger Bite","Taco Crunch","Hotdog Smile","Sushi Smile","Pretzel Twist Mouth","Candy Wrapper Grin","Chocolate Chomp","Marshmallow Puff Mouth","Pudding Jiggle","Breakfast Smile","Cereal Crunch","Burrito Bite","Dumpling Smile","Veggie Munch","Tiny Nibble","Mega Snack Laugh"
   ];
+
+  const BERRYMAGIC_PVZ_FACE_TYPES = new Set([
+    "Berry PVZ Face","Aethos Face","Aethos Left Face","Aethos Right Face",
+    "Ink Dot PVZ","Static Pupils","Split Screen Eyes","Void Whites","Whiteout Pupils","Tiny Horror Dots"
+  ]);
+  const AETHOS_FACE_TYPES = new Set(["Aethos Face","Aethos Left Face","Aethos Right Face"]);
+
+  function usesBerryMagicPVZFace(){
+    return berry?.avatarPreset === "berryPVZ" || BERRYMAGIC_PVZ_FACE_TYPES.has(berry?.faceType);
+  }
+
+  function isAethosFace(){
+    return AETHOS_FACE_TYPES.has(berry?.faceType);
+  }
+
+  function aethosSplitSide(){
+    if(berry?.faceType === "Aethos Left Face") return -1;
+    if(berry?.faceType === "Aethos Right Face") return 1;
+    return ((berry?.aethosSide ?? ((berry?.seed || 0) % 2 ? -1 : 1)) < 0) ? -1 : 1;
+  }
+
+  function drawAethosSplitOverlay(){
+    if(!isAethosFace()) return;
+    const side = aethosSplitSide();
+    const splitColor = berry.aethosSplitColor || (side < 0 ? colorMix(berry.body || "#0000ff", "#ffffff", .62) : colorMix(berry.body || "#0000ff", "#000000", .46));
+    ctx.save();
+    berryBodyPath(0);
+    ctx.clip();
+    ctx.fillStyle = splitColor;
+    ctx.fillRect(side < 0 ? -360 : 0, -360, 360, 720);
+
+    ctx.strokeStyle = side < 0 ? "rgba(0,0,0,.42)" : "rgba(255,255,255,.42)";
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(0,-230);
+    ctx.bezierCurveTo(side * 16,-130,side * -12,-30,side * 10,68);
+    ctx.bezierCurveTo(side * 30,150,side * -6,210,0,270);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 5;
+    berryBodyPath(0);
+    ctx.stroke();
+  }
+
 
   const OPENABLE_MOUTH_TYPES = new Set([
     "Tiny Smile","Flat Line","Cat Mouth","Wavy Mouth","Zigzag","Kissy Face","Frown",
@@ -1334,6 +1618,8 @@
 
   const BACKGROUND_SCENES = [
     {id:"auto", name:"Auto / Birthday Pick"},
+    {id:"none", name:"No Background / Transparent"},
+    {id:"berryPVZWhite", name:"Plain White"},
     {id:"garden", name:"Berry Garden"},
     {id:"market", name:"Fruit Market"},
     {id:"kitchen", name:"Kitchen Counter"},
@@ -1493,17 +1779,67 @@
     meatball:{name:"Meatball", hues:[12,22,30,345], sat:58, light:34, jitter:18, accent:110, minLight:24, maxLight:52, shape:"round", texture:"speckle", stem:false, leaf:false, bodyW:.92, bodyH:.90, types:["Meatball","Saucy Meatball","Spaghetti Buddy"]},
     fishstick:{name:"Fish Stick", hues:[38,46,210,24], sat:62, light:58, jitter:14, accent:200, minLight:44, maxLight:70, shape:"capsule", texture:"fried", stem:false, leaf:false, bodyW:1.14, bodyH:.58, types:["Fish Stick","Crispy Fish Stick","Lunch Buddy"]},
     ketchup:{name:"Ketchup Packet", hues:[355,2,8,345], sat:86, light:45, jitter:10, accent:48, minLight:32, maxLight:58, shape:"capsule", texture:"candy", stem:false, leaf:false, bodyW:1.10, bodyH:.58, types:["Ketchup Packet","Sauce Packet","Tiny Condiment"]},
-    mustard:{name:"Mustard Packet", hues:[48,52,44,38], sat:92, light:52, jitter:8, accent:4, minLight:40, maxLight:64, shape:"capsule", texture:"candy", stem:false, leaf:false, bodyW:1.10, bodyH:.58, types:["Mustard Packet","Yellow Sauce","Diner Condiment"]}
+    mustard:{name:"Mustard Packet", hues:[48,52,44,38], sat:92, light:52, jitter:8, accent:4, minLight:40, maxLight:64, shape:"capsule", texture:"candy", stem:false, leaf:false, bodyW:1.10, bodyH:.58, types:["Mustard Packet","Yellow Sauce","Diner Condiment"]},
+    lemonade:{name:"Lemonade Cup", hues:[54, 58, 42, 190], sat:90, light:58, jitter:10, accent:205, minLight:44, maxLight:72, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:0.98, bodyH:0.82, types:['Lemonade Cup', 'Sour Lemonade', 'Summer Lemonade', 'Yellow Drink Buddy']},
+    smoothie:{name:"Smoothie Cup", hues:[320, 150, 35, 200], sat:78, light:60, jitter:26, accent:330, minLight:44, maxLight:76, shape:"bowl", texture:"pudding", stem:false, leaf:false, bodyW:1.00, bodyH:0.86, types:['Smoothie', 'Fruit Smoothie', 'Berry Smoothie', 'Blended Buddy']},
+    slushie:{name:"Slushie", hues:[195, 210, 330, 48], sat:92, light:58, jitter:28, accent:330, minLight:42, maxLight:74, shape:"bowl", texture:"candy", stem:false, leaf:false, bodyW:0.98, bodyH:0.84, types:['Slushie', 'Frozen Slush', 'Arcade Slush', 'Ice Cup']},
+    juicebox:{name:"Juice Box", hues:[18, 48, 120, 205], sat:88, light:52, jitter:24, accent:330, minLight:38, maxLight:68, shape:"sandwich", texture:"candy", stem:false, leaf:false, bodyW:0.88, bodyH:1.04, types:['Juice Box', 'Lunchbox Juice', 'Tiny Carton', 'Sip Buddy']},
+    icedtea:{name:"Iced Tea", hues:[30, 38, 20, 90], sat:58, light:47, jitter:15, accent:210, minLight:34, maxLight:64, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.02, bodyH:0.80, types:['Iced Tea', 'Sweet Tea', 'Cool Tea', 'Tea Glass']},
+    fruitpunch:{name:"Fruit Punch", hues:[340, 355, 25, 205], sat:88, light:50, jitter:20, accent:190, minLight:36, maxLight:66, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.04, bodyH:0.82, types:['Fruit Punch', 'Party Punch', 'Red Punch', 'Punch Bowl']},
+    energycan:{name:"Energy Can", hues:[120, 190, 280, 48], sat:95, light:48, jitter:34, accent:330, minLight:32, maxLight:66, shape:"capsule", texture:"candy", stem:false, leaf:false, bodyW:0.78, bodyH:1.14, types:['Energy Can', 'Neon Can', 'Turbo Drink', 'Fizzy Can']},
+    waterbottle:{name:"Water Bottle", hues:[200, 210, 190, 220], sat:55, light:70, jitter:12, accent:330, minLight:52, maxLight:84, shape:"capsule", texture:"shiny", stem:false, leaf:false, bodyW:0.72, bodyH:1.16, types:['Water Bottle', 'Clear Bottle', 'Hydration Buddy', 'Tiny Water']},
+    hotcocoa:{name:"Hot Cocoa", hues:[20, 28, 35, 330], sat:55, light:42, jitter:14, accent:210, minLight:30, maxLight:62, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.02, bodyH:0.80, types:['Hot Cocoa', 'Marshmallow Cocoa', 'Winter Cocoa', 'Cozy Cup']},
+    rootbeerfloat:{name:"Root Beer Float", hues:[25, 34, 42, 48], sat:58, light:45, jitter:18, accent:330, minLight:32, maxLight:66, shape:"bowl", texture:"pudding", stem:false, leaf:false, bodyW:1.02, bodyH:0.90, types:['Root Beer Float', 'Float Cup', 'Cream Soda Float', 'Soda Dessert']},
+    brownie:{name:"Brownie", hues:[20, 24, 28, 12], sat:55, light:34, jitter:10, accent:330, minLight:24, maxLight:52, shape:"sandwich", texture:"bread", stem:false, leaf:false, bodyW:1.02, bodyH:0.76, types:['Brownie', 'Fudge Brownie', 'Chocolate Square', 'Bakery Brownie']},
+    macaron:{name:"Macaron", hues:[310, 190, 120, 48], sat:68, light:66, jitter:28, accent:335, minLight:48, maxLight:82, shape:"capsule", texture:"shiny", stem:false, leaf:false, bodyW:1.00, bodyH:0.56, types:['Macaron', 'French Macaron', 'Pastel Cookie', 'Sweet Shell']},
+    gummyworm:{name:"Gummy Worm", hues:[110, 330, 48, 200], sat:92, light:56, jitter:34, accent:20, minLight:40, maxLight:74, shape:"banana", texture:"candy", stem:false, leaf:false, bodyW:1.18, bodyH:0.46, types:['Gummy Worm', 'Wiggly Candy', 'Sour Worm', 'Candy Wiggle']},
+    cottoncandy:{name:"Cotton Candy", hues:[320, 205, 285, 48], sat:68, light:72, jitter:26, accent:190, minLight:54, maxLight:86, shape:"cluster", texture:"speckle", stem:false, leaf:false, bodyW:1.08, bodyH:1.00, types:['Cotton Candy', 'Cloud Candy', 'Fair Floss', 'Sugar Cloud']},
+    cinnamonroll:{name:"Cinnamon Roll", hues:[28, 34, 42, 22], sat:68, light:54, jitter:14, accent:330, minLight:40, maxLight:70, shape:"donut", texture:"bread", stem:false, leaf:false, bodyW:1.02, bodyH:0.86, types:['Cinnamon Roll', 'Iced Roll', 'Swirl Bun', 'Breakfast Sweet']},
+    cheesecake:{name:"Cheesecake", hues:[45, 52, 35, 330], sat:52, light:72, jitter:16, accent:330, minLight:56, maxLight:84, shape:"sandwich", texture:"cupcake", stem:false, leaf:false, bodyW:1.08, bodyH:0.82, types:['Cheesecake', 'Cream Cake', 'Berry Cheesecake', 'Fancy Slice']},
+    fruittart:{name:"Fruit Tart", hues:[38, 48, 350, 120], sat:76, light:58, jitter:22, accent:330, minLight:42, maxLight:74, shape:"pizza", texture:"seeded", stem:false, leaf:false, bodyW:1.02, bodyH:0.72, types:['Fruit Tart', 'Tiny Tart', 'Berry Tart', 'Custard Tart']},
+    popsicle:{name:"Popsicle", hues:[190, 330, 48, 120], sat:88, light:58, jitter:30, accent:330, minLight:42, maxLight:74, shape:"capsule", texture:"candy", stem:false, leaf:false, bodyW:0.72, bodyH:1.10, types:['Popsicle', 'Ice Pop', 'Frozen Stick', 'Summer Pop']},
+    caramel:{name:"Caramel Cube", hues:[30, 36, 42, 20], sat:72, light:48, jitter:12, accent:210, minLight:34, maxLight:64, shape:"sandwich", texture:"shiny", stem:false, leaf:false, bodyW:0.86, bodyH:0.72, types:['Caramel Cube', 'Sticky Caramel', 'Golden Chew', 'Candy Cube']},
+    pizzaroll:{name:"Pizza Roll", hues:[18, 36, 48, 355], sat:78, light:50, jitter:18, accent:120, minLight:36, maxLight:66, shape:"dumpling", texture:"pizza", stem:false, leaf:false, bodyW:0.94, bodyH:0.72, types:['Pizza Roll', 'Snack Roll', 'Cheese Roll', 'Tiny Pizza Bite']},
+    muffin:{name:"Muffin", hues:[30, 38, 320, 45], sat:62, light:54, jitter:16, accent:330, minLight:40, maxLight:70, shape:"cupcake", texture:"bread", stem:false, leaf:false, bodyW:0.94, bodyH:0.92, types:['Muffin', 'Blueberry Muffin', 'Bakery Muffin', 'Breakfast Muffin']},
+    croissant:{name:"Croissant", hues:[34, 42, 28, 48], sat:76, light:58, jitter:12, accent:210, minLight:44, maxLight:72, shape:"banana", texture:"bread", stem:false, leaf:false, bodyW:1.16, bodyH:0.58, types:['Croissant', 'Butter Croissant', 'Crescent Bread', 'Flaky Buddy']},
+    oatmeal:{name:"Oatmeal Bowl", hues:[36, 44, 50, 25], sat:42, light:66, jitter:12, accent:330, minLight:50, maxLight:80, shape:"bowl", texture:"cereal", stem:false, leaf:false, bodyW:1.08, bodyH:0.74, types:['Oatmeal', 'Breakfast Bowl', 'Warm Oats', 'Porridge Buddy']},
+    hashbrown:{name:"Hash Brown", hues:[36, 44, 28, 50], sat:80, light:52, jitter:14, accent:24, minLight:38, maxLight:66, shape:"sandwich", texture:"fried", stem:false, leaf:false, bodyW:1.04, bodyH:0.66, types:['Hash Brown', 'Crispy Hash Brown', 'Breakfast Potato', 'Golden Patty']},
+    omelet:{name:"Omelet", hues:[45, 50, 38, 20], sat:78, light:58, jitter:12, accent:10, minLight:44, maxLight:70, shape:"capsule", texture:"egg", stem:false, leaf:false, bodyW:1.14, bodyH:0.56, types:['Omelet', 'Folded Egg', 'Breakfast Omelet', 'Egg Fold']},
+    baconstrip:{name:"Bacon Strip", hues:[5, 12, 18, 25], sat:78, light:42, jitter:14, accent:48, minLight:30, maxLight:56, shape:"banana", texture:"striped", stem:false, leaf:false, bodyW:1.20, bodyH:0.42, types:['Bacon Strip', 'Crispy Bacon', 'Breakfast Strip', 'Sizzle Buddy']},
+    sausage:{name:"Sausage Link", hues:[15, 24, 30, 350], sat:62, light:39, jitter:12, accent:110, minLight:28, maxLight:56, shape:"capsule", texture:"speckle", stem:false, leaf:false, bodyW:1.12, bodyH:0.48, types:['Sausage Link', 'Breakfast Sausage', 'Snack Link', 'Sizzle Link']},
+    frenchtoast:{name:"French Toast", hues:[32, 40, 24, 48], sat:68, light:52, jitter:14, accent:330, minLight:38, maxLight:68, shape:"bread", texture:"bread", stem:false, leaf:false, bodyW:1.06, bodyH:0.82, types:['French Toast', 'Syrup Toast', 'Breakfast Slice', 'Custard Toast']},
+    breakfastburrito:{name:"Breakfast Burrito", hues:[28, 38, 48, 20], sat:50, light:58, jitter:12, accent:110, minLight:44, maxLight:72, shape:"capsule", texture:"burrito", stem:false, leaf:false, bodyW:1.20, bodyH:0.58, types:['Breakfast Burrito', 'Egg Burrito', 'Morning Wrap', 'Wrapped Breakfast']},
+    granola:{name:"Granola Bar", hues:[28, 36, 42, 18], sat:56, light:48, jitter:15, accent:330, minLight:34, maxLight:64, shape:"sandwich", texture:"speckle", stem:false, leaf:false, bodyW:1.12, bodyH:0.56, types:['Granola Bar', 'Crunch Bar', 'Oat Bar', 'Trail Snack']},
+    mayo:{name:"Mayo Packet", hues:[50, 60, 40, 210], sat:30, light:82, jitter:8, accent:330, minLight:66, maxLight:90, shape:"capsule", texture:"shiny", stem:false, leaf:false, bodyW:1.08, bodyH:0.56, types:['Mayo Packet', 'White Sauce', 'Cream Packet', 'Condiment Buddy']},
+    salsa:{name:"Salsa Bowl", hues:[0, 8, 16, 120], sat:84, light:45, jitter:18, accent:90, minLight:32, maxLight:62, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.04, bodyH:0.76, types:['Salsa Bowl', 'Chunky Salsa', 'Dip Buddy', 'Spicy Dip']},
+    ranch:{name:"Ranch Cup", hues:[210, 60, 120, 330], sat:28, light:82, jitter:12, accent:120, minLight:66, maxLight:90, shape:"bowl", texture:"pudding", stem:false, leaf:false, bodyW:0.96, bodyH:0.70, types:['Ranch Cup', 'Dip Cup', 'Creamy Ranch', 'Side Sauce']},
+    bbq:{name:"BBQ Sauce", hues:[12, 18, 24, 5], sat:72, light:34, jitter:10, accent:45, minLight:24, maxLight:54, shape:"capsule", texture:"soup", stem:false, leaf:false, bodyW:1.08, bodyH:0.58, types:['BBQ Sauce', 'Smoky Sauce', 'Brown Sauce', 'Sauce Buddy']},
+    gravy:{name:"Gravy Boat", hues:[26, 34, 20, 45], sat:54, light:44, jitter:12, accent:210, minLight:32, maxLight:62, shape:"bowl", texture:"soup", stem:false, leaf:false, bodyW:1.08, bodyH:0.76, types:['Gravy', 'Gravy Boat', 'Brown Gravy', 'Dinner Sauce']},
+    syrup:{name:"Syrup Blob", hues:[28, 34, 42, 20], sat:76, light:39, jitter:12, accent:210, minLight:28, maxLight:58, shape:"pudding", texture:"pudding", stem:false, leaf:false, bodyW:0.98, bodyH:0.86, types:['Syrup Blob', 'Maple Syrup', 'Sticky Syrup', 'Sweet Sauce']},
+    hotsauce:{name:"Hot Sauce", hues:[0, 8, 15, 45], sat:92, light:48, jitter:12, accent:60, minLight:34, maxLight:64, shape:"capsule", texture:"chili", stem:false, leaf:false, bodyW:0.70, bodyH:1.12, types:['Hot Sauce', 'Spicy Bottle', 'Fire Sauce', 'Pepper Sauce']},
+    guacamole:{name:"Guacamole Bowl", hues:[92, 105, 120, 80], sat:64, light:48, jitter:18, accent:25, minLight:34, maxLight:66, shape:"bowl", texture:"avocado", stem:false, leaf:false, bodyW:1.08, bodyH:0.76, types:['Guacamole', 'Green Dip', 'Avocado Dip', 'Dip Bowl']},
+    teriyaki:{name:"Teriyaki Sauce", hues:[22, 28, 35, 12], sat:65, light:35, jitter:10, accent:200, minLight:24, maxLight:54, shape:"capsule", texture:"soup", stem:false, leaf:false, bodyW:1.08, bodyH:0.56, types:['Teriyaki Sauce', 'Gloss Sauce', 'Sweet Soy', 'Sauce Packet']},
+    peanutbutter:{name:"Peanut Butter", hues:[30, 36, 42, 25], sat:62, light:46, jitter:10, accent:220, minLight:32, maxLight:62, shape:"pudding", texture:"pudding", stem:false, leaf:false, bodyW:0.98, bodyH:0.82, types:['Peanut Butter', 'Nut Spread', 'Sticky Spread', 'PB Buddy']},
+    mooncake:{name:"Mooncake", hues:[35, 45, 30, 50], sat:62, light:54, jitter:12, accent:330, minLight:40, maxLight:70, shape:"round", texture:"bread", stem:false, leaf:false, bodyW:0.96, bodyH:0.88, types:['Mooncake', 'Festival Cake', 'Stamped Mooncake', 'Night Cake']},
+    fruitcake:{name:"Fruitcake", hues:[28, 35, 350, 120], sat:64, light:46, jitter:22, accent:330, minLight:32, maxLight:64, shape:"sandwich", texture:"seeded", stem:false, leaf:false, bodyW:1.08, bodyH:0.78, types:['Fruitcake', 'Holiday Fruitcake', 'Dense Cake', 'Gift Cake']},
+    candycorn:{name:"Candy Corn", hues:[48, 30, 0, 60], sat:92, light:56, jitter:10, accent:310, minLight:42, maxLight:72, shape:"dumpling", texture:"candy", stem:false, leaf:false, bodyW:0.82, bodyH:0.98, types:['Candy Corn', 'Halloween Corn', 'Tri-Color Candy', 'Tiny Candy']},
+    gingerbread:{name:"Gingerbread Cookie", hues:[24, 30, 36, 18], sat:58, light:42, jitter:12, accent:330, minLight:30, maxLight:60, shape:"round", texture:"cookie", stem:false, leaf:false, bodyW:0.92, bodyH:0.92, types:['Gingerbread', 'Cookie Buddy', 'Ginger Cookie', 'Holiday Cookie']},
+    jellyjar:{name:"Jelly Jar", hues:[340, 355, 270, 200], sat:78, light:46, jitter:24, accent:50, minLight:32, maxLight:66, shape:"bowl", texture:"shiny", stem:false, leaf:false, bodyW:0.86, bodyH:1.02, types:['Jelly Jar', 'Jam Jar', 'Preserve Buddy', 'Glass Jam']},
+    pickledplum:{name:"Pickled Plum", hues:[330, 350, 280, 45], sat:70, light:38, jitter:18, accent:120, minLight:26, maxLight:56, shape:"plum", texture:"speckle", stem:true, leaf:false, bodyW:0.82, bodyH:1.04, types:['Pickled Plum', 'Sour Plum', 'Tiny Pickle Plum', 'Jar Plum']},
+    spaceberry:{name:"Space Berry", hues:[240, 270, 300, 190], sat:82, light:36, jitter:30, accent:55, minLight:22, maxLight:58, shape:"blueberry", texture:"speckle", stem:true, leaf:false, bodyW:0.92, bodyH:0.90, types:['Space Berry', 'Cosmic Berry', 'Alien Berry', 'Star Berry']},
+    starcandy:{name:"Star Candy", hues:[48, 55, 190, 310], sat:90, light:60, jitter:28, accent:210, minLight:44, maxLight:76, shape:"starfruit", texture:"candy", stem:false, leaf:false, bodyW:0.98, bodyH:0.94, types:['Star Candy', 'Sugar Star', 'Wish Candy', 'Twinkle Sweet']},
+    ghostpepper:{name:"Ghost Pepper", hues:[45, 52, 0, 120], sat:78, light:70, jitter:20, accent:5, minLight:50, maxLight:86, shape:"chili", texture:"speckle", stem:true, leaf:true, bodyW:0.76, bodyH:1.10, types:['Ghost Pepper', 'Spooky Pepper', 'Hot Ghost', 'Haunted Chili']},
+    monsterburger:{name:"Monster Burger", hues:[28, 36, 110, 350], sat:70, light:46, jitter:24, accent:330, minLight:32, maxLight:64, shape:"burger", texture:"burger", stem:false, leaf:false, bodyW:1.16, bodyH:0.86, types:['Monster Burger', 'Mega Burger', 'Creature Burger', 'Stacked Beast']}
   };
 
   const EXTRA_FOOD_CATEGORIES = {
-    "Desserts": ["cake","pie","donut","cookie","cupcake","icecream","pudding","candy","chocolate","marshmallow","jellybean","gumdrop","lollipop"],
-    "Breakfast": ["pancake","waffle","toast","bagel","egg","cereal","coffee","tea"],
-    "Drinks": ["soda","milkshake","boba","coffee","tea"],
-    "Sauces / Sides": ["fries","popcorn","cheese","ketchup","mustard","fishstick","meatball"],
-    "Bowls": ["ramen","soup","cereal","noodles"]
+    "Desserts": ["cake","pie","donut","cookie","cupcake","icecream","pudding","candy","chocolate","marshmallow","jellybean","gumdrop","lollipop","brownie","macaron","gummyworm","cottoncandy","cinnamonroll","cheesecake","fruittart","popsicle","caramel","pizzaroll"],
+    "Breakfast": ["pancake","waffle","toast","bagel","egg","cereal","coffee","tea","muffin","croissant","oatmeal","hashbrown","omelet","baconstrip","sausage","frenchtoast","breakfastburrito","granola"],
+    "Drinks": ["soda","milkshake","boba","coffee","tea","lemonade","smoothie","slushie","juicebox","icedtea","fruitpunch","energycan","waterbottle","hotcocoa","rootbeerfloat"],
+    "Sauces / Sides": ["fries","popcorn","cheese","ketchup","mustard","fishstick","meatball","mayo","salsa","ranch","bbq","gravy","syrup","hotsauce","guacamole","teriyaki","peanutbutter"],
+    "Bowls": ["ramen","soup","cereal","noodles"],
+    "Magic / Event Foods": ["mooncake","fruitcake","candycorn","gingerbread","jellyjar","pickledplum","spaceberry","starcandy","ghostpepper","monsterburger"]
   };
-
 
   const canvas = document.getElementById("berryCanvas");
   const ctx = canvas.getContext("2d");
@@ -1542,6 +1878,7 @@
   const dexList = document.getElementById("dexList");
   const dexCount = document.getElementById("dexCount");
   const familyTree = document.getElementById("familyTree");
+  const clearFamilyBtn = document.getElementById("clearFamilyBtn");
   const rarityStat = document.getElementById("rarityStat");
   const moodStat = document.getElementById("moodStat");
   const sceneStat = document.getElementById("sceneStat");
@@ -1882,11 +2219,11 @@
     if(!manualFruitEl) return;
     rebuildFoodDropdown(manualFruitEl);
     populateSelect(manualMoodEl, MOODS, "happy");
-    populateSelect(manualSceneEl, BACKGROUND_SCENES, "garden");
+    populateSelect(manualSceneEl, BACKGROUND_SCENES, "berryPVZWhite");
     populateSelect(manualSeasonEl, SEASONS, "none");
     populatePlainSelect(manualGradientEl, GRADIENT_TYPES, "Soft Radial");
-    populatePlainSelect(manualEyesEl, FACE_TYPES, "Googly");
-    populatePlainSelect(manualMouthEl, MOUTH_TYPES, "Big Grin");
+    populatePlainSelect(manualEyesEl, FACE_TYPES, "Berry PVZ Face");
+    populatePlainSelect(manualMouthEl, MOUTH_TYPES, "Berry PVZ Open Smile");
     populatePlainSelect(manualBuddyTypeEl, BUDDY_TYPES, "Auto / Food Default");
     populateSelect(manualExtraMoodEl, EXTRA_MOODS, "auto");
     populatePlainSelect(manualPaletteEl, PALETTES.map(p => p.name), "auto", true);
@@ -2248,6 +2585,7 @@
       if(chosenPalette !== "auto") applyManualPalette(chosenPalette);
     }
 
+    applyPlumClassicLook("manual");
     fixEyeGapForFace(chosenEyes);
     if(save) storeManualVisualState();
     wobble = Math.max(wobble, .7);
@@ -2503,6 +2841,29 @@
 
   function safeJsonParse(raw, fallback){
     try{ return JSON.parse(raw) ?? fallback; }catch{ return fallback; }
+  }
+
+  function escapeHtml(value){
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch] || ch));
+  }
+
+  function applyPlumClassicLook(scope="birthday"){
+    if(!berry || berry.fruitKind !== "plum") return;
+    berry.bodyW = clamp(Number(berry.bodyW || 1), .94, 1.10);
+    berry.bodyH = clamp(Number(berry.bodyH || 1), .82, .98);
+    berry.body = berry.customGradientColors?.enabled ? berry.body : hsl(276, 82, 33);
+    berry.bodyDark = berry.customGradientColors?.enabled ? berry.bodyDark : hsl(276, 86, 22);
+    berry.bodyLight = berry.customGradientColors?.enabled ? berry.bodyLight : hsl(276, 72, 43);
+    berry.bodyAlt = berry.customGradientColors?.enabled ? berry.bodyAlt : hsl(270, 76, 37);
+    berry.tinyStem = true;
+    berry.leaf = true;
+    const browEl = scope === "manual" ? manualBrowColorEl : browColorEl;
+    const currentControlColor = normalizeHexColor(browEl?.value, "#000000").toLowerCase();
+    if(currentControlColor === "#000000"){
+      berry.browColor = "#238d16";
+      berry.hasBrows = true;
+      if(!berry.browStyle) berry.browStyle = 5;
+    }
   }
 
   function dexStorage(){
@@ -2766,7 +3127,8 @@
     const ageInfo = ageStage(year, selectedAgeMode);
     const finalMood = selectedMood === "auto" ? autoMood(year, month, day, rand) : selectedMood;
     const finalSeason = selectedSeason === "auto" ? autoSeason(month, day, rand) : selectedSeason;
-    const finalScene = selectedScene === "auto" ? autoScene(month, day, fruitKind, rand) : selectedScene;
+    let finalScene = selectedScene === "auto" ? autoScene(month, day, fruitKind, rand) : selectedScene;
+    if(isBlueberryTemplate && (selectedScene === "auto" || selectedScene === "berryPVZWhite")) finalScene = "berryPVZWhite";
     const rarityBonus = (finalSeason === "birthday" ? .025 : 0) + (finalMood === "cursed" ? .015 : 0) + (mutationSalt > 0 ? .012 : 0);
     const rarity = rollRarity(rand, rarityBonus);
 
@@ -2785,6 +3147,10 @@
     let finalMouthType = mouthType;
     if(finalMood !== "auto" && rand() > .32){
       [finalFaceType, finalMouthType] = moodFaceOverride(finalMood, faceType, mouthType);
+    }
+    if(isBlueberryTemplate){
+      finalFaceType = "Berry PVZ Face";
+      finalMouthType = "Berry PVZ Open Smile";
     }
     const accessories = pickAccessories(rand, rarity, gender, finalMood, finalSeason, ageInfo);
     const idleAnim = ageInfo.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : pick(rand, IDLE_ANIMS);
@@ -2876,11 +3242,15 @@
       mouthWidth: 88 + Math.floor(rand()*112),
       mouthHeight: 38 + Math.floor(rand()*72),
       lid: 0,
-      wobblePhase: rand()*999
+      wobblePhase: rand()*999,
+      aethosSide: rand() > .5 ? 1 : -1,
+      aethosSplitColor: rand() > .5 ? colorMix(hsl(bodyHue, sat, light), "#ffffff", .64) : colorMix(hsl(bodyHue, sat, light), "#000000", .50),
+      aethosEyeOuter: rand() > .5 ? "#000000" : "#ffffff",
+      aethosEyeInner: rand() > .5 ? "#ffffff" : "#000000"
     };
 
-    berry.emotionBaseFaceType = faceType;
-    berry.emotionBaseMouthType = mouthType;
+    berry.emotionBaseFaceType = finalFaceType;
+    berry.emotionBaseMouthType = finalMouthType;
     berry.emotionBaseBrowStyle = 0;
     berry.emotionBaseLid = 0;
     berry.emotionBaseEyeSize = berry.eyeSize;
@@ -2891,6 +3261,7 @@
       berry.gradientType = pick(rand, ["Rainbow Wash","Aurora Fade","Prism Wash","Electric Split","Pearl Shine","Toxic Fade"]);
     }
     if(berry.mood === "baby") berry.eyeSize *= 1.18;
+    if(isBlueberryTemplate) applyBerryPVZCleanRender(finalScene === "berryPVZWhite");
     applyMoodDecorationRules(berry.mood);
     applyAgingSystemTweaks();
     berry.emotionBaseEyeSize = berry.eyeSize;
@@ -2901,6 +3272,7 @@
     if(berry.faceType === "Cyclops") berry.eyeGap = 0;
     if(berry.faceType === "Three Eyes") berry.eyeGap = 118;
     applyExtraVisualControls("birthday", false);
+    applyPlumClassicLook("birthday");
     tapCount = 0;
     wobble = 1.1;
     updateUI();
@@ -3077,9 +3449,9 @@
       word2: "PVZ",
       type: "Classic Blueberry",
       faceType: "Berry PVZ Face",
-      mouthType: "Open Smile",
+      mouthType: "Berry PVZ Open Smile",
       emotionBaseFaceType: "Berry PVZ Face",
-      emotionBaseMouthType: "Open Smile",
+      emotionBaseMouthType: "Berry PVZ Open Smile",
       emotionBaseBrowStyle: 0,
       emotionBaseLid: 0,
       emotionBaseEyeSize: 1,
@@ -3105,6 +3477,7 @@
       eyeTilt: 0,
       eyeSize: 1,
       eyeGap: 146,
+      eyeSparkle: false,
       pupilScale: expression.pupilScale,
       mouthRotation: expression.mouthRotation,
       pupilX: expression.pupilX,
@@ -3136,6 +3509,51 @@
       mouthHeight: 115,
       lid: 0
     });
+    applyBerryPVZCleanRender(true);
+  }
+
+  function applyBerryPVZCleanRender(plainCanvas=false){
+    if(!berry) return;
+    const kind = berry.fruitKind || "blueberry";
+    const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
+    const blueberryStyle = berry.avatarPreset === "berryPVZ" || kind === "blueberry" || profile.shape === "blueberry" || profile.texture === "blueberry" || BERRYMAGIC_PVZ_FACE_TYPES.has(berry.faceType);
+    if(!blueberryStyle) return;
+
+    // Keep the PVZ-style berry clean: no scene bits, freckles, cheek dots,
+    // random sparkles, stems, leaves, or accessories unless the user chooses a different face/body on purpose.
+    berry.fuzzType = "Smooth Wrap";
+    berry.outline = "#000000";
+    berry.freckles = false;
+    berry.cheek = false;
+    berry.starCount = 0;
+    berry.raritySparkle = 0;
+    berry.tinyStem = false;
+    berry.leaf = false;
+    berry.bow = false;
+    berry.cap = false;
+    berry.antenna = false;
+    berry.spots = false;
+    berry.stripes = false;
+    berry.accessories = [];
+    berry.accessoriesDisabled = true;
+    berry.bodyW = 1;
+    berry.bodyH = 1;
+    berry.topDip = 1;
+    berry.leftLump = 0;
+    berry.rightLump = 0;
+    berry.bellyShift = 0;
+    berry.eyeTilt = 0;
+    berry.eyeSize = 1;
+    berry.eyeGap = 168;
+    berry.eyeSparkle = false;
+    berry.mouthWidth = 190;
+    berry.mouthHeight = 115;
+    berry.emotionBaseEyeSize = 1;
+    berry.emotionBaseEyeGap = 168;
+    if(plainCanvas){
+      berry.scene = "berryPVZWhite";
+      berry.sceneName = "Plain White";
+    }
   }
 
   function updateBerryPVZFromControls(){
@@ -3179,10 +3597,10 @@
     genderEl.value = "neutral";
     fruitEl.value = "blueberry";
     if(moodEl) moodEl.value = "happy";
-    if(sceneEl) sceneEl.value = "garden";
+    if(sceneEl) sceneEl.value = "berryPVZWhite";
     if(seasonEl) seasonEl.value = "none";
     if(ageModeEl) ageModeEl.value = "auto";
-    setParticlesDisabled(false);
+    setParticlesDisabled(true);
 
     makeBerry(true);
 
@@ -3211,7 +3629,7 @@
       idleAnim: "Simple Bounce",
       ageInfo,
       ageMode: ageModeEl?.value || "auto",
-      particlesDisabled: false,
+      particlesDisabled: true,
       cosmeticGender: "neutral styling",
       familyId: `family-${hashString("berry-pvz")}`,
       parentSeed: null,
@@ -3223,9 +3641,9 @@
       word2: "PVZ",
       type: "Classic Blueberry",
       faceType: "Berry PVZ Face",
-      mouthType: "Open Smile",
+      mouthType: "Berry PVZ Open Smile",
       emotionBaseFaceType: "Berry PVZ Face",
-      emotionBaseMouthType: "Open Smile",
+      emotionBaseMouthType: "Berry PVZ Open Smile",
       emotionBaseBrowStyle: 0,
       emotionBaseLid: 0,
       emotionBaseEyeSize: 1,
@@ -3251,6 +3669,7 @@
       eyeTilt: 0,
       eyeSize: 1,
       eyeGap: 146,
+      eyeSparkle: false,
       pupilScale: expressionValuesFrom("birthday").pupilScale,
       mouthRotation: expressionValuesFrom("birthday").mouthRotation,
       pupilX: expressionValuesFrom("birthday").pupilX,
@@ -3304,7 +3723,7 @@
     manualFruitEl.value = "blueberry";
     if(manualGenderEl) manualGenderEl.value = "neutral";
     if(manualMoodEl) manualMoodEl.value = "happy";
-    if(manualSceneEl) manualSceneEl.value = "garden";
+    if(manualSceneEl) manualSceneEl.value = "berryPVZWhite";
     if(manualSeasonEl) manualSeasonEl.value = "none";
     if(manualPaletteEl) manualPaletteEl.value = "Classic Blue";
     if(manualGradientEl) manualGradientEl.value = "Flat Color";
@@ -3317,9 +3736,9 @@
     if(manualAccentColorEl) manualAccentColorEl.value = "#ff1010";
     if(manualGradientAngleEl) manualGradientAngleEl.value = 45;
     if(manualDisableAccessoriesEl) manualDisableAccessoriesEl.checked = true;
-    if(manualParticleDisableEl) manualParticleDisableEl.checked = false;
-    if(manualEyesEl && FACE_TYPES.includes("Googly")) manualEyesEl.value = "Googly";
-    if(manualMouthEl && MOUTH_TYPES.includes("Big Grin")) manualMouthEl.value = "Big Grin";
+    if(manualParticleDisableEl) manualParticleDisableEl.checked = true;
+    if(manualEyesEl && FACE_TYPES.includes("Berry PVZ Face")) manualEyesEl.value = "Berry PVZ Face";
+    if(manualMouthEl && MOUTH_TYPES.includes("Berry PVZ Open Smile")) manualMouthEl.value = "Berry PVZ Open Smile";
     resetExpressionControls("manual");
   }
 
@@ -3333,7 +3752,7 @@
     resetManualControlsForDefault();
     if(emotionOnlyEl) emotionOnlyEl.checked = true;
     if(ageModeEl) ageModeEl.value = "auto";
-    setParticlesDisabled(false);
+    setParticlesDisabled(true);
     makeDefaultBerryPVZ();
     toast.textContent = "Character reset to Berry PVZ.";
   }
@@ -3366,6 +3785,20 @@
       berry.mood = finalMood;
       berry.moodName = byId(MOODS, finalMood, "happy").name.replace("Auto / Birthday Pick","Berry PVZ Mood");
       normalizeBerryPVZPreset();
+      tapCount = 0;
+      wobble = 1.5;
+      updateUI();
+      toast.textContent = `${berry.name} kept the Berry PVZ render and changed emotion to ${berry.moodName}.`;
+      return;
+    }
+
+    if(berryUsesBlueberryTemplate() && BERRYMAGIC_PVZ_FACE_TYPES.has(berry.emotionBaseFaceType || berry.faceType)){
+      berry.mood = finalMood;
+      berry.moodName = byId(MOODS, finalMood, "happy").name.replace("Auto / Birthday Pick","Birthday Mood");
+      berry.faceType = berry.emotionBaseFaceType || "Berry PVZ Face";
+      berry.mouthType = berry.emotionBaseMouthType || "Berry PVZ Open Smile";
+      applyMoodDecorationRules(finalMood);
+      applyBerryPVZCleanRender(berry.scene === "berryPVZWhite");
       tapCount = 0;
       wobble = 1.5;
       updateUI();
@@ -3408,6 +3841,7 @@
     if(rarityStat) rarityStat.innerHTML = `<span class="badge ${berry.rarityClass}">${berry.rarity}</span>`;
     if(moodStat) moodStat.textContent = berry.moodName;
     if(sceneStat) sceneStat.textContent = berry.sceneName;
+    if(box) box.classList.toggle("backgroundless", berry.scene === "none");
     if(seasonStat) seasonStat.textContent = berry.seasonName;
     berry.particlesDisabled = !!(particleDisableEl?.checked || manualParticleDisableEl?.checked);
     if(accessoryStat) accessoryStat.textContent = berry.accessoriesDisabled ? "Disabled" : (berry.accessories?.length ? berry.accessories.join(", ") : "None");
@@ -3467,7 +3901,19 @@
       return;
     }
 
-    if(shape === "plum" || shape === "date"){
+    if(shape === "plum"){
+      ctx.beginPath();
+      ctx.moveTo(-214-ew, -88-ew*.45);
+      ctx.bezierCurveTo(-196-ew, -178-ew, -94-ew, -226-ew, -4, -218-ew);
+      ctx.bezierCurveTo(105+ew, -232-ew, 220+ew, -176-ew, 238+ew, -56-ew*.45);
+      ctx.bezierCurveTo(276+ew, 78+ew*.28, 186+ew, 212+ew, 58+ew*.35, 240+ew);
+      ctx.bezierCurveTo(-70-ew*.35, 268+ew, -198-ew, 206+ew, -232-ew, 90+ew*.28);
+      ctx.bezierCurveTo(-268-ew, -22-ew*.15, -252-ew, -116-ew, -214-ew, -88-ew*.45);
+      ctx.closePath();
+      return;
+    }
+
+    if(shape === "date"){
       ctx.beginPath();
       ctx.ellipse(0, 14, 188+ew, 242+ew, -.07, 0, Math.PI*2);
       return;
@@ -4128,15 +4574,15 @@
     }
 
     if(texture === "plum"){
-      ctx.strokeStyle = "rgba(255,255,255,.22)";
-      ctx.lineWidth = 8;
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(-6,-202);
-      ctx.bezierCurveTo(28,-90,30,45,-2,211);
+      ctx.moveTo(-8,-178);
+      ctx.bezierCurveTo(18,-90,22,56,-3,196);
       ctx.stroke();
-      ctx.fillStyle = "rgba(255,255,255,.12)";
+      ctx.fillStyle = "rgba(255,255,255,.07)";
       ctx.beginPath();
-      ctx.ellipse(-82,-72,50,120,-.45,0,Math.PI*2);
+      ctx.ellipse(-92,-86,42,86,-.62,0,Math.PI*2);
       ctx.fill();
       return;
     }
@@ -5043,7 +5489,29 @@
     const profile = FRUIT_PROFILES[berry.fruitKind] || FRUIT_PROFILES.blueberry;
     const shape = profile.shape || berry.fruitKind;
     const isBlueberryTemplate = berry.fruitKind === "blueberry" || shape === "blueberry";
+    const isPlumShape = berry.fruitKind === "plum" || shape === "plum";
 
+    if(isPlumShape){
+      ctx.save();
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.fillStyle = "#5b2f10";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.roundRect(-34,-268,45,70,9);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#2c9a19";
+      ctx.beginPath();
+      ctx.moveTo(10,-245);
+      ctx.bezierCurveTo(26,-282,76,-291,96,-252);
+      ctx.bezierCurveTo(62,-258,35,-251,10,-245);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
 
     if(["carrot","beet","radish","turnip","corn","eggplant","bellpepper","chilipepper"].includes(berry.fruitKind) || shape === "carrot" || shape === "corn"){
       ctx.save();
@@ -5136,7 +5604,7 @@
       ctx.stroke();
     }
 
-    if(!isBlueberryTemplate && (berry.tinyStem || profile.stem) && !["apple","pear","strawberry","pineapple","banana"].includes(shape) && !["persimmon","pomegranate","quince"].includes(berry.fruitKind)){
+    if(!isPlumShape && !isBlueberryTemplate && (berry.tinyStem || profile.stem) && !["apple","pear","strawberry","pineapple","banana"].includes(shape) && !["persimmon","pomegranate","quince"].includes(berry.fruitKind)){
       ctx.fillStyle = "#020202";
       ctx.beginPath();
       ctx.ellipse(5,-263,20,36,.24,0,Math.PI*2);
@@ -5146,7 +5614,7 @@
       ctx.ellipse(20,-277,11,24,.7,0,Math.PI*2);
       ctx.fill();
     }
-    if(!isBlueberryTemplate && berry.leaf && shape !== "pineapple" && shape !== "strawberry" && berry.fruitKind !== "persimmon"){
+    if(!isPlumShape && !isBlueberryTemplate && berry.leaf && shape !== "pineapple" && shape !== "strawberry" && berry.fruitKind !== "persimmon"){
       ctx.fillStyle = "#1f8b43";
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 4;
@@ -5522,10 +5990,12 @@
       ctx.beginPath();
       ctx.ellipse(pupilOffsetX,pupilOffsetY,beadR,beadR,0,0,Math.PI*2);
       ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,.8)";
-      ctx.beginPath();
-      ctx.ellipse(pupilOffsetX-beadR*.35,pupilOffsetY-beadR*.42,beadR*.22,beadR*.28,0,0,Math.PI*2);
-      ctx.fill();
+      if(berry.eyeSparkle === true){
+        ctx.fillStyle = "rgba(255,255,255,.8)";
+        ctx.beginPath();
+        ctx.ellipse(pupilOffsetX-beadR*.35,pupilOffsetY-beadR*.42,beadR*.22,beadR*.28,0,0,Math.PI*2);
+        ctx.fill();
+      }
       drawLashesForEye(beadR);
       ctx.restore();
       return;
@@ -5567,10 +6037,12 @@
     const py = basePy + pupilOffsetY;
     drawPupil(px,py,scale,side);
 
-    ctx.fillStyle = "rgba(255,255,255,.75)";
-    ctx.beginPath();
-    ctx.ellipse(px-7,py-13,4*scale,6*scale,0,0,Math.PI*2);
-    ctx.fill();
+    if(berry.eyeSparkle === true){
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      ctx.beginPath();
+      ctx.ellipse(px-7,py-13,4*scale,6*scale,0,0,Math.PI*2);
+      ctx.fill();
+    }
 
     const moodLidAmount = berry.showLids === false ? 0 : Math.max(moodLidAmountFor(berry.mood), Number(berry.customLidAmount || 0));
     if(berry.showLids !== false && (moodLidAmount > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind))){
@@ -5687,6 +6159,42 @@
     ctx.fill();
   }
 
+  function pvzBigGrinPath(w,h,topLift=0){
+    // Reference-style grin: broad curved top, rounded right cheek, deep black open mouth.
+    ctx.beginPath();
+    ctx.moveTo(-w*.56, -h*.10 + topLift);
+    ctx.bezierCurveTo(-w*.32, h*.02 + topLift*.45, -w*.03, h*.10, w*.28, -h*.03);
+    ctx.bezierCurveTo(w*.49, -h*.12, w*.55, -h*.22, w*.66, -h*.21);
+    ctx.bezierCurveTo(w*.78, -h*.19, w*.82, h*.05, w*.78, h*.32);
+    ctx.bezierCurveTo(w*.70, h*.80, w*.33, h*1.05, -w*.05, h*.94);
+    ctx.bezierCurveTo(-w*.43, h*.83, -w*.60, h*.46, -w*.56, -h*.10 + topLift);
+    ctx.closePath();
+  }
+
+  function drawPVZBigGrin(cx,cy,w,h,opts={}){
+    const tongue = opts.tongue !== false;
+    const topLift = Number(opts.topLift || 0);
+    const tongueX = Number(opts.tongueX || w*.08);
+    const tongueY = Number(opts.tongueY || h*.82);
+    const tongueW = Number(opts.tongueW || w*.16);
+    const tongueH = Number(opts.tongueH || h*.105);
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.fillStyle = "#000";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 8;
+    pvzBigGrinPath(w,h,topLift);
+    ctx.fill();
+    if(tongue){
+      ctx.save();
+      pvzBigGrinPath(w,h,topLift);
+      ctx.clip();
+      drawTongue(tongueX,tongueY,tongueW,tongueH);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   function drawMouth(cx, cy){
     ctx.save();
     ctx.translate(cx,cy);
@@ -5727,15 +6235,7 @@
     if(OPENABLE_MOUTH_TYPES.has(berry.mouthType)) drawOpeningUnderStroke();
 
     if(berry.mouthType === "Big Grin"){
-      fillBlack();
-      ctx.beginPath();
-      ctx.moveTo(-w*.52, -5);
-      ctx.bezierCurveTo(-w*.35, 18, -w*.1, 27, 0, 21);
-      ctx.bezierCurveTo(w*.18, 12, w*.36, -8, w*.51, -18);
-      ctx.bezierCurveTo(w*.73, -34, w*.77, 21, w*.32, h);
-      ctx.bezierCurveTo(-w*.13, h+31, -w*.54, 56, -w*.52, -5);
-      ctx.fill();
-      drawTongue(0,h*.78,30,13);
+      drawPVZBigGrin(0,0,w,h,{tongueX:w*.08,tongueY:h*.82,tongueW:w*.16,tongueH:h*.105});
     } else if(berry.mouthType === "Side Smile"){
       fillBlack();
       ctx.beginPath();
@@ -6191,6 +6691,73 @@
       ctx.lineTo(w*.09,35);
       ctx.stroke();
 
+    } else if(berry.mouthType === "Berry PVZ Open Smile"){
+      drawPVZBigGrin(0,0,w,h,{tongueX:w*.08,tongueY:h*.82,tongueW:w*.16,tongueH:h*.105});
+    } else if(berry.mouthType === "PVZ Side Laugh" || berry.mouthType === "Huge PVZ Laugh"){
+      const big = berry.mouthType === "Huge PVZ Laugh" ? 1.22 : 1;
+      drawPVZBigGrin(0,0,w*big,h*(berry.mouthType === "Huge PVZ Laugh" ? 1.12 : 1),{
+        topLift: berry.mouthType === "Huge PVZ Laugh" ? -4 : 0,
+        tongueX:w*.12*big,
+        tongueY:h*.80,
+        tongueW:w*.18*big,
+        tongueH:h*.105
+      });
+    } else if(berry.mouthType === "Aethos Slash Mouth" || berry.mouthType === "Thin Horror Smile"){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = berry.mouthType === "Thin Horror Smile" ? 7 : 11;
+      ctx.beginPath();
+      ctx.moveTo(-w*.46, 26);
+      ctx.bezierCurveTo(-w*.10, -8, w*.24, 54, w*.52, 8);
+      ctx.stroke();
+      if(berry.mouthType === "Aethos Slash Mouth"){
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(-w*.30,20);
+        ctx.lineTo(w*.38,12);
+        ctx.stroke();
+      }
+    } else if(berry.mouthType === "Shadow Grin" || berry.mouthType === "White Noise Smile" || berry.mouthType === "Split Color Smile"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,24,w*.43,h*.38,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = berry.mouthType === "Split Color Smile" ? berry.lip : "#fff";
+      for(let i=-3;i<=3;i++){
+        ctx.beginPath();
+        ctx.roundRect(i*18-6,4,12,22,3);
+        ctx.fill();
+      }
+      if(berry.mouthType === "White Noise Smile"){
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 3;
+        for(let i=0;i<7;i++){
+          ctx.beginPath();
+          ctx.moveTo(-w*.33 + i*w*.11, 34);
+          ctx.lineTo(-w*.27 + i*w*.10, 12);
+          ctx.stroke();
+        }
+      }
+    } else if(berry.mouthType === "Corner Bite"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(-w*.12,20,w*.34,h*.34,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=0;i<4;i++){
+        ctx.beginPath();
+        ctx.ellipse(w*.04 + i*16, 4 + (i%2)*8, 8, 10, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+    } else if(berry.mouthType === "Cartoon Gasp"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.ellipse(0,18,w*.22,h*.62,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.ellipse(-9,2,7,10,0,0,Math.PI*2);
+      ctx.fill();
     } else if(["Pizza Slice Smile","Taco Crunch","Dumpling Smile"].includes(berry.mouthType)){
       fillBlack();
       ctx.beginPath();
@@ -6291,28 +6858,34 @@
       const sad = mood === "sad" || mood === "crying";
       const nervous = mood === "nervous" || mood === "scared" || mood === "sick";
       const pupilScale = clamp(Number(berry?.pupilScale ?? 1), .3, 2.2);
-      const scale = shocked ? 1.12 : sleepy ? .82 : 1;
-      const hScale = sleepy ? .42 : 1;
+      const baseEyeScale = clamp(Number(berry?.eyeSize ?? 1), .55, 1.85);
+      const scale = (shocked ? 1.12 : sleepy ? .86 : 1) * baseEyeScale;
+      const hScale = sleepy ? .48 : 1;
       const pupilShiftX = (goofy ? (side < 0 ? -14 : 16) : mood === "smug" ? 13 : 0) + clamp(Number(berry?.pupilX ?? 0), -35, 35);
       const pupilShiftY = (sad ? 12 : nervous ? -8 : 0) + clamp(Number(berry?.pupilY ?? 0), -30, 30);
+      const aethosEye = isAethosFace() && side === aethosSplitSide();
+      const aethosWhiteFirst = ((berry?.seed || 0) >>> (side < 0 ? 3 : 5)) % 2 === 0;
+      const outerColor = aethosEye ? (aethosWhiteFirst ? "#ffffff" : "#000000") : "#000";
+      const innerColor = aethosEye ? (aethosWhiteFirst ? "#000000" : "#ffffff") : "#fff";
+      const pupilColor = aethosEye ? (aethosWhiteFirst ? "#ffffff" : "#000000") : "#000";
 
-      ctx.fillStyle = "#000";
+      ctx.fillStyle = outerColor;
       ctx.beginPath();
-      ctx.ellipse(x,y,62*scale,74*scale*hScale,0,0,Math.PI*2);
+      ctx.ellipse(x,y,68*scale,83*scale*hScale,0,0,Math.PI*2);
       ctx.fill();
 
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = innerColor;
       ctx.beginPath();
-      ctx.ellipse(x,y,43*scale,55*scale*hScale,0,0,Math.PI*2);
+      ctx.ellipse(x,y,45*scale,61*scale*hScale,0,0,Math.PI*2);
       ctx.fill();
 
-      ctx.fillStyle = "#000";
+      ctx.fillStyle = pupilColor;
       if(mood === "party" || mood === "excited" || mood === "proud"){
-        drawStar(x+pupilShiftX,y+pupilShiftY,18*pupilScale,8*pupilScale,5,"#000");
+        drawStar(x+pupilShiftX,y+pupilShiftY,18*pupilScale,8*pupilScale,5,pupilColor);
       } else if(mood === "lovestruck"){
-        drawHeart(x+pupilShiftX,y+pupilShiftY,pupilScale*.75,"#000");
+        drawHeart(x+pupilShiftX,y+pupilShiftY,pupilScale*.75,pupilColor);
       } else if(mood === "dizzy" || mood === "confused"){
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = pupilColor;
         ctx.lineWidth = 7 * pupilScale;
         ctx.beginPath();
         for(let a=0;a<Math.PI*4.2;a+=.25){
@@ -6335,7 +6908,7 @@
         ctx.ellipse(x+pupilShiftX,y+pupilShiftY,10*pupilScale,31*pupilScale,0,0,Math.PI*2);
         ctx.fill();
       } else if(sleepy){
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = pupilColor;
         ctx.lineWidth = 11;
         ctx.beginPath();
         ctx.moveTo(x-31,y+2);
@@ -6343,7 +6916,7 @@
         ctx.stroke();
       } else {
         ctx.beginPath();
-        ctx.ellipse(x+pupilShiftX,y+pupilShiftY,15*(goofy && side > 0 ? 1.45 : 1)*pupilScale,34*(nervous ? .72 : 1)*pupilScale,0,0,Math.PI*2);
+        ctx.ellipse(x+pupilShiftX,y+pupilShiftY,14*(goofy && side > 0 ? 1.45 : 1)*pupilScale*baseEyeScale,42*(nervous ? .72 : 1)*pupilScale*baseEyeScale,0,0,Math.PI*2);
         ctx.fill();
       }
     }
@@ -6357,8 +6930,10 @@
       ctx.stroke();
     }
 
-    eye(-62,-74,-1);
-    eye(84,-62,1);
+    const pvzEyeGap = clamp(Number(berry?.eyeGap ?? 168), 110, 245);
+    const pvzEyeY = -74;
+    eye(-pvzEyeGap/2,pvzEyeY,-1);
+    eye(pvzEyeGap/2,pvzEyeY,1);
 
     if(mood === "angry"){
       brow(-62,-152,28);
@@ -6379,6 +6954,32 @@
     ctx.fillStyle = "#000";
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 13;
+
+    const customPVZMouth = berry?.avatarPreset !== "berryPVZ" && berry?.mouthType && !["Berry PVZ Open Smile","Open Smile"].includes(berry.mouthType);
+    if(customPVZMouth){
+      ctx.restore();
+      const oldW = berry.mouthWidth;
+      const oldH = berry.mouthHeight;
+      berry.mouthWidth = Math.max(150, oldW || 190);
+      berry.mouthHeight = Math.max(92, oldH || 115);
+      drawMouth(42,48);
+      berry.mouthWidth = oldW;
+      berry.mouthHeight = oldH;
+
+      if(mood === "cursed" || mood === "glitchy"){
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(-120,-126);
+        ctx.lineTo(132,-4);
+        ctx.moveTo(-118,-8);
+        ctx.lineTo(125,-130);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+      return;
+    }
 
     const berryPvmouthOpen = clamp(Number(berry?.mouthOpen ?? 0), 0, 1);
     const berryPVZClosedMouth = ["sad","crying","bored","disgusted","blank","old","chill","zen","nervous","scared","confused","sick","shy","lovestruck"].includes(mood);
@@ -6475,27 +7076,7 @@
       ctx.fill();
       drawTongue(39,132,24,14);
     } else {
-      ctx.beginPath();
-      ctx.moveTo(-96,40);
-      ctx.bezierCurveTo(-42,52,16,59,70,28);
-      ctx.bezierCurveTo(96,13,112,25,112,61);
-      ctx.bezierCurveTo(111,126,50,159,-22,139);
-      ctx.bezierCurveTo(-78,123,-101,82,-96,40);
-      ctx.fill();
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(-96,40);
-      ctx.bezierCurveTo(-42,52,16,59,70,28);
-      ctx.bezierCurveTo(96,13,112,25,112,61);
-      ctx.bezierCurveTo(111,126,50,159,-22,139);
-      ctx.bezierCurveTo(-78,123,-101,82,-96,40);
-      ctx.clip();
-      ctx.fillStyle = "#ff1010";
-      ctx.beginPath();
-      ctx.ellipse(21,133,30,14,0,Math.PI,0);
-      ctx.fill();
-      ctx.restore();
+      drawPVZBigGrin(14,82,208,114,{tongueX:18,tongueY:94,tongueW:30,tongueH:12});
     }
 
     ctx.restore();
@@ -6515,7 +7096,8 @@
   }
 
   function drawFaceBits(){
-    if(berry?.avatarPreset === "berryPVZ"){
+    if(usesBerryMagicPVZFace()){
+      drawAethosSplitOverlay();
       drawBerryPVZFace();
       return;
     }
@@ -6559,7 +7141,12 @@
     ctx.save();
     ctx.setTransform(1,0,0,1,0,0);
 
-    if(berry?.avatarPreset === "berryPVZ"){
+    if(scene === "none"){
+      ctx.restore();
+      return;
+    }
+
+    if(scene === "berryPVZWhite" || berry?.avatarPreset === "berryPVZ"){
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0,0,720,720);
       ctx.restore();
@@ -6942,7 +7529,7 @@
       ctx.fillStyle = "#111";
       ctx.font = "900 34px system-ui";
       ctx.textAlign = "center";
-      ctx.fillText("Generate a Food Buddy!",360,360);
+      ctx.fillText("Generate a BerryMagic buddy!",360,360);
       return;
     }
 
@@ -7057,22 +7644,31 @@
   function renderDex(){
     const items = dexStorage();
     if(!dexList || !dexCount) return;
-    dexCount.textContent = items.length ? `${items.length} saved buddies.` : "No buddies saved yet.";
+    const typeCount = new Set(items.map(item => item?.berry?.fruitKind).filter(Boolean)).size;
+    dexCount.textContent = items.length ? `${items.length} saved · ${typeCount} food types` : "No buddies saved yet.";
     dexList.innerHTML = "";
-    for(const item of items.slice(0,24)){
+    if(!items.length){
+      const empty = document.createElement("div");
+      empty.className = "dexEmpty";
+      empty.textContent = "Save a buddy to fill the Almanac grid.";
+      dexList.appendChild(empty);
+      return;
+    }
+    for(const [index,item] of items.slice(0,48).entries()){
       const card = document.createElement("div");
+      const b = item.berry || {};
+      const rarityInitial = String(b.rarity || "?").charAt(0).toUpperCase();
+      const level = String((b.generation || 0) + 1);
       card.className = "dexCard";
+      card.setAttribute("data-load", b.seed);
+      card.title = `Load ${b.name || "saved buddy"}`;
       card.innerHTML = `
-        <img alt="${item.berry.name}" src="${item.image}">
-        <div>
-          <b>${item.berry.name}</b>
-          <small>${item.berry.rarity} · ${item.berry.fruitName} · ${item.berry.moodName}</small>
-          <small>${item.berry.sceneName}</small>
-          <div class="dexActions">
-            <button data-load="${item.berry.seed}">Load</button>
-            <button data-delete="${item.berry.seed}">Delete</button>
-          </div>
-        </div>`;
+        <button class="dexDelete" data-delete="${escapeHtml(b.seed)}" title="Delete this buddy" type="button">×</button>
+        <span class="dexRarityBadge ${escapeHtml(b.rarityClass || "rarity-common")}">${escapeHtml(rarityInitial)}</span>
+        <img alt="${escapeHtml(b.name || "Saved buddy")}" src="${item.image}">
+        <b>${escapeHtml(b.name || "Saved Buddy")}</b>
+        <small>${escapeHtml(b.fruitName || "Food")} · ${escapeHtml(b.moodName || "Mood")}</small>
+        <span class="dexLevel">${escapeHtml(level)}</span>`;
       dexList.appendChild(card);
     }
   }
@@ -7203,6 +7799,29 @@
     saveFamilyStorage(items);
   }
 
+  function clearFamilyTree(){
+    const items = familyStorage();
+    if(!items.length){
+      if(familyTree) familyTree.textContent = berry ? `${berry.name} is the founder. Make a child, sibling, or mutation to expand the tree.` : "Generate a buddy to start a family line.";
+      toast.textContent = "Family tree is already empty.";
+      return;
+    }
+    if(!berry){
+      if(!confirm("Clear every saved family tree?")) return;
+      localStorage.removeItem("foodBuddyFamiliesV2");
+      renderFamily();
+      toast.textContent = "All family trees cleared.";
+      return;
+    }
+    if(!confirm(`Clear the current family tree for ${berry.name}?`)) return;
+    saveFamilyStorage(items.filter(x => x.familyId !== berry.familyId));
+    berry.parentSeed = null;
+    berry.generation = 0;
+    berry.relationTag = "Founder";
+    renderFamily();
+    toast.textContent = "Current family tree cleared.";
+  }
+
   function renderFamily(){
     if(!familyTree) return;
     if(!berry){
@@ -7236,6 +7855,7 @@
   siblingBtn.addEventListener("click", () => makeRelative("sibling"));
   childBtn.addEventListener("click", () => makeRelative("child"));
   if(resetBtn) resetBtn.addEventListener("click", resetCharacter);
+  if(clearFamilyBtn) clearFamilyBtn.addEventListener("click", clearFamilyTree);
   clearDexBtn.addEventListener("click", clearDex);
   genderEl.addEventListener("change", () => { if(!updateBerryPVZFromControls()) makeBerry(); });
   fruitEl.addEventListener("change", () => { if(!updateBerryPVZFromControls()) makeBerry(); });
@@ -7330,10 +7950,14 @@
     el.addEventListener("change", () => applyManualVisualTweaks(true));
   }
   dexList.addEventListener("click", ev => {
-    const load = ev.target.getAttribute("data-load");
-    const del = ev.target.getAttribute("data-delete");
-    if(load) loadDexItem(load);
-    if(del) deleteDexItem(del);
+    const deleteTarget = ev.target.closest("[data-delete]");
+    if(deleteTarget){
+      ev.stopPropagation();
+      deleteDexItem(deleteTarget.getAttribute("data-delete"));
+      return;
+    }
+    const loadTarget = ev.target.closest("[data-load]");
+    if(loadTarget) loadDexItem(loadTarget.getAttribute("data-load"));
   });
   canvas.addEventListener("pointerdown", tapBerry);
   Object.assign(FRUIT_PROFILES, EXTRA_FOOD_PROFILES);

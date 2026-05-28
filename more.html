@@ -1851,6 +1851,25 @@
     };
   }
 
+  function applyFoodProfileVisuals(kind, keepCurrentRandomness=true){
+    if(!berry) return;
+    const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
+    berry.avatarPreset = null;
+    berry.fruitKind = kind;
+    berry.fruitName = profile.name;
+    berry.type = profile.types?.includes(berry.type) ? berry.type : (profile.types?.[0] || profile.name);
+    if(!keepCurrentRandomness){
+      berry.topDip = 1;
+      berry.leftLump = 0;
+      berry.rightLump = 0;
+      berry.bellyShift = 0;
+    }
+    berry.bodyW = clamp((profile.bodyW ?? .94) + ((berry.seed || 0) % 13) / 100, .62, 1.35);
+    berry.bodyH = clamp((profile.bodyH ?? .94) + (((berry.seed || 0) >>> 4) % 13) / 100, .58, 1.35);
+    berry.tinyStem = !!profile.stem;
+    berry.leaf = kind === "blueberry" || profile.shape === "blueberry" ? false : !!profile.leaf;
+  }
+
   function applyManualPalette(paletteName){
     if(!berry || !paletteName || paletteName === "auto") return;
     const palette = PALETTES.find(item => item.name === paletteName);
@@ -1980,16 +1999,10 @@
     const manualColors = manualColorSettings();
 
     berry.manualMode = true;
-    if(berry.avatarPreset === "berryPVZ" || (manualNameEl?.value || "").trim().toLowerCase() === "berry pvz"){
-      applyManualInfoTweaks();
-      berry.particlesDisabled = !!manualParticleDisableEl?.checked;
-      normalizeBerryPVZPreset();
-      if(save) storeManualVisualState();
-      wobble = Math.max(wobble, .7);
-      updateUI();
-      toast.textContent = "Berry PVZ manual changes applied without rerolling the character.";
-      return;
-    }
+    // Manual controls are authoritative. Do not normalize back to the Berry PVZ preset
+    // just because the current/default character or name was Berry PVZ.
+    berry.avatarPreset = null;
+    applyFoodProfileVisuals(chosenFruit, true);
     berry.gradientType = chosenGradient;
     berry.faceType = chosenEyes;
     berry.mouthType = chosenMouth;
@@ -2455,6 +2468,7 @@
     lastGeneratedBase = {rawYear, month, day, selectedGender, fruitKind, ageMode: selectedAgeMode, regenSalt, mutationSalt};
 
     berry = {
+      avatarPreset: null,
       seed,
       year: rawYear,
       month,
@@ -2659,13 +2673,16 @@
     const fruitProfile = FRUIT_PROFILES[chosenFruit] || FRUIT_PROFILES.blueberry;
     const fallbackWords = manualName ? manualName.split(/\s+/).filter(Boolean) : [];
     berry.manualMode = true;
-    berry.avatarPreset = ((manualName || "").trim().toLowerCase() === "berry pvz") ? "berryPVZ" : null;
+    // Manual mode obeys the manual food/color controls, even if the typed name is "Berry PVZ".
+    // The exact Berry PVZ preset still exists through Reset/default load.
+    berry.avatarPreset = null;
     berry.seed = manualSeed;
     berry.year = "Manual";
     berry.month = "-";
     berry.day = "-";
     berry.fruitKind = chosenFruit;
     berry.fruitName = fruitProfile.name;
+    applyFoodProfileVisuals(chosenFruit, true);
     berry.name = manualName || berry.name;
     berry.word1 = fallbackWords[0] || "Manual";
     berry.word2 = fallbackWords.length > 1 ? fallbackWords[fallbackWords.length-1] : "Berry";
@@ -2782,6 +2799,16 @@
 
   function updateBerryPVZFromControls(){
     if(!isBerryPVZPreset()) return false;
+
+    // The Berry PVZ render is only a reset/default preset now. If the user changes
+    // food type, let makeBerry() build the actual selected food instead of forcing
+    // the blue Berry PVZ body back on top of everything.
+    const selectedFruit = fruitEl?.value || "blueberry";
+    if(selectedFruit !== "blueberry"){
+      berry.avatarPreset = null;
+      return false;
+    }
+
     const finalMood = resolveSelectedMoodForCurrentBerry();
     berry.mood = finalMood;
     berry.moodName = byId(MOODS, finalMood, "happy").name.replace("Auto / Birthday Pick", "Berry PVZ Mood");

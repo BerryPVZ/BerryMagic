@@ -618,6 +618,60 @@
             <input type="range" id="mouthOpenSlider" min="0" max="100" value="0" />
           </div>
         </div>
+        <div class="full">
+          <label for="buddyTypeSelect">Buddy body type</label>
+          <select id="buddyTypeSelect"></select>
+        </div>
+        <div>
+          <label for="eyeTypeSelect">Eye type</label>
+          <select id="eyeTypeSelect"></select>
+        </div>
+        <div>
+          <label for="mouthTypeSelect">Mouth type</label>
+          <select id="mouthTypeSelect"></select>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="eyeSizeSlider">Eye size <span class="rangeValue" id="eyeSizeValue">100%</span></label>
+            <input type="range" id="eyeSizeSlider" min="45" max="175" value="100" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="eyeSpacingSlider">Eye spacing <span class="rangeValue" id="eyeSpacingValue">100%</span></label>
+            <input type="range" id="eyeSpacingSlider" min="45" max="185" value="100" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="browRotateSlider">Brow / lid rotation <span class="rangeValue" id="browRotateValue">0°</span></label>
+            <input type="range" id="browRotateSlider" min="-45" max="45" value="0" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="lidAmountSlider">Lid amount <span class="rangeValue" id="lidAmountValue">0%</span></label>
+            <input type="range" id="lidAmountSlider" min="0" max="90" value="0" />
+          </div>
+        </div>
+        <div>
+          <label for="browColorInput">Eyebrow color</label>
+          <input type="color" id="browColorInput" value="#000000" />
+        </div>
+        <div>
+          <label for="lidColorInput">Lid color</label>
+          <input type="color" id="lidColorInput" value="#245bff" />
+        </div>
+        <div class="full">
+          <label class="toggleRow" for="showBrowsToggle">
+            <input type="checkbox" id="showBrowsToggle" checked />
+            <span>Show eyebrows / mood brows</span>
+          </label>
+          <label class="toggleRow" for="showLidsToggle">
+            <input type="checkbox" id="showLidsToggle" checked />
+            <span>Show eyelids / mood lids</span>
+          </label>
+        </div>
         <div>
           <label for="sceneSelect">Background scene</label>
           <select id="sceneSelect"></select>
@@ -751,6 +805,26 @@
             <select id="manualMouthSelect"></select>
           </div>
 
+          <div>
+            <label for="manualBuddyTypeSelect">Buddy body type</label>
+            <select id="manualBuddyTypeSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualExtraMoodSelect">Extra mood layer</label>
+            <select id="manualExtraMoodSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualBrowColorInput">Eyebrow color</label>
+            <input type="color" id="manualBrowColorInput" value="#000000" />
+          </div>
+
+          <div>
+            <label for="manualLidColorInput">Lid color</label>
+            <input type="color" id="manualLidColorInput" value="#245bff" />
+          </div>
+
           <div class="wide">
             <label class="toggleRow" for="manualDisableAccessories">
               <input type="checkbox" id="manualDisableAccessories" />
@@ -798,6 +872,45 @@
               <label for="manualMouthOpenSlider">Mouth openness <span class="rangeValue" id="manualMouthOpenValue">0%</span></label>
               <input type="range" id="manualMouthOpenSlider" min="0" max="100" value="0" />
             </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualEyeSizeSlider">Eye size <span class="rangeValue" id="manualEyeSizeValue">100%</span></label>
+              <input type="range" id="manualEyeSizeSlider" min="45" max="175" value="100" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualEyeSpacingSlider">Eye spacing <span class="rangeValue" id="manualEyeSpacingValue">100%</span></label>
+              <input type="range" id="manualEyeSpacingSlider" min="45" max="185" value="100" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualBrowRotateSlider">Brow / lid rotation <span class="rangeValue" id="manualBrowRotateValue">0°</span></label>
+              <input type="range" id="manualBrowRotateSlider" min="-45" max="45" value="0" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualLidAmountSlider">Lid amount <span class="rangeValue" id="manualLidAmountValue">0%</span></label>
+              <input type="range" id="manualLidAmountSlider" min="0" max="90" value="0" />
+            </div>
+          </div>
+
+          <div class="wide">
+            <label class="toggleRow" for="manualShowBrowsToggle">
+              <input type="checkbox" id="manualShowBrowsToggle" checked />
+              <span>Show eyebrows / mood brows</span>
+            </label>
+            <label class="toggleRow" for="manualShowLidsToggle">
+              <input type="checkbox" id="manualShowLidsToggle" checked />
+              <span>Show eyelids / mood lids</span>
+            </label>
           </div>
         </div>
 
@@ -1276,6 +1389,43 @@
     {id:"party", name:"Party"}
   ];
 
+  const EXTRA_MOODS = [
+    {id:"auto", name:"No extra layer"},
+    {id:"sparkly", name:"Sparkly"},
+    {id:"melty", name:"Melty"},
+    {id:"feral", name:"Feral"},
+    {id:"polite", name:"Polite"},
+    {id:"hyper", name:"Hyper"},
+    {id:"haunted", name:"Haunted"},
+    {id:"tired", name:"Extra Tired"},
+    {id:"snacky", name:"Snacky"},
+    {id:"confident", name:"Confident"},
+    {id:"plastic", name:"Plastic Toy"},
+    {id:"lostmedia", name:"Lost-Media Weird"}
+  ];
+
+  const BUDDY_TYPES = [
+    "Auto / Food Default","Round Buddy","Tall Buddy","Wide Buddy","Tiny Buddy","Mega Buddy",
+    "Bean Buddy","Pear Buddy","Squash Buddy","Pancake Buddy","Pill Buddy","Heart Buddy",
+    "Droopy Buddy","Lumpy Buddy","Floaty Orb","Chibi Head","Long Snack","Stubby Snack",
+    "Wide Cheeks","Tiny Top","Big Bottom","Skinny Top","Jellybean","Ancient Relic",
+    "Sticker Buddy","Cartoon Squash","Plush Buddy","Oddball"
+  ];
+
+  FACE_TYPES.push(
+    "Ink Drop Eyes","Void Eyes","Button Dot Eyes","Tiny Side Dots","Big Wet Eyes","Raised Dot Eyes",
+    "Slug Eyes","Mascot Eyes","Painted Eyes","Sticker Spark Eyes","Camera Eyes","Cassette Eyes",
+    "Dice Eyes","Clock Eyes","Sleepy Beads","Tiny Angry Dots","Beanie Eyes","Wide Bean Eyes",
+    "Wonky Toy Eyes","Lost App Eyes","Marble Eyes","Candy Button Eyes"
+  );
+
+  MOUTH_TYPES.push(
+    "Sticker Smile","Tiny Sticker Smile","Mascot Grin","Wobble Grin","Painted Frown","Deep Frown",
+    "Tiny Beak","Big Beak","Chewy Smile","Tiny Chew","Goofy Teeth","One Tooth",
+    "Two Fang Smile","Side Fang","Blob O","Flat Squiggle","Tape Mouth","Cassette Mouth",
+    "Tiny Lip","Big Lip","Cartoon Pucker","Lost App Grin","Half Open Smile","Bean Chomp"
+  );
+
   const SEASONS = [
     {id:"auto", name:"Auto / Birthday Pick"},
     {id:"none", name:"No Event"},
@@ -1416,6 +1566,25 @@
   const manualGradientHistory = document.getElementById("manualGradientHistory");
   const manualEyesEl = document.getElementById("manualEyesSelect");
   const manualMouthEl = document.getElementById("manualMouthSelect");
+  const buddyTypeEl = document.getElementById("buddyTypeSelect");
+  const eyeTypeEl = document.getElementById("eyeTypeSelect");
+  const mouthTypeEl = document.getElementById("mouthTypeSelect");
+  const eyeSizeEl = document.getElementById("eyeSizeSlider");
+  const eyeSizeValue = document.getElementById("eyeSizeValue");
+  const eyeSpacingEl = document.getElementById("eyeSpacingSlider");
+  const eyeSpacingValue = document.getElementById("eyeSpacingValue");
+  const browRotateEl = document.getElementById("browRotateSlider");
+  const browRotateValue = document.getElementById("browRotateValue");
+  const lidAmountEl = document.getElementById("lidAmountSlider");
+  const lidAmountValue = document.getElementById("lidAmountValue");
+  const browColorEl = document.getElementById("browColorInput");
+  const lidColorEl = document.getElementById("lidColorInput");
+  const showBrowsEl = document.getElementById("showBrowsToggle");
+  const showLidsEl = document.getElementById("showLidsToggle");
+  const manualBuddyTypeEl = document.getElementById("manualBuddyTypeSelect");
+  const manualExtraMoodEl = document.getElementById("manualExtraMoodSelect");
+  const manualBrowColorEl = document.getElementById("manualBrowColorInput");
+  const manualLidColorEl = document.getElementById("manualLidColorInput");
   const manualDisableAccessoriesEl = document.getElementById("manualDisableAccessories");
   const manualParticleDisableEl = document.getElementById("manualParticleDisable");
   const pupilSizeEl = document.getElementById("pupilSizeSlider");
@@ -1438,6 +1607,16 @@
   const manualPupilYValue = document.getElementById("manualPupilYValue");
   const manualMouthOpenEl = document.getElementById("manualMouthOpenSlider");
   const manualMouthOpenValue = document.getElementById("manualMouthOpenValue");
+  const manualEyeSizeEl = document.getElementById("manualEyeSizeSlider");
+  const manualEyeSizeValue = document.getElementById("manualEyeSizeValue");
+  const manualEyeSpacingEl = document.getElementById("manualEyeSpacingSlider");
+  const manualEyeSpacingValue = document.getElementById("manualEyeSpacingValue");
+  const manualBrowRotateEl = document.getElementById("manualBrowRotateSlider");
+  const manualBrowRotateValue = document.getElementById("manualBrowRotateValue");
+  const manualLidAmountEl = document.getElementById("manualLidAmountSlider");
+  const manualLidAmountValue = document.getElementById("manualLidAmountValue");
+  const manualShowBrowsEl = document.getElementById("manualShowBrowsToggle");
+  const manualShowLidsEl = document.getElementById("manualShowLidsToggle");
   const manualUseCustomColorsEl = document.getElementById("manualUseCustomColors");
   const manualDisableGradientEl = document.getElementById("manualDisableGradient");
   const manualBaseColorEl = document.getElementById("manualBaseColor");
@@ -1626,6 +1805,10 @@
       if(store.last?.pupilX != null || store.last?.pupilY != null) lastBits.push(`pupil move: ${Math.round(Number(store.last.pupilX || 0))}, ${Math.round(Number(store.last.pupilY || 0))}`);
       if(store.last?.mouthRotation != null) lastBits.push(`mouth rot: ${Math.round(Number(store.last.mouthRotation))}°`);
       if(store.last?.mouthOpen != null) lastBits.push(`mouth open: ${Math.round(Number(store.last.mouthOpen) * 100)}%`);
+      if(store.last?.buddyType) lastBits.push(`buddy: ${store.last.buddyType}`);
+      if(store.last?.eyeScale) lastBits.push(`eye size: ${Math.round(Number(store.last.eyeScale) * 100)}%`);
+      if(store.last?.eyeSpacingScale) lastBits.push(`spacing: ${Math.round(Number(store.last.eyeSpacingScale) * 100)}%`);
+      if(store.last?.extraMood && store.last.extraMood !== "auto") lastBits.push(`extra mood: ${store.last.extraMood}`);
       if(store.last?.useCustomColors) lastBits.push("custom colors on");
       if(store.last?.disableAccessories) lastBits.push("accessories off");
       if(store.last?.disableParticles) lastBits.push("particles off");
@@ -1671,6 +1854,16 @@
       pupilX,
       pupilY,
       mouthOpen,
+      buddyType: manualBuddyTypeEl?.value || "Auto / Food Default",
+      extraMood: manualExtraMoodEl?.value || "auto",
+      eyeScale: clamp(rangeNumber(manualEyeSizeEl, 100), 45, 175) / 100,
+      eyeSpacingScale: clamp(rangeNumber(manualEyeSpacingEl, 100), 45, 185) / 100,
+      browRotation: clamp(rangeNumber(manualBrowRotateEl, 0), -45, 45),
+      lidAmount: clamp(rangeNumber(manualLidAmountEl, 0), 0, 90) / 100,
+      browColor: normalizeHexColor(manualBrowColorEl?.value, "#000000"),
+      lidColor: normalizeHexColor(manualLidColorEl?.value, "#245bff"),
+      showBrows: !!manualShowBrowsEl?.checked,
+      showLids: !!manualShowLidsEl?.checked,
       useCustomColors: !!manualUseCustomColorsEl?.checked,
       disableGradient: !!manualDisableGradientEl?.checked,
       baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
@@ -1694,6 +1887,8 @@
     populatePlainSelect(manualGradientEl, GRADIENT_TYPES, "Soft Radial");
     populatePlainSelect(manualEyesEl, FACE_TYPES, "Googly");
     populatePlainSelect(manualMouthEl, MOUTH_TYPES, "Big Grin");
+    populatePlainSelect(manualBuddyTypeEl, BUDDY_TYPES, "Auto / Food Default");
+    populateSelect(manualExtraMoodEl, EXTRA_MOODS, "auto");
     populatePlainSelect(manualPaletteEl, PALETTES.map(p => p.name), "auto", true);
     populateManualHistory();
 
@@ -1710,6 +1905,16 @@
     if(last.customGradient) manualCustomGradientEl.value = last.customGradient;
     if(last.eyes && FACE_TYPES.includes(last.eyes)) manualEyesEl.value = last.eyes;
     if(last.mouth && MOUTH_TYPES.includes(last.mouth)) manualMouthEl.value = last.mouth;
+    if(last.buddyType && BUDDY_TYPES.includes(last.buddyType) && manualBuddyTypeEl) manualBuddyTypeEl.value = last.buddyType;
+    if(last.extraMood && EXTRA_MOODS.some(m => m.id === last.extraMood) && manualExtraMoodEl) manualExtraMoodEl.value = last.extraMood;
+    if(last.eyeScale != null && manualEyeSizeEl) manualEyeSizeEl.value = clamp(Math.round(Number(last.eyeScale) * 100) || 100, 45, 175);
+    if(last.eyeSpacingScale != null && manualEyeSpacingEl) manualEyeSpacingEl.value = clamp(Math.round(Number(last.eyeSpacingScale) * 100) || 100, 45, 185);
+    if(last.browRotation != null && manualBrowRotateEl) manualBrowRotateEl.value = clamp(Math.round(Number(last.browRotation)) || 0, -45, 45);
+    if(last.lidAmount != null && manualLidAmountEl) manualLidAmountEl.value = clamp(Math.round(Number(last.lidAmount) * 100) || 0, 0, 90);
+    if(last.browColor && manualBrowColorEl) manualBrowColorEl.value = normalizeHexColor(last.browColor, "#000000");
+    if(last.lidColor && manualLidColorEl) manualLidColorEl.value = normalizeHexColor(last.lidColor, "#245bff");
+    if(last.showBrows != null && manualShowBrowsEl) manualShowBrowsEl.checked = !!last.showBrows;
+    if(last.showLids != null && manualShowLidsEl) manualShowLidsEl.checked = !!last.showLids;
     if(last.pupilScale != null && manualPupilSizeEl) manualPupilSizeEl.value = clamp(Math.round(Number(last.pupilScale) * 100) || 100, 30, 220);
     if(last.mouthRotation != null && manualMouthRotateEl) manualMouthRotateEl.value = clamp(Math.round(Number(last.mouthRotation)) || 0, -90, 90);
     if(last.pupilX != null && manualPupilXEl) manualPupilXEl.value = clamp(Math.round(Number(last.pupilX)) || 0, -35, 35);
@@ -1740,11 +1945,21 @@
     manualCustomGradientEl.value = "";
     manualEyesEl.value = pick(rand, FACE_TYPES);
     manualMouthEl.value = pick(rand, MOUTH_TYPES);
+    if(manualBuddyTypeEl) manualBuddyTypeEl.value = pick(rand, BUDDY_TYPES);
+    if(manualExtraMoodEl) manualExtraMoodEl.value = pick(rand, EXTRA_MOODS).id;
     if(manualPupilSizeEl) manualPupilSizeEl.value = Math.round(50 + rand() * 130);
     if(manualMouthRotateEl) manualMouthRotateEl.value = Math.round(-35 + rand() * 70);
     if(manualPupilXEl) manualPupilXEl.value = Math.round(-22 + rand() * 44);
     if(manualPupilYEl) manualPupilYEl.value = Math.round(-18 + rand() * 36);
     if(manualMouthOpenEl) manualMouthOpenEl.value = Math.round(rand() * 90);
+    if(manualEyeSizeEl) manualEyeSizeEl.value = Math.round(60 + rand() * 95);
+    if(manualEyeSpacingEl) manualEyeSpacingEl.value = Math.round(65 + rand() * 95);
+    if(manualBrowRotateEl) manualBrowRotateEl.value = Math.round(-30 + rand() * 60);
+    if(manualLidAmountEl) manualLidAmountEl.value = Math.round(rand() * 70);
+    if(manualBrowColorEl) manualBrowColorEl.value = randomHexColor(rand);
+    if(manualLidColorEl) manualLidColorEl.value = randomHexColor(rand);
+    if(manualShowBrowsEl) manualShowBrowsEl.checked = rand() > .2;
+    if(manualShowLidsEl) manualShowLidsEl.checked = rand() > .2;
     if(manualUseCustomColorsEl) manualUseCustomColorsEl.checked = rand() > .42;
     if(manualDisableGradientEl) manualDisableGradientEl.checked = rand() > .62;
     if(manualBaseColorEl) manualBaseColorEl.value = randomHexColor(rand);
@@ -1914,6 +2129,16 @@
       pupilX: clamp(rangeNumber(manualPupilXEl, 0), -35, 35),
       pupilY: clamp(rangeNumber(manualPupilYEl, 0), -30, 30),
       mouthOpen: clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100) / 100,
+      buddyType: manualBuddyTypeEl?.value || "Auto / Food Default",
+      extraMood: manualExtraMoodEl?.value || "auto",
+      eyeScale: clamp(rangeNumber(manualEyeSizeEl, 100), 45, 175) / 100,
+      eyeSpacingScale: clamp(rangeNumber(manualEyeSpacingEl, 100), 45, 185) / 100,
+      browRotation: clamp(rangeNumber(manualBrowRotateEl, 0), -45, 45),
+      lidAmount: clamp(rangeNumber(manualLidAmountEl, 0), 0, 90) / 100,
+      browColor: normalizeHexColor(manualBrowColorEl?.value, "#000000"),
+      lidColor: normalizeHexColor(manualLidColorEl?.value, "#245bff"),
+      showBrows: !!manualShowBrowsEl?.checked,
+      showLids: !!manualShowLidsEl?.checked,
       useCustomColors: !!manualUseCustomColorsEl?.checked,
       disableGradient: !!manualDisableGradientEl?.checked,
       baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
@@ -2010,6 +2235,8 @@
     berry.emotionBaseMouthType = chosenMouth;
     berry.emotionBaseBrowStyle = 0;
     berry.emotionBaseLid = 0;
+    berry.emotionBaseEyeGap = berry.eyeGap;
+    applyExtraVisualControls("manual", save);
     berry.accessoriesDisabled = !!manualDisableAccessoriesEl?.checked;
 
     applyManualInfoTweaks();
@@ -2313,6 +2540,96 @@
     return clamp(rangeNumber(el, fallback), 30, 220);
   }
 
+  function extraVisualValuesFrom(scope="birthday"){
+    const manual = scope === "manual";
+    return {
+      eyeScale: clamp(rangeNumber(manual ? manualEyeSizeEl : eyeSizeEl, 100), 45, 175) / 100,
+      eyeSpacingScale: clamp(rangeNumber(manual ? manualEyeSpacingEl : eyeSpacingEl, 100), 45, 185) / 100,
+      browRotation: clamp(rangeNumber(manual ? manualBrowRotateEl : browRotateEl, 0), -45, 45),
+      lidAmount: clamp(rangeNumber(manual ? manualLidAmountEl : lidAmountEl, 0), 0, 90) / 100,
+      browColor: normalizeHexColor(manual ? manualBrowColorEl?.value : browColorEl?.value, "#000000"),
+      lidColor: normalizeHexColor(manual ? manualLidColorEl?.value : lidColorEl?.value, berry?.body || "#245bff"),
+      showBrows: !!(manual ? manualShowBrowsEl?.checked : showBrowsEl?.checked),
+      showLids: !!(manual ? manualShowLidsEl?.checked : showLidsEl?.checked),
+      buddyType: (manual ? manualBuddyTypeEl?.value : buddyTypeEl?.value) || "Auto / Food Default",
+      faceType: (manual ? manualEyesEl?.value : eyeTypeEl?.value) || "auto",
+      mouthType: (manual ? manualMouthEl?.value : mouthTypeEl?.value) || "auto",
+      extraMood: (manual ? manualExtraMoodEl?.value : null) || "auto"
+    };
+  }
+
+  function applyBuddyTypeShape(type){
+    if(!berry || !type || type === "Auto / Food Default") return;
+    const baseW = Number(berry.bodyW || 1);
+    const baseH = Number(berry.bodyH || 1);
+    const map = {
+      "Round Buddy":[.96,.96,1,0,0,0], "Tall Buddy":[.78,1.22,1,0,0,0], "Wide Buddy":[1.24,.82,1,0,0,0],
+      "Tiny Buddy":[.72,.72,.9,0,0,0], "Mega Buddy":[1.22,1.20,1,0,0,0], "Bean Buddy":[.72,1.12,1,0,0,0],
+      "Pear Buddy":[.86,1.18,.8,0,0,24], "Squash Buddy":[1.16,.88,1.2,-18,18,0], "Pancake Buddy":[1.30,.62,.9,0,0,0],
+      "Pill Buddy":[1.22,.64,1,0,0,0], "Heart Buddy":[.95,1.02,.6,-10,10,0], "Droopy Buddy":[.90,1.16,1.4,-22,12,18],
+      "Lumpy Buddy":[1.05,1.00,1.2,-28,26,0], "Floaty Orb":[.92,.92,.7,0,0,-8], "Chibi Head":[1.06,.86,.75,0,0,-12],
+      "Long Snack":[1.34,.56,1,0,0,0], "Stubby Snack":[.86,.68,1,0,0,0], "Wide Cheeks":[1.20,.92,1,-10,10,0],
+      "Tiny Top":[.92,1.04,.48,-6,6,18], "Big Bottom":[1.00,1.16,1.25,-10,10,30], "Skinny Top":[.82,1.18,.55,0,0,20],
+      "Jellybean":[1.12,.70,1,0,0,0], "Ancient Relic":[.88,1.18,1.5,-16,18,4], "Sticker Buddy":[.98,.72,.8,0,0,0],
+      "Cartoon Squash":[1.22,.86,1.4,-24,20,0], "Plush Buddy":[1.08,.98,.9,-4,4,0], "Oddball":[1.04,1.11,1.35,-31,17,12]
+    };
+    const v = map[type];
+    if(!v) return;
+    berry.bodyW = clamp(baseW * v[0], .45, 1.65);
+    berry.bodyH = clamp(baseH * v[1], .45, 1.65);
+    berry.topDip = v[2];
+    berry.leftLump = v[3];
+    berry.rightLump = v[4];
+    berry.bellyShift = v[5];
+    berry.buddyType = type;
+    berry.type = type;
+  }
+
+  function applyExtraMoodLayer(extraMood){
+    if(!berry || !extraMood || extraMood === "auto") return;
+    berry.extraMood = extraMood;
+    if(extraMood === "sparkly"){ berry.starCount += 8; berry.faceType = "Sticker Spark Eyes"; }
+    if(extraMood === "melty"){ berry.mouthType = "Melty Smile"; berry.lid = Math.max(berry.lid || 0, .22); }
+    if(extraMood === "feral"){ berry.faceType = "Tiny Angry Dots"; berry.mouthType = "Shark Smile"; berry.hasBrows = true; }
+    if(extraMood === "polite"){ berry.mouthType = "Tiny Sticker Smile"; berry.eyeSize *= .92; }
+    if(extraMood === "hyper"){ berry.eyeSize *= 1.18; berry.starCount += 4; berry.idleAnim = "Hyper Bounce"; }
+    if(extraMood === "haunted"){ berry.faceType = "Void Eyes"; berry.mouthType = "Tape Mouth"; berry.lid = Math.max(berry.lid || 0, .35); }
+    if(extraMood === "tired"){ berry.faceType = "Sleepy Beads"; berry.lid = Math.max(berry.lid || 0, .62); berry.idleAnim = "Sleepy Sway"; }
+    if(extraMood === "snacky"){ berry.mouthType = "Bean Chomp"; berry.mouthOpen = Math.max(berry.mouthOpen || 0, .35); }
+    if(extraMood === "confident"){ berry.faceType = "Raised Dot Eyes"; berry.mouthType = "Crooked Smirk"; berry.hasBrows = true; }
+    if(extraMood === "plastic"){ berry.gradientType = "Glossy Dome"; berry.faceType = "Wonky Toy Eyes"; berry.mouthType = "Mascot Grin"; }
+    if(extraMood === "lostmedia"){ berry.faceType = "Lost App Eyes"; berry.mouthType = "Lost App Grin"; berry.gradientType = "Arcade Glaze"; }
+  }
+
+  function applyExtraVisualControls(scope="birthday", saveManual=false){
+    if(!berry) return;
+    const manual = scope === "manual";
+    const values = extraVisualValuesFrom(scope);
+    if(values.faceType && values.faceType !== "auto") berry.faceType = values.faceType;
+    if(values.mouthType && values.mouthType !== "auto") berry.mouthType = values.mouthType;
+    berry.eyeSize = clamp((berry.emotionBaseEyeSize || berry.eyeSize || 1) * values.eyeScale, .25, 2.8);
+    berry.eyeGap = berry.faceType === "Cyclops" ? 0 : clamp(Math.round((berry.emotionBaseEyeGap || berry.eyeGap || 132) * values.eyeSpacingScale), 35, 260);
+    if(berry.faceType === "Three Eyes") berry.eyeGap = clamp(118 * values.eyeSpacingScale, 65, 240);
+    berry.browRotation = values.browRotation;
+    berry.customLidAmount = values.lidAmount;
+    berry.browColor = values.browColor;
+    berry.lidColor = values.lidColor;
+    berry.showBrows = values.showBrows;
+    berry.showLids = values.showLids;
+    berry.hasBrows = values.showBrows && (berry.hasBrows || values.browRotation !== 0 || values.lidAmount > .02);
+    applyBuddyTypeShape(values.buddyType);
+    applyExtraMoodLayer(values.extraMood);
+    fixEyeGapForFace(berry.faceType);
+    if(faceStat) faceStat.textContent = `${berry.faceType} · eyes ${Math.round(values.eyeScale*100)}% · spacing ${Math.round(values.eyeSpacingScale*100)}%`;
+    if(saveManual){
+      const store = getManualStore();
+      store.last = {...(store.last || {}), buddyType: values.buddyType, extraMood: values.extraMood, eyeScale: values.eyeScale, eyeSpacingScale: values.eyeSpacingScale, browRotation: values.browRotation, lidAmount: values.lidAmount, browColor: values.browColor, lidColor: values.lidColor, showBrows: values.showBrows, showLids: values.showLids};
+      saveManualStore(store);
+      populateManualHistory();
+    }
+    syncRangeLabels();
+  }
+
   function syncRangeLabels(){
     if(pupilSizeValue && pupilSizeEl) pupilSizeValue.textContent = `${rangePercent(pupilSizeEl, 100)}%`;
     if(mouthRotateValue && mouthRotateEl) mouthRotateValue.textContent = `${rangeNumber(mouthRotateEl, 0)}°`;
@@ -2325,6 +2642,14 @@
     if(manualPupilYValue && manualPupilYEl) manualPupilYValue.textContent = `${rangeNumber(manualPupilYEl, 0)}`;
     if(manualMouthOpenValue && manualMouthOpenEl) manualMouthOpenValue.textContent = `${clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100)}%`;
     if(manualGradientAngleValue && manualGradientAngleEl) manualGradientAngleValue.textContent = `${clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360)}°`;
+    if(eyeSizeValue && eyeSizeEl) eyeSizeValue.textContent = `${clamp(rangeNumber(eyeSizeEl, 100), 45, 175)}%`;
+    if(eyeSpacingValue && eyeSpacingEl) eyeSpacingValue.textContent = `${clamp(rangeNumber(eyeSpacingEl, 100), 45, 185)}%`;
+    if(browRotateValue && browRotateEl) browRotateValue.textContent = `${rangeNumber(browRotateEl, 0)}°`;
+    if(lidAmountValue && lidAmountEl) lidAmountValue.textContent = `${clamp(rangeNumber(lidAmountEl, 0), 0, 90)}%`;
+    if(manualEyeSizeValue && manualEyeSizeEl) manualEyeSizeValue.textContent = `${clamp(rangeNumber(manualEyeSizeEl, 100), 45, 175)}%`;
+    if(manualEyeSpacingValue && manualEyeSpacingEl) manualEyeSpacingValue.textContent = `${clamp(rangeNumber(manualEyeSpacingEl, 100), 45, 185)}%`;
+    if(manualBrowRotateValue && manualBrowRotateEl) manualBrowRotateValue.textContent = `${rangeNumber(manualBrowRotateEl, 0)}°`;
+    if(manualLidAmountValue && manualLidAmountEl) manualLidAmountValue.textContent = `${clamp(rangeNumber(manualLidAmountEl, 0), 0, 90)}%`;
   }
 
   function expressionValuesFrom(scope="birthday"){
@@ -2559,6 +2884,7 @@
     berry.emotionBaseBrowStyle = 0;
     berry.emotionBaseLid = 0;
     berry.emotionBaseEyeSize = berry.eyeSize;
+    berry.emotionBaseEyeGap = berry.eyeGap;
 
     if(berry.rarity === "Legendary" || berry.rarity === "Mythic"){
       berry.starCount += berry.rarity === "Mythic" ? 12 : 7;
@@ -2570,8 +2896,11 @@
     berry.emotionBaseEyeSize = berry.eyeSize;
     if(berry.accessories.includes("Tiny Crown") || berry.accessories.includes("Cake Crown")) berry.word1 = "Royal";
 
-        if(berry.faceType === "Cyclops") berry.eyeGap = 0;
+        if(eyeTypeEl?.value && eyeTypeEl.value !== "auto") berry.faceType = eyeTypeEl.value;
+    if(mouthTypeEl?.value && mouthTypeEl.value !== "auto") berry.mouthType = mouthTypeEl.value;
+    if(berry.faceType === "Cyclops") berry.eyeGap = 0;
     if(berry.faceType === "Three Eyes") berry.eyeGap = 118;
+    applyExtraVisualControls("birthday", false);
     tapCount = 0;
     wobble = 1.1;
     updateUI();
@@ -2616,6 +2945,16 @@
       manualExpression.pupilX,
       manualExpression.pupilY,
       manualExpression.mouthOpen,
+      manualBuddyTypeEl?.value || "Auto / Food Default",
+      manualExtraMoodEl?.value || "auto",
+      clamp(rangeNumber(manualEyeSizeEl, 100), 45, 175),
+      clamp(rangeNumber(manualEyeSpacingEl, 100), 45, 185),
+      clamp(rangeNumber(manualBrowRotateEl, 0), -45, 45),
+      clamp(rangeNumber(manualLidAmountEl, 0), 0, 90),
+      manualBrowColorEl?.value || "#000000",
+      manualLidColorEl?.value || "#245bff",
+      !!manualShowBrowsEl?.checked,
+      !!manualShowLidsEl?.checked,
       manualColors.enabled,
       !!manualDisableGradientEl?.checked,
       manualColors.base,
@@ -2713,6 +3052,8 @@
       applyManualPalette(chosenPalette);
     }
 
+    berry.emotionBaseEyeGap = berry.eyeGap;
+    applyExtraVisualControls("manual", false);
     fixEyeGapForFace(berry.faceType);
     berry.particlesDisabled = !!manualParticleDisableEl?.checked;
     if(berry.avatarPreset === "berryPVZ") normalizeBerryPVZPreset();
@@ -5112,6 +5453,29 @@
       ctx.lineTo(px+18*scale,py);
       ctx.stroke();
 
+    } else if(["Void Eyes","Ink Drop Eyes","Button Dot Eyes","Tiny Side Dots","Raised Dot Eyes","Slug Eyes","Mascot Eyes","Painted Eyes","Sticker Spark Eyes","Camera Eyes","Cassette Eyes","Dice Eyes","Clock Eyes","Sleepy Beads","Tiny Angry Dots","Beanie Eyes","Wide Bean Eyes","Wonky Toy Eyes","Lost App Eyes","Marble Eyes","Candy Button Eyes"].includes(berry.faceType)){
+      ctx.fillStyle = ["Sticker Spark Eyes","Marble Eyes","Candy Button Eyes"].includes(berry.faceType) ? (side < 0 ? berry.eyeColorA : berry.eyeColorB) : "#000";
+      if(berry.faceType === "Void Eyes"){
+        ctx.beginPath(); ctx.ellipse(px,py,22*scale,30*scale,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#fff"; drawStar(px,py,8*scale,4*scale,4,"#fff");
+      } else if(berry.faceType === "Sticker Spark Eyes"){
+        drawStar(px,py,19*scale,8*scale,5,ctx.fillStyle);
+      } else if(berry.faceType === "Camera Eyes" || berry.faceType === "Cassette Eyes"){
+        ctx.beginPath(); ctx.roundRect(px-20*scale,py-16*scale,40*scale,32*scale,6*scale); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(px+7*scale,py-5*scale,5*scale,5*scale,0,0,Math.PI*2); ctx.fill();
+      } else if(berry.faceType === "Dice Eyes"){
+        ctx.beginPath(); ctx.roundRect(px-19*scale,py-19*scale,38*scale,38*scale,7*scale); ctx.fill();
+        ctx.fillStyle = "#fff"; for(const dx of [-7,7]){ for(const dy of [-7,7]){ ctx.beginPath(); ctx.ellipse(px+dx*scale,py+dy*scale,3*scale,3*scale,0,0,Math.PI*2); ctx.fill(); }}
+      } else if(berry.faceType === "Clock Eyes"){
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 6*scale; ctx.beginPath(); ctx.ellipse(px,py,20*scale,20*scale,0,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-14*scale); ctx.moveTo(px,py); ctx.lineTo(px+11*scale,py+5*scale); ctx.stroke();
+      } else if(berry.faceType === "Tiny Side Dots" || berry.faceType === "Sleepy Beads" || berry.faceType === "Tiny Angry Dots"){
+        ctx.beginPath(); ctx.ellipse(px+side*8*scale,py,7*scale,10*scale,0,0,Math.PI*2); ctx.fill();
+      } else if(berry.faceType === "Slug Eyes" || berry.faceType === "Beanie Eyes" || berry.faceType === "Wide Bean Eyes"){
+        ctx.beginPath(); ctx.ellipse(px,py,berry.faceType === "Wide Bean Eyes" ? 23*scale : 14*scale, berry.faceType === "Slug Eyes" ? 25*scale : 16*scale,.35*side,0,Math.PI*2); ctx.fill();
+      } else {
+        ctx.beginPath(); ctx.ellipse(px,py,16*scale,22*scale,0,0,Math.PI*2); ctx.fill();
+      }
     } else if(berry.faceType === "Crazy Eyes"){
       ctx.beginPath();
       ctx.ellipse(px-5,py,8*scale,22*scale,.35*side,0,Math.PI*2);
@@ -5208,11 +5572,11 @@
     ctx.ellipse(px-7,py-13,4*scale,6*scale,0,0,Math.PI*2);
     ctx.fill();
 
-    const moodLidAmount = moodLidAmountFor(berry.mood);
-    if(moodLidAmount > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind)){
+    const moodLidAmount = berry.showLids === false ? 0 : Math.max(moodLidAmountFor(berry.mood), Number(berry.customLidAmount || 0));
+    if(berry.showLids !== false && (moodLidAmount > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind))){
       const lidBoost = ["Sleepy","Old Lids","Half Moon","Droopy Eyes"].includes(kind) ? .45 : kind === "Angry Eyes" ? .25 : 0;
       const amount = Math.min(.88, moodLidAmount + lidBoost);
-      ctx.fillStyle = berry.body;
+      ctx.fillStyle = berry.lidColor || berry.body;
       ctx.beginPath();
       ctx.ellipse(0,-whiteH*(.95 - amount*.45),whiteW+9,whiteH*amount,0,0,Math.PI*2);
       ctx.fill();
@@ -5266,12 +5630,12 @@
   }
 
   function drawBrows(gap){
-    if(berry.faceType === "Cyclops") return;
+    if(berry.faceType === "Cyclops" || berry.showBrows === false) return;
     const moodBrowStyle = moodBrowStyleFor(berry.mood);
-    const faceAllowsBrows = ["Angry Eyes","Mischief Eyes"].includes(berry.faceType);
+    const faceAllowsBrows = !!berry.hasBrows || ["Angry Eyes","Mischief Eyes"].includes(berry.faceType);
     if(moodBrowStyle === null && !faceAllowsBrows) return;
     const drawBrowStyle = moodBrowStyle !== null ? moodBrowStyle : Number(berry.browStyle || 0);
-    ctx.strokeStyle = "#000";
+    ctx.strokeStyle = berry.browColor || "#000";
     ctx.lineWidth = 10;
     ctx.lineCap = "round";
     const y = berry.faceType === "Huge Eyes" ? -173 : -158;
@@ -5279,6 +5643,10 @@
     const rightX = gap/2;
 
     function brow(x, flip){
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(((Number(berry.browRotation || 0) * flip) * Math.PI) / 180);
+      ctx.translate(-x,-y);
       ctx.beginPath();
       if(drawBrowStyle === 0){
         ctx.moveTo(x-40,y+4);
@@ -5306,6 +5674,7 @@
         ctx.lineTo(x+38,y+13);
       }
       ctx.stroke();
+      ctx.restore();
     }
     brow(leftX,1);
     brow(rightX,-1);
@@ -6888,7 +7257,7 @@
   }
   if(particleDisableEl) particleDisableEl.addEventListener("change", () => handleParticleToggle(particleDisableEl));
   if(manualParticleDisableEl) manualParticleDisableEl.addEventListener("change", () => handleParticleToggle(manualParticleDisableEl));
-  for(const el of [manualNameEl, manualFruitEl, manualGenderEl, manualMoodEl, manualSceneEl, manualSeasonEl, manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualDisableAccessoriesEl, manualParticleDisableEl, manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl]){
+  for(const el of [manualNameEl, manualFruitEl, manualGenderEl, manualMoodEl, manualSceneEl, manualSeasonEl, manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualBuddyTypeEl, manualExtraMoodEl, manualBrowColorEl, manualLidColorEl, manualShowBrowsEl, manualShowLidsEl, manualDisableAccessoriesEl, manualParticleDisableEl, manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualEyeSizeEl, manualEyeSpacingEl, manualBrowRotateEl, manualLidAmountEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl]){
     if(!el) continue;
     const eventName = el.tagName === "INPUT" ? "change" : "change";
     el.addEventListener(eventName, () => {
@@ -6930,10 +7299,20 @@
     el.addEventListener("input", () => applyExpressionControls("birthday"));
     el.addEventListener("change", () => applyExpressionControls("birthday"));
   }
+  for(const el of [buddyTypeEl, eyeTypeEl, mouthTypeEl, eyeSizeEl, eyeSpacingEl, browRotateEl, lidAmountEl, browColorEl, lidColorEl, showBrowsEl, showLidsEl]){
+    if(!el) continue;
+    el.addEventListener("input", () => applyExtraVisualControls("birthday", false));
+    el.addEventListener("change", () => applyExtraVisualControls("birthday", false));
+  }
   for(const el of [manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualGradientAngleEl]){
     if(!el) continue;
     el.addEventListener("input", () => applyExpressionControls("manual", true));
     el.addEventListener("change", () => applyExpressionControls("manual", true));
+  }
+  for(const el of [manualBuddyTypeEl, manualExtraMoodEl, manualEyeSizeEl, manualEyeSpacingEl, manualBrowRotateEl, manualLidAmountEl, manualBrowColorEl, manualLidColorEl, manualShowBrowsEl, manualShowLidsEl]){
+    if(!el) continue;
+    el.addEventListener("input", () => applyExtraVisualControls("manual", true));
+    el.addEventListener("change", () => applyExtraVisualControls("manual", true));
   }
   for(const el of [manualFruitEl, manualGenderEl, manualSceneEl, manualSeasonEl]){
     if(!el) continue;
@@ -6945,7 +7324,7 @@
       applyManualVisualTweaks(true);
     });
   }
-  for(const el of [manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl, manualDisableAccessoriesEl, manualParticleDisableEl]){
+  for(const el of [manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualBuddyTypeEl, manualExtraMoodEl, manualBrowColorEl, manualLidColorEl, manualShowBrowsEl, manualShowLidsEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl, manualDisableAccessoriesEl, manualParticleDisableEl]){
     if(!el) continue;
     el.addEventListener("input", () => applyManualVisualTweaks(true));
     el.addEventListener("change", () => applyManualVisualTweaks(true));
@@ -6960,6 +7339,11 @@
   Object.assign(FRUIT_PROFILES, EXTRA_FOOD_PROFILES);
   Object.assign(FOOD_CATEGORIES, EXTRA_FOOD_CATEGORIES);
   populateSelect(moodEl, MOODS, "auto");
+  populatePlainSelect(buddyTypeEl, BUDDY_TYPES, "Auto / Food Default");
+  populatePlainSelect(eyeTypeEl, ["auto", ...FACE_TYPES], "auto");
+  if(eyeTypeEl?.options?.[0]) eyeTypeEl.options[0].textContent = "Auto / Birthday Pick";
+  populatePlainSelect(mouthTypeEl, ["auto", ...MOUTH_TYPES], "auto");
+  if(mouthTypeEl?.options?.[0]) mouthTypeEl.options[0].textContent = "Auto / Birthday Pick";
   populateSelect(sceneEl, BACKGROUND_SCENES, "auto");
   populateSelect(seasonEl, SEASONS, "auto");
   rebuildFoodDropdown();

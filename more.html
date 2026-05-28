@@ -626,6 +626,27 @@
           <label for="seasonSelect">Season/event</label>
           <select id="seasonSelect"></select>
         </div>
+        <div>
+          <label for="ageModeSelect">Aging system</label>
+          <select id="ageModeSelect">
+            <option value="auto" selected>Auto from birth year</option>
+            <option value="none">No age effects</option>
+            <option value="baby">Baby snack</option>
+            <option value="young">Fresh young</option>
+            <option value="prime">Prime snack</option>
+            <option value="mature">Mature snack</option>
+            <option value="elder">Elder snack</option>
+            <option value="ancient">Ancient snack</option>
+            <option value="fossil">Ancient fossil</option>
+            <option value="future">Future snack</option>
+          </select>
+        </div>
+        <div>
+          <label class="toggleRow" for="particleDisable">
+            <input type="checkbox" id="particleDisable" />
+            <span>Disable particles</span>
+          </label>
+        </div>
       </div>
 
       <button id="makeBtn">Generate My Food Buddy</button>
@@ -781,6 +802,7 @@
       <div class="actionGrid">
         <button class="purpleBtn" id="mutateBtn">Mutate Buddy</button>
         <button class="greenBtn" id="exportBtn">Export PNG</button>
+        <button class="greenBtn" id="transparentExportBtn">Export Transparent PNG</button>
         <button class="orangeBtn" id="saveDexBtn">Save to Berry Dex</button>
         <button class="smallBtn" id="siblingBtn">Make Sibling</button>
         <button class="smallBtn" id="childBtn">Make Child</button>
@@ -1350,8 +1372,11 @@
   const applyMoodBtn = document.getElementById("applyMoodBtn");
   const sceneEl = document.getElementById("sceneSelect");
   const seasonEl = document.getElementById("seasonSelect");
+  const ageModeEl = document.getElementById("ageModeSelect");
+  const particleDisableEl = document.getElementById("particleDisable");
   const mutateBtn = document.getElementById("mutateBtn");
   const exportBtn = document.getElementById("exportBtn");
+  const transparentExportBtn = document.getElementById("transparentExportBtn");
   const saveDexBtn = document.getElementById("saveDexBtn");
   const siblingBtn = document.getElementById("siblingBtn");
   const childBtn = document.getElementById("childBtn");
@@ -1462,6 +1487,7 @@
   let animTime = 0;
   let lastGeneratedBase = null;
   let manualSalt = 0;
+  let transparentExportMode = false;
 
   function fillDays(){
     const current = Number(dayEl.value) || 1;
@@ -1922,6 +1948,7 @@
 
     if(finalMood === "baby") berry.eyeSize *= 1.18;
     applyMoodDecorationRules(finalMood);
+    if(berry.ageInfo?.lidBoost) berry.lid = Math.max(berry.lid || 0, berry.ageInfo.lidBoost);
     berry.idleAnim = berry.ageInfo?.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : berry.idleAnim;
   }
 
@@ -2104,17 +2131,70 @@
     if(manualMouthEl && MOUTH_TYPES.includes(moodMouth)) manualMouthEl.value = moodMouth;
   }
 
-  function ageStage(year){
+  function ageProfile(age, mode, label, wrinkles=0, cracks=0, gray=0, baby=false, extras={}){
+    return {
+      age,
+      mode,
+      label,
+      wrinkles,
+      cracks,
+      gray,
+      baby,
+      bodyScale: extras.bodyScale ?? 1,
+      bodyScaleY: extras.bodyScaleY ?? extras.bodyScale ?? 1,
+      eyeBoost: extras.eyeBoost ?? 1,
+      mouthBoost: extras.mouthBoost ?? 1,
+      lidBoost: extras.lidBoost ?? 0,
+      future: !!extras.future
+    };
+  }
+
+  function ageStage(year, override="auto"){
     const nowYear = new Date().getFullYear();
     const age = nowYear - year;
-    if(year < 0) return {age, label:"Ancient fossil", wrinkles:5, cracks:5, gray:.9, baby:false};
-    if(age < 0) return {age, label:"Future snack", wrinkles:0, cracks:0, gray:0, baby:false};
-    if(age <= 5) return {age, label:"Baby snack", wrinkles:0, cracks:0, gray:0, baby:true};
-    if(age <= 17) return {age, label:"Fresh young", wrinkles:0, cracks:0, gray:0, baby:false};
-    if(age <= 45) return {age, label:"Prime snack", wrinkles:0, cracks:0, gray:0, baby:false};
-    if(age <= 75) return {age, label:"Mature snack", wrinkles:2, cracks:1, gray:.25, baby:false};
-    if(age <= 100) return {age, label:"Elder snack", wrinkles:4, cracks:2, gray:.55, baby:false};
-    return {age, label:"Ancient snack", wrinkles:6, cracks:4, gray:.8, baby:false};
+    const mode = override || "auto";
+
+    if(mode === "none") return ageProfile(age, mode, "No aging", 0, 0, 0, false);
+    if(mode === "baby") return ageProfile(age, mode, "Baby snack", 0, 0, 0, true, {bodyScale:.82, bodyScaleY:.88, eyeBoost:1.22, mouthBoost:.84});
+    if(mode === "young") return ageProfile(age, mode, "Fresh young", 0, 0, 0, false, {bodyScale:.94, bodyScaleY:.96, eyeBoost:1.06});
+    if(mode === "prime") return ageProfile(age, mode, "Prime snack", 0, 0, 0, false);
+    if(mode === "mature") return ageProfile(age, mode, "Mature snack", 2, 1, .25, false, {lidBoost:.08});
+    if(mode === "elder") return ageProfile(age, mode, "Elder snack", 4, 2, .55, false, {bodyScale:.97, bodyScaleY:.96, lidBoost:.2});
+    if(mode === "ancient") return ageProfile(age, mode, "Ancient snack", 6, 4, .8, false, {bodyScale:.94, bodyScaleY:.92, lidBoost:.34});
+    if(mode === "fossil") return ageProfile(age, mode, "Ancient fossil", 5, 5, .9, false, {bodyScale:.92, bodyScaleY:.9, lidBoost:.42});
+    if(mode === "future") return ageProfile(age, mode, "Future snack", 0, 0, 0, false, {bodyScale:1.03, eyeBoost:1.08, future:true});
+
+    if(year < 0) return ageProfile(age, "auto", "Ancient fossil", 5, 5, .9, false, {bodyScale:.92, bodyScaleY:.9, lidBoost:.42});
+    if(age < 0) return ageProfile(age, "auto", "Future snack", 0, 0, 0, false, {bodyScale:1.03, eyeBoost:1.08, future:true});
+    if(age <= 5) return ageProfile(age, "auto", "Baby snack", 0, 0, 0, true, {bodyScale:.82, bodyScaleY:.88, eyeBoost:1.22, mouthBoost:.84});
+    if(age <= 17) return ageProfile(age, "auto", "Fresh young", 0, 0, 0, false, {bodyScale:.94, bodyScaleY:.96, eyeBoost:1.06});
+    if(age <= 45) return ageProfile(age, "auto", "Prime snack", 0, 0, 0, false);
+    if(age <= 75) return ageProfile(age, "auto", "Mature snack", 2, 1, .25, false, {lidBoost:.08});
+    if(age <= 100) return ageProfile(age, "auto", "Elder snack", 4, 2, .55, false, {bodyScale:.97, bodyScaleY:.96, lidBoost:.2});
+    return ageProfile(age, "auto", "Ancient snack", 6, 4, .8, false, {bodyScale:.94, bodyScaleY:.92, lidBoost:.34});
+  }
+
+  function particlesEnabled(){
+    return !particleDisableEl?.checked;
+  }
+
+  function applyAgingSystemTweaks(){
+    if(!berry?.ageInfo || berry.ageInfo.mode === "none") return;
+    const age = berry.ageInfo;
+    berry.bodyW *= age.bodyScale ?? 1;
+    berry.bodyH *= age.bodyScaleY ?? age.bodyScale ?? 1;
+    berry.eyeSize *= age.eyeBoost ?? 1;
+    berry.mouthWidth *= age.mouthBoost ?? 1;
+    berry.mouthHeight *= age.mouthBoost ?? 1;
+    if(age.lidBoost) berry.lid = Math.max(berry.lid || 0, age.lidBoost);
+    if(age.baby){
+      berry.cheek = true;
+      berry.freckles = false;
+    }
+    if(age.wrinkles >= 4 && !berry.hasBrows){
+      berry.hasBrows = true;
+      berry.browStyle = 1;
+    }
   }
 
   function pickAccessories(rand, rarity, gender, mood, season, ageInfo){
@@ -2276,12 +2356,13 @@
     const fruitKind = fruitEl.value || "blueberry";
     const fruitProfile = FRUIT_PROFILES[fruitKind] || FRUIT_PROFILES.blueberry;
     const isBlueberryTemplate = fruitKind === "blueberry" || fruitProfile.shape === "blueberry";
-    const seed = hashString(`${rawYear}|${month}|${day}|${selectedGender}|${fruitKind}|${regenSalt}`);
+    const seed = hashString(`${rawYear}|${month}|${day}|${selectedGender}|${fruitKind}|${ageModeEl?.value || "auto"}|${regenSalt}`);
     const rand = rng(seed);
 
     const selectedMood = moodEl?.value || "auto";
     const selectedScene = sceneEl?.value || "auto";
     const selectedSeason = seasonEl?.value || "auto";
+    const selectedAgeMode = ageModeEl?.value || "auto";
     const expression = expressionValuesFrom("birthday");
 
     const gender = chooseGender(rand);
@@ -2304,7 +2385,7 @@
     const ancient = year < 0 || age > 90;
     const lidAmount = ancient ? .85 : clamp(age / 180, 0, .34);
 
-    const ageInfo = ageStage(year);
+    const ageInfo = ageStage(year, selectedAgeMode);
     const finalMood = selectedMood === "auto" ? autoMood(year, month, day, rand) : selectedMood;
     const finalSeason = selectedSeason === "auto" ? autoSeason(month, day, rand) : selectedSeason;
     const finalScene = selectedScene === "auto" ? autoScene(month, day, fruitKind, rand) : selectedScene;
@@ -2331,7 +2412,7 @@
     const idleAnim = ageInfo.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : pick(rand, IDLE_ANIMS);
     const cosmeticGender = gender === "female" ? "soft lashes / bows" : gender === "male" ? "caps / bold brows" : "stickers / neutral styling";
     const familyId = `family-${hashString(`${rawYear}|${month}|${day}|${fruitKind}|${selectedGender}`)}`;
-    lastGeneratedBase = {rawYear, month, day, selectedGender, fruitKind, regenSalt, mutationSalt};
+    lastGeneratedBase = {rawYear, month, day, selectedGender, fruitKind, ageMode: selectedAgeMode, regenSalt, mutationSalt};
 
     berry = {
       seed,
@@ -2352,6 +2433,8 @@
       accessories,
       idleAnim,
       ageInfo,
+      ageMode: selectedAgeMode,
+      particlesDisabled: !particlesEnabled(),
       cosmeticGender,
       familyId,
       parentSeed: null,
@@ -2429,6 +2512,8 @@
     }
     if(berry.mood === "baby") berry.eyeSize *= 1.18;
     applyMoodDecorationRules(berry.mood);
+    applyAgingSystemTweaks();
+    berry.emotionBaseEyeSize = berry.eyeSize;
     if(berry.accessories.includes("Tiny Crown") || berry.accessories.includes("Cake Crown")) berry.word1 = "Royal";
 
         if(berry.faceType === "Cyclops") berry.eyeGap = 0;
@@ -2498,6 +2583,7 @@
       mood: moodEl?.value,
       scene: sceneEl?.value,
       season: seasonEl?.value,
+      ageMode: ageModeEl?.value,
       regenSalt,
       mutationSalt
     };
@@ -2510,6 +2596,7 @@
     if(moodEl) moodEl.value = chosenMood;
     if(sceneEl) sceneEl.value = chosenScene;
     if(seasonEl) seasonEl.value = chosenSeason;
+    if(ageModeEl) ageModeEl.value = "auto";
     regenSalt = manualSalt;
     mutationSalt = 0;
 
@@ -2523,6 +2610,7 @@
     if(moodEl) moodEl.value = old.mood;
     if(sceneEl) sceneEl.value = old.scene;
     if(seasonEl) seasonEl.value = old.season;
+    if(ageModeEl) ageModeEl.value = old.ageMode || "auto";
     regenSalt = old.regenSalt;
     mutationSalt = old.mutationSalt;
 
@@ -2588,11 +2676,13 @@
     if(moodEl) moodEl.value = "happy";
     if(sceneEl) sceneEl.value = "garden";
     if(seasonEl) seasonEl.value = "none";
+    if(ageModeEl) ageModeEl.value = "auto";
+    if(particleDisableEl) particleDisableEl.checked = false;
 
     makeBerry(true);
 
     const defaultSeed = hashString("berry-pvz-default-avatar");
-    const ageInfo = ageStage(parsedYearValue(yearEl.value));
+    const ageInfo = ageStage(parsedYearValue(yearEl.value), ageModeEl?.value || "auto");
     Object.assign(berry, {
       avatarPreset: "berryPVZ",
       seed: defaultSeed,
@@ -2614,6 +2704,8 @@
       accessories: [],
       idleAnim: "Simple Bounce",
       ageInfo,
+      ageMode: ageModeEl?.value || "auto",
+      particlesDisabled: false,
       cosmeticGender: "neutral styling",
       familyId: `family-${hashString("berry-pvz")}`,
       parentSeed: null,
@@ -2689,6 +2781,7 @@
       day: 1,
       selectedGender: "neutral",
       fruitKind: "blueberry",
+      ageMode: ageModeEl?.value || "auto",
       regenSalt: 0,
       mutationSalt: 0,
       defaultAvatar: true
@@ -2732,6 +2825,8 @@
     resetExpressionControls("birthday");
     resetManualControlsForDefault();
     if(emotionOnlyEl) emotionOnlyEl.checked = true;
+    if(ageModeEl) ageModeEl.value = "auto";
+    if(particleDisableEl) particleDisableEl.checked = false;
     makeDefaultBerryPVZ();
     toast.textContent = "Character reset to Berry PVZ.";
   }
@@ -2796,8 +2891,9 @@
     if(moodStat) moodStat.textContent = berry.moodName;
     if(sceneStat) sceneStat.textContent = berry.sceneName;
     if(seasonStat) seasonStat.textContent = berry.seasonName;
+    berry.particlesDisabled = !particlesEnabled();
     if(accessoryStat) accessoryStat.textContent = berry.accessoriesDisabled ? "Disabled" : (berry.accessories?.length ? berry.accessories.join(", ") : "None");
-    if(ageStat) ageStat.textContent = `${berry.ageInfo.label}${berry.ageInfo.age >= 0 ? " · " + berry.ageInfo.age : ""}`;
+    if(ageStat) ageStat.textContent = `${berry.ageInfo.label}${berry.ageInfo.age >= 0 ? " · " + berry.ageInfo.age : ""}${berry.ageInfo.mode !== "auto" ? " · override" : ""}`;
     wordChips.innerHTML = `<span class="wordChip">${berry.word1}</span><span class="wordChip">${berry.word2}</span><span class="wordChip ${berry.rarityClass}">${berry.rarity}</span>`;
     toast.textContent = `${berry.word1} ${berry.word2} · ${berry.rarity} · ${berry.moodName} · ${berry.sceneName}`;
     saveFamilyNode(false);
@@ -5878,6 +5974,7 @@
 
 
   function drawBackgroundScene(t){
+    if(transparentExportMode) return;
     const scene = berry?.scene || "garden";
     ctx.save();
     ctx.setTransform(1,0,0,1,0,0);
@@ -5975,7 +6072,7 @@
       ctx.beginPath(); ctx.arc(140,115,58,0,Math.PI*2); ctx.arc(196,125,70,0,Math.PI*2); ctx.arc(500,94,65,0,Math.PI*2); ctx.fill();
     }
 
-    if(berry?.season && berry.season !== "none"){
+    if(berry?.season && berry.season !== "none" && particlesEnabled()){
       drawSeasonOverlay(t);
     }
     ctx.restore();
@@ -6231,10 +6328,20 @@
         ctx.beginPath(); ctx.moveTo(-80+i*40,-168); ctx.quadraticCurveTo(-68+i*36,-210,-50+i*40,-175); ctx.stroke();
       }
     }
+    if(age.future){
+      ctx.strokeStyle="rgba(255,255,255,.55)";
+      ctx.lineWidth=5;
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 142 + i*18, 176 + i*12, Math.sin(animTime/900+i)*.08, 0, Math.PI*2);
+        ctx.stroke();
+      }
+    }
     ctx.restore();
   }
 
   function drawRaritySparkles(t){
+    if(!particlesEnabled()) return;
     if(!berry?.raritySparkle) return;
     ctx.save();
     for(let i=0;i<berry.raritySparkle;i++){
@@ -6296,6 +6403,7 @@
   }
 
   function popText(text, x, y){
+    if(!particlesEnabled()) return;
     const el = document.createElement("div");
     el.className = "floaty";
     el.textContent = text;
@@ -6337,6 +6445,8 @@
     moodEl.value = pick(Math.random, MOODS).id;
     sceneEl.value = pick(Math.random, BACKGROUND_SCENES).id;
     seasonEl.value = pick(Math.random, SEASONS).id;
+    if(ageModeEl) ageModeEl.value = "auto";
+    if(particleDisableEl) particleDisableEl.checked = false;
     makeBerry();
   }
 
@@ -6398,6 +6508,8 @@
       dayEl.value = item.source.day ?? berry.day;
       genderEl.value = item.source.selectedGender ?? "any";
       fruitEl.value = item.source.fruitKind ?? berry.fruitKind;
+      if(ageModeEl) ageModeEl.value = item.source.ageMode ?? berry.ageMode ?? "auto";
+      if(particleDisableEl) particleDisableEl.checked = !!berry.particlesDisabled;
       regenSalt = item.source.regenSalt ?? 0;
       mutationSalt = item.source.mutationSalt ?? berry.mutationSalt ?? 0;
     }
@@ -6423,17 +6535,21 @@
     toast.textContent = "Berry Dex cleared.";
   }
 
-  function exportPng(){
+  function exportPng(transparent=false){
     if(!berry) makeBerry();
+    const wasTransparent = transparentExportMode;
+    transparentExportMode = !!transparent;
     drawBerry(animTime || performance.now());
     const link = document.createElement("a");
     const clean = berry.name.replace(/[^a-z0-9]+/gi,"_").replace(/^_|_$/g,"") || "food_buddy";
-    link.download = `${clean}_${berry.rarity}_food_buddy.png`;
+    link.download = transparent ? `${clean}_${berry.rarity}_transparent_food_buddy.png` : `${clean}_${berry.rarity}_food_buddy.png`;
     link.href = canvas.toDataURL("image/png");
     document.body.appendChild(link);
     link.click();
     link.remove();
-    toast.textContent = "PNG exported.";
+    transparentExportMode = wasTransparent;
+    drawBerry(animTime || performance.now());
+    toast.textContent = transparent ? "Transparent PNG exported with no background." : "PNG exported.";
   }
 
   function mutateBuddy(){
@@ -6534,7 +6650,8 @@
   if(manualApplyVisualBtn) manualApplyVisualBtn.addEventListener("click", () => applyManualVisualTweaks(true));
   if(manualRandomBtn) manualRandomBtn.addEventListener("click", () => makeManualBerry(true));
   mutateBtn.addEventListener("click", mutateBuddy);
-  exportBtn.addEventListener("click", exportPng);
+  exportBtn.addEventListener("click", () => exportPng(false));
+  if(transparentExportBtn) transparentExportBtn.addEventListener("click", () => exportPng(true));
   saveDexBtn.addEventListener("click", saveToDex);
   siblingBtn.addEventListener("click", () => makeRelative("sibling"));
   childBtn.addEventListener("click", () => makeRelative("child"));
@@ -6552,6 +6669,12 @@
   });
   sceneEl.addEventListener("change", makeBerry);
   seasonEl.addEventListener("change", makeBerry);
+  if(ageModeEl) ageModeEl.addEventListener("change", makeBerry);
+  if(particleDisableEl) particleDisableEl.addEventListener("change", () => {
+    if(berry) berry.particlesDisabled = !particlesEnabled();
+    if(!particlesEnabled()) box.querySelectorAll(".floaty").forEach(el => el.remove());
+    toast.textContent = particlesEnabled() ? "Particles enabled." : "Particles disabled.";
+  });
   for(const el of [manualNameEl, manualFruitEl, manualGenderEl, manualMoodEl, manualSceneEl, manualSeasonEl, manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualDisableAccessoriesEl, manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl]){
     if(!el) continue;
     const eventName = el.tagName === "INPUT" ? "change" : "change";

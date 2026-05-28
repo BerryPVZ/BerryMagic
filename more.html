@@ -1166,7 +1166,7 @@
     "Spiral Pupils","Diamond Pupils","Button Eyes","Ring Eyes","Cross Eyes",
     "Wink","Half Moon","Sparkle Eyes","Angry Eyes","Three Eyes","Cyclops",
     "Heterochromia","Square Eyes","Droopy Eyes","Cat Eyes","Pinwheel Eyes",
-    "Tiny Beads","Wide Awake","Uneven Eyes","Rainbow Pupils","Pie Cut Pupils",
+    "Tiny Beads","Bead Eyes","Wide Awake","Uneven Eyes","Rainbow Pupils","Pie Cut Pupils",
     "Glitch Eyes","Flower Pupils","Moon Pupils","Plus Pupils","Smiley Eyes",
     "Drowsy Dots","Robot Eyes","Bean Eyes","Fish Eyes","Oval Pupils",
     "Comic Shine","Gem Eyes","Bug Eyes","Soft Eyes","Bottom Lids",
@@ -1929,6 +1929,7 @@
     if(chosenGender !== "any"){
       berry.gender = chosenGender;
       berry.cosmeticGender = chosenGender === "female" ? "soft lashes / bows" : chosenGender === "male" ? "caps / bold brows" : "stickers / neutral styling";
+      if(chosenGender === "female") berry.lashes = true;
     }
 
     berry.mood = finalMood;
@@ -2477,7 +2478,7 @@
       mouthOpen: expression.mouthOpen,
       browStyle: 0,
       hasBrows: false,
-      lashes: rand() > (gender === "female" ? .55 : .78),
+      lashes: gender === "female" ? true : rand() > .78,
       freckles: rand() > .48,
       cheek: rand() > .26,
       tinyStem: fruitProfile.stem ? rand() > .16 : rand() > .58,
@@ -4948,6 +4949,36 @@
     ctx.rotate(tilt);
 
     const kind = forcedKind || berry.faceType;
+    const drawLashesForEye = (outerW) => {
+      if(!(berry.lashes || berry.gender === "female")) return;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath();
+        ctx.moveTo(side*(outerW+8),-18+i*12);
+        ctx.lineTo(side*(outerW+20),-25+i*12);
+        ctx.stroke();
+      }
+    };
+
+    if(kind === "Bead Eyes"){
+      const pupilOffsetX = clamp(Number(berry.pupilX ?? 0), -35, 35);
+      const pupilOffsetY = clamp(Number(berry.pupilY ?? 0), -30, 30);
+      const beadR = 20*scale;
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(pupilOffsetX,pupilOffsetY,beadR,beadR,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.8)";
+      ctx.beginPath();
+      ctx.ellipse(pupilOffsetX-beadR*.35,pupilOffsetY-beadR*.42,beadR*.22,beadR*.28,0,0,Math.PI*2);
+      ctx.fill();
+      drawLashesForEye(beadR);
+      ctx.restore();
+      return;
+    }
+
     let whiteW = 38*scale, whiteH = 52*scale;
     if(kind === "Huge Eyes" || kind === "Big Spark Dots" || kind === "Wide TV Eyes"){ whiteW*=1.32; whiteH*=1.22; }
     if(kind === "Squinty" || kind === "Deadpan Ovals" || kind === "Sticker Eyes"){ whiteH*=.5; }
@@ -5020,17 +5051,7 @@
       ctx.stroke();
     }
 
-    if(berry.lashes){
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 4;
-      ctx.lineCap = "round";
-      for(let i=-1;i<=1;i++){
-        ctx.beginPath();
-        ctx.moveTo(side*(whiteW+8),-18+i*12);
-        ctx.lineTo(side*(whiteW+20),-25+i*12);
-        ctx.stroke();
-      }
-    }
+    drawLashesForEye(whiteW);
 
     ctx.restore();
   }

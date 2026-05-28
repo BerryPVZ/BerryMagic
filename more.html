@@ -291,12 +291,115 @@
     font-weight:800;
     color:#475569;
   }
+  .toggleRow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:8px 0 0;
+    padding:10px 12px;
+    border:3px solid #000;
+    border-radius:16px;
+    background:#f8fafc;
+    font-weight:950;
+    cursor:pointer;
+  }
+  .toggleRow input{
+    width:auto;
+    min-width:22px;
+    height:22px;
+    padding:0;
+    margin:0;
+    box-shadow:none;
+  }
+  .toggleRow span{line-height:1.2}
+  .emotionBtn{margin-top:8px}
+
+  .tabBar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .tabBtn{
+    margin-top:0;
+    background:#fff;
+    color:#000;
+  }
+  .tabBtn.active{
+    background:#1445ff;
+    color:#fff;
+  }
+  .makerTab[hidden]{display:none}
+  .manualGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .manualGrid .wide{grid-column:1/-1}
+  datalist{display:none}
+  .historyLine{
+    margin-top:10px;
+    border:3px solid #000;
+    border-radius:16px;
+    background:#f8fafc;
+    padding:10px 12px;
+    font-size:.82rem;
+    font-weight:900;
+    color:#475569;
+    line-height:1.3;
+  }
+
+  .sliderBox{
+    border:3px solid #000;
+    border-radius:18px;
+    background:#f8fafc;
+    padding:10px 12px;
+  }
+  .colorMakerBox{
+    border:3px solid #000;
+    border-radius:20px;
+    background:#fff7ed;
+    padding:12px;
+  }
+  .colorGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+  }
+  .colorGrid input[type="color"]{
+    min-height:52px;
+    padding:6px;
+  }
+  .sliderBox label{
+    margin:0 0 8px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+  }
+  .rangeValue{
+    flex:0 0 auto;
+    border:2px solid #000;
+    border-radius:999px;
+    background:#ffe866;
+    padding:3px 8px;
+    font-size:.78rem;
+    font-weight:950;
+  }
+  input[type="range"]{
+    padding:8px 0;
+    accent-color:#1445ff;
+    cursor:pointer;
+  }
 
   @media (max-width:850px){
     .wrap{grid-template-columns:1fr}
     .stage{min-height:auto}
     .canvasBox{min-height:360px}
     .stats{grid-template-columns:1fr 1fr}
+    .manualGrid{grid-template-columns:1fr}
+    .colorGrid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -308,6 +411,12 @@
     </header>
 
     <section class="panel controls" aria-label="Food buddy controls">
+      <div class="tabBar" role="tablist" aria-label="Maker tabs">
+        <button type="button" class="tabBtn active" id="birthdayTabBtn" data-maker-tab="birthday">Bday Berry Maker</button>
+        <button type="button" class="tabBtn" id="manualTabBtn" data-maker-tab="manual">Manual Berry Maker</button>
+      </div>
+
+      <div class="makerTab active" id="birthdayMakerTab" role="tabpanel" aria-labelledby="birthdayTabBtn">
       <label for="birthYear">Birth year</label>
       <input class="year" id="birthYear" inputmode="text" placeholder="Example: 2011 or 200 BC" value="2011" />
 
@@ -473,6 +582,41 @@
         <div class="full">
           <label for="moodSelect">Mood</label>
           <select id="moodSelect"></select>
+          <label class="toggleRow" for="emotionOnlyMode">
+            <input type="checkbox" id="emotionOnlyMode" checked />
+            <span>Only change emotion, keep this character</span>
+          </label>
+          <button type="button" class="smallBtn emotionBtn" id="applyMoodBtn">Apply Emotion Only</button>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="pupilSizeSlider">Pupil size <span class="rangeValue" id="pupilSizeValue">100%</span></label>
+            <input type="range" id="pupilSizeSlider" min="30" max="220" value="100" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="mouthRotateSlider">Mouth rotation <span class="rangeValue" id="mouthRotateValue">0°</span></label>
+            <input type="range" id="mouthRotateSlider" min="-90" max="90" value="0" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="pupilXSlider">Pupils left/right <span class="rangeValue" id="pupilXValue">0</span></label>
+            <input type="range" id="pupilXSlider" min="-35" max="35" value="0" />
+          </div>
+        </div>
+        <div>
+          <div class="sliderBox">
+            <label for="pupilYSlider">Pupils up/down <span class="rangeValue" id="pupilYValue">0</span></label>
+            <input type="range" id="pupilYSlider" min="-30" max="30" value="0" />
+          </div>
+        </div>
+        <div class="full">
+          <div class="sliderBox">
+            <label for="mouthOpenSlider">Mouth openness <span class="rangeValue" id="mouthOpenValue">0%</span></label>
+            <input type="range" id="mouthOpenSlider" min="0" max="100" value="0" />
+          </div>
         </div>
         <div>
           <label for="sceneSelect">Background scene</label>
@@ -487,6 +631,153 @@
       <button id="makeBtn">Generate My Food Buddy</button>
       <button class="smallBtn" id="randomBtn">Surprise Food Buddy</button>
       <button class="smallBtn" id="regenBtn">Regenerate Same Birthday</button>
+      </div>
+
+      <div class="makerTab" id="manualMakerTab" role="tabpanel" aria-labelledby="manualTabBtn" hidden>
+        <div class="manualGrid">
+          <div class="wide">
+            <label for="manualName">Custom name</label>
+            <input id="manualName" list="manualNameHistory" placeholder="Example: Berry PVZ" />
+            <datalist id="manualNameHistory"></datalist>
+          </div>
+
+          <div class="wide">
+            <label for="manualFruitKind">Food type</label>
+            <select id="manualFruitKind"></select>
+          </div>
+
+          <div>
+            <label for="manualGender">Gender</label>
+            <select id="manualGender">
+              <option value="any">Any / Random</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="manualMoodSelect">Mood</label>
+            <select id="manualMoodSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualSceneSelect">Background scene</label>
+            <select id="manualSceneSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualSeasonSelect">Season/event</label>
+            <select id="manualSeasonSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualPaletteSelect">Color palette</label>
+            <select id="manualPaletteSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualGradientSelect">Gradient</label>
+            <select id="manualGradientSelect"></select>
+          </div>
+
+          <div class="wide">
+            <label for="manualCustomGradient">Custom gradient name</label>
+            <input id="manualCustomGradient" list="manualGradientHistory" placeholder="Optional: type a saved/custom gradient name" />
+            <datalist id="manualGradientHistory"></datalist>
+          </div>
+
+          <div class="wide colorMakerBox">
+            <label class="toggleRow" for="manualUseCustomColors">
+              <input type="checkbox" id="manualUseCustomColors" />
+              <span>Use manual color picker / gradient maker</span>
+            </label>
+            <label class="toggleRow" for="manualDisableGradient">
+              <input type="checkbox" id="manualDisableGradient" />
+              <span>Disable gradient / use flat color</span>
+            </label>
+            <div class="colorGrid">
+              <div>
+                <label for="manualBaseColor">Base color</label>
+                <input type="color" id="manualBaseColor" value="#245bff" />
+              </div>
+              <div>
+                <label for="manualSecondColor">Middle color</label>
+                <input type="color" id="manualSecondColor" value="#76e7ff" />
+              </div>
+              <div>
+                <label for="manualThirdColor">End color</label>
+                <input type="color" id="manualThirdColor" value="#ff66cc" />
+              </div>
+              <div>
+                <label for="manualAccentColor">Blush / mouth color</label>
+                <input type="color" id="manualAccentColor" value="#ff2d55" />
+              </div>
+            </div>
+            <div class="sliderBox" style="margin-top:10px">
+              <label for="manualGradientAngleSlider">Gradient angle <span class="rangeValue" id="manualGradientAngleValue">45°</span></label>
+              <input type="range" id="manualGradientAngleSlider" min="0" max="360" value="45" />
+            </div>
+          </div>
+
+          <div>
+            <label for="manualEyesSelect">Picked eyes</label>
+            <select id="manualEyesSelect"></select>
+          </div>
+
+          <div>
+            <label for="manualMouthSelect">Picked mouth</label>
+            <select id="manualMouthSelect"></select>
+          </div>
+
+          <div class="wide">
+            <label class="toggleRow" for="manualDisableAccessories">
+              <input type="checkbox" id="manualDisableAccessories" />
+              <span>Disable accessories on this manual berry</span>
+            </label>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualPupilSizeSlider">Pupil size <span class="rangeValue" id="manualPupilSizeValue">100%</span></label>
+              <input type="range" id="manualPupilSizeSlider" min="30" max="220" value="100" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualMouthRotateSlider">Mouth rotation <span class="rangeValue" id="manualMouthRotateValue">0°</span></label>
+              <input type="range" id="manualMouthRotateSlider" min="-90" max="90" value="0" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualPupilXSlider">Pupils left/right <span class="rangeValue" id="manualPupilXValue">0</span></label>
+              <input type="range" id="manualPupilXSlider" min="-35" max="35" value="0" />
+            </div>
+          </div>
+
+          <div>
+            <div class="sliderBox">
+              <label for="manualPupilYSlider">Pupils up/down <span class="rangeValue" id="manualPupilYValue">0</span></label>
+              <input type="range" id="manualPupilYSlider" min="-30" max="30" value="0" />
+            </div>
+          </div>
+
+          <div class="wide">
+            <div class="sliderBox">
+              <label for="manualMouthOpenSlider">Mouth openness <span class="rangeValue" id="manualMouthOpenValue">0%</span></label>
+              <input type="range" id="manualMouthOpenSlider" min="0" max="100" value="0" />
+            </div>
+          </div>
+        </div>
+
+        <button id="manualMakeBtn" type="button">Generate Manual Berry</button>
+        <button class="smallBtn" id="manualApplyVisualBtn" type="button">Apply Color / Eyes / Mouth Only</button>
+        <button class="smallBtn" id="manualRandomBtn" type="button">Randomize Manual Picks</button>
+        <div class="historyLine" id="manualHistoryLine">Manual names, gradients, picked eyes, and picked mouths save here after you generate.</div>
+      </div>
       <div class="actionGrid">
         <button class="purpleBtn" id="mutateBtn">Mutate Buddy</button>
         <button class="greenBtn" id="exportBtn">Export PNG</button>
@@ -553,7 +844,7 @@
     "Brave","Jelly","Noisy","Velvet","Cosmic","Gloomy","Sunny","Chunky",
     "Secret","Bubble","Turbo","Noodle","Sprinkle","Shadow","Hyper","Mellow",
     "Pebble","Dreamy","Wobble","Cranky","Sugar","Mystic","Loopy","Puffy",
-    "Oddball","Berry","Goblin","Champion","Wizard","Blob","Muffin","Button",
+    "Oddball","Berry","PVZ","Goblin","Champion","Wizard","Blob","Muffin","Button",
     "Static","Neon","Mossy","Frosted","Dizzy","Fancy","Haunted","Banana",
     "Rubbery","Chewy","Pixel","Arcade","Saucy","Crumbly","Twinkle","Rumble",
     "Jumpy","Sour","Toasty","Plush","Glass","Marble","Prism","Electric",
@@ -561,9 +852,9 @@
   ];
 
   const FIRST_NAMES = {
-    female:["Berri","Lulu","Kiki","Momo","Zuzu","Razz","Pippa","Mimi","Tizzy","Nim","Bibi","Fifi","Lolly","Mizzle","Nana","Dottie","Glimma","Wava"],
-    male:["Bloo","Bobo","Doko","Gumbo","Pip","Grizz","Boppo","Zumbo","Blim","Floop","Glob","Bozi","Wimble","Gloob","Peb","Rumble","Nubbo","Chomp"],
-    neutral:["Yib","Oobi","Squim","Noodle","Wumpy","Globbit","Bibble","Fizz","Jelly","Puff","Moono","Bongo","Wig","Pebby","Mallow","Zig","Bloop","Loaf"]
+    female:["Berry","Berri","Lulu","Kiki","Momo","Zuzu","Razz","Pippa","Mimi","Tizzy","Nim","Bibi","Fifi","Lolly","Mizzle","Nana","Dottie","Glimma","Wava"],
+    male:["Berry","Bloo","Bobo","Doko","Gumbo","Pip","Grizz","Boppo","Zumbo","Blim","Floop","Glob","Bozi","Wimble","Gloob","Peb","Rumble","Nubbo","Chomp"],
+    neutral:["Berry","Yib","Oobi","Squim","Noodle","Wumpy","Globbit","Bibble","Fizz","Jelly","Puff","Moono","Bongo","Wig","Pebby","Mallow","Zig","Bloop","Loaf"]
   };
 
   const LAST_NAMES = [
@@ -571,7 +862,7 @@
     "Moonchew","Jellymop","Roundsnack","Bubbleback","Mirthmouth","Bumpleaf",
     "Sugarshade","Puffdoom","Gigglegrove","Splatsmile","Nighttuft","Bluechomp",
     "Dotbelly","Gloopgrin","Softfang","Puffcrackle","Mushmop","Chucklecore",
-    "Frostmuff","Prismbelly","Starblink","Jellyshade","Wigglebite","Sparkmop"
+    "Frostmuff","Prismbelly","Starblink","Jellyshade","Wigglebite","Sparkmop","PVZ"
   ];
 
   const PALETTES = [
@@ -829,7 +1120,7 @@
   };
 
   const GRADIENT_TYPES = [
-    "Flat Color","Soft Radial","Top Shine","Two Tone","Diagonal Glow",
+    "Flat Color","Custom Gradient","Soft Radial","Top Shine","Two Tone","Diagonal Glow",
     "Candy Split","Sunset Fade","Dark Bottom","Center Pop","Prism Wash",
     "Left Glow","Right Glow","Bubble Shine","Frosted Rim","Neon Core",
     "Night Fade","Sour Candy","Creamy Stripe","Juice Swirl","Rainbow Wash",
@@ -867,7 +1158,7 @@
     "Cat Mouth","Toothy Smile","Tongue Grin","Wavy Mouth","Bean Mouth",
     "Zigzag","Kissy Face","Frown","Square Chomp","Underbite","Lip Smile",
     "Open Laugh","Nervous Smile","Tiny O","Moustache Mouth","Vampire Smile",
-    "Scribble Mouth","Crooked Smirk","Bubble Mouth","Beak Smile","Sleepy Drool",
+    "Scribble Mouth","Crooked Smirk","Open Smirk","Bubble Mouth","Beak Smile","Sleepy Drool",
     "U Smile","Doodle Smile","Gumdrop Frown","Triangle Mouth","Cheese Grin",
     "Robot Mouth","Tiny Teeth","Open Bean","Slanted Smile","Double Smile",
     "Pac Mouth","Shark Smile","Blob Smile","Cute W","Bored Mouth",
@@ -877,6 +1168,15 @@
     "Whistle Mouth","Oval Chomp","Cloud Smile","Sour Pucker","Gummy Grin"
     ,"Pizza Slice Smile","Sauce Smile","Crumb Smile","Seed Smile","Leafy Grin","Root Frown","Spicy Yell","Cheese Pull Mouth","Donut Hole O","Cookie Bite","Cupcake Smile","Ice Cream Drip","Soup Slurp","Noodle Slurp","Burger Bite","Taco Crunch","Hotdog Smile","Sushi Smile","Pretzel Twist Mouth","Candy Wrapper Grin","Chocolate Chomp","Marshmallow Puff Mouth","Pudding Jiggle","Breakfast Smile","Cereal Crunch","Burrito Bite","Dumpling Smile","Veggie Munch","Tiny Nibble","Mega Snack Laugh"
   ];
+
+  const OPENABLE_MOUTH_TYPES = new Set([
+    "Tiny Smile","Flat Line","Cat Mouth","Wavy Mouth","Zigzag","Kissy Face","Frown",
+    "Lip Smile","Nervous Smile","Crooked Smirk","U Smile","Doodle Smile","Gumdrop Frown",
+    "Slanted Smile","Double Smile","Cute W","Bored Mouth","Square Smile","Cloud Smile",
+    "Sour Pucker","Puffy Lips","Whistle Mouth","Marshmallow Puff Mouth","Tiny Nibble",
+    "Pizza Slice Smile","Sauce Smile","Crumb Smile","Seed Smile","Leafy Grin","Root Frown",
+    "Hotdog Smile","Sushi Smile","Pretzel Twist Mouth","Candy Wrapper Grin","Breakfast Smile","Dumpling Smile"
+  ]);
 
   const FUZZ_TYPES = ["Smooth Wrap","Soft Fuzz","Bumpy Wrap","Spiky Fuzz","Cloud Wrap","Tiny Bristles","Rubber Edge","Static Fuzz","Sugar Crust","Jelly Edge","Spore Fuzz","Puffy Rim","Pebble Rim","Scribble Edge","Sticker Edge","Crumb Rim","Salt Rim","Leafy Edge","Fried Edge","Frosting Edge","Candy Crinkle","Cheesy Rim","Toasty Rim","Steam Wisps","Wrapper Crimp"];
 
@@ -910,12 +1210,33 @@
   const MOODS = [
     {id:"auto", name:"Auto / Birthday Pick"},
     {id:"happy", name:"Happy"},
+    {id:"excited", name:"Excited"},
     {id:"goofy", name:"Goofy"},
+    {id:"silly", name:"Silly"},
     {id:"sleepy", name:"Sleepy"},
     {id:"angry", name:"Angry"},
+    {id:"grumpy", name:"Grumpy"},
     {id:"nervous", name:"Nervous"},
+    {id:"scared", name:"Scared"},
     {id:"smug", name:"Smug"},
+    {id:"mischievous", name:"Mischievous"},
     {id:"sad", name:"Sad"},
+    {id:"crying", name:"Crying"},
+    {id:"shy", name:"Shy"},
+    {id:"lovestruck", name:"Lovestruck"},
+    {id:"confused", name:"Confused"},
+    {id:"dizzy", name:"Dizzy"},
+    {id:"surprised", name:"Surprised"},
+    {id:"shocked", name:"Shocked"},
+    {id:"bored", name:"Bored"},
+    {id:"chill", name:"Chill"},
+    {id:"zen", name:"Zen"},
+    {id:"proud", name:"Proud"},
+    {id:"hungry", name:"Hungry"},
+    {id:"sick", name:"Sick"},
+    {id:"disgusted", name:"Disgusted"},
+    {id:"evil", name:"Evil"},
+    {id:"glitchy", name:"Glitchy"},
     {id:"baby", name:"Baby"},
     {id:"old", name:"Ancient"},
     {id:"cursed", name:"Cursed"},
@@ -1024,6 +1345,8 @@
   const toast = document.getElementById("toast");
   const wordChips = document.getElementById("wordChips");
   const moodEl = document.getElementById("moodSelect");
+  const emotionOnlyEl = document.getElementById("emotionOnlyMode");
+  const applyMoodBtn = document.getElementById("applyMoodBtn");
   const sceneEl = document.getElementById("sceneSelect");
   const seasonEl = document.getElementById("seasonSelect");
   const mutateBtn = document.getElementById("mutateBtn");
@@ -1042,12 +1365,64 @@
   const accessoryStat = document.getElementById("accessoryStat");
   const ageStat = document.getElementById("ageStat");
 
+  const birthdayTabBtn = document.getElementById("birthdayTabBtn");
+  const manualTabBtn = document.getElementById("manualTabBtn");
+  const birthdayMakerTab = document.getElementById("birthdayMakerTab");
+  const manualMakerTab = document.getElementById("manualMakerTab");
+  const manualNameEl = document.getElementById("manualName");
+  const manualNameHistory = document.getElementById("manualNameHistory");
+  const manualFruitEl = document.getElementById("manualFruitKind");
+  const manualGenderEl = document.getElementById("manualGender");
+  const manualMoodEl = document.getElementById("manualMoodSelect");
+  const manualSceneEl = document.getElementById("manualSceneSelect");
+  const manualSeasonEl = document.getElementById("manualSeasonSelect");
+  const manualPaletteEl = document.getElementById("manualPaletteSelect");
+  const manualGradientEl = document.getElementById("manualGradientSelect");
+  const manualCustomGradientEl = document.getElementById("manualCustomGradient");
+  const manualGradientHistory = document.getElementById("manualGradientHistory");
+  const manualEyesEl = document.getElementById("manualEyesSelect");
+  const manualMouthEl = document.getElementById("manualMouthSelect");
+  const manualDisableAccessoriesEl = document.getElementById("manualDisableAccessories");
+  const pupilSizeEl = document.getElementById("pupilSizeSlider");
+  const pupilSizeValue = document.getElementById("pupilSizeValue");
+  const mouthRotateEl = document.getElementById("mouthRotateSlider");
+  const mouthRotateValue = document.getElementById("mouthRotateValue");
+  const pupilXEl = document.getElementById("pupilXSlider");
+  const pupilXValue = document.getElementById("pupilXValue");
+  const pupilYEl = document.getElementById("pupilYSlider");
+  const pupilYValue = document.getElementById("pupilYValue");
+  const mouthOpenEl = document.getElementById("mouthOpenSlider");
+  const mouthOpenValue = document.getElementById("mouthOpenValue");
+  const manualPupilSizeEl = document.getElementById("manualPupilSizeSlider");
+  const manualPupilSizeValue = document.getElementById("manualPupilSizeValue");
+  const manualMouthRotateEl = document.getElementById("manualMouthRotateSlider");
+  const manualMouthRotateValue = document.getElementById("manualMouthRotateValue");
+  const manualPupilXEl = document.getElementById("manualPupilXSlider");
+  const manualPupilXValue = document.getElementById("manualPupilXValue");
+  const manualPupilYEl = document.getElementById("manualPupilYSlider");
+  const manualPupilYValue = document.getElementById("manualPupilYValue");
+  const manualMouthOpenEl = document.getElementById("manualMouthOpenSlider");
+  const manualMouthOpenValue = document.getElementById("manualMouthOpenValue");
+  const manualUseCustomColorsEl = document.getElementById("manualUseCustomColors");
+  const manualDisableGradientEl = document.getElementById("manualDisableGradient");
+  const manualBaseColorEl = document.getElementById("manualBaseColor");
+  const manualSecondColorEl = document.getElementById("manualSecondColor");
+  const manualThirdColorEl = document.getElementById("manualThirdColor");
+  const manualAccentColorEl = document.getElementById("manualAccentColor");
+  const manualGradientAngleEl = document.getElementById("manualGradientAngleSlider");
+  const manualGradientAngleValue = document.getElementById("manualGradientAngleValue");
+  const manualMakeBtn = document.getElementById("manualMakeBtn");
+  const manualApplyVisualBtn = document.getElementById("manualApplyVisualBtn");
+  const manualRandomBtn = document.getElementById("manualRandomBtn");
+  const manualHistoryLine = document.getElementById("manualHistoryLine");
 
 
-  function rebuildFoodDropdown(){
-    const selected = fruitEl.value || "blueberry";
+
+  function rebuildFoodDropdown(targetEl = fruitEl){
+    if(!targetEl) return;
+    const selected = targetEl.value || "blueberry";
     const seen = new Set();
-    fruitEl.innerHTML = "";
+    targetEl.innerHTML = "";
     for(const [label, keys] of Object.entries(FOOD_CATEGORIES)){
       const group = document.createElement("optgroup");
       group.label = label;
@@ -1060,7 +1435,7 @@
         opt.textContent = profile.name;
         group.appendChild(opt);
       }
-      fruitEl.appendChild(group);
+      targetEl.appendChild(group);
     }
     const leftovers = Object.keys(FRUIT_PROFILES).filter(key => !seen.has(key));
     if(leftovers.length){
@@ -1072,9 +1447,9 @@
         opt.textContent = FRUIT_PROFILES[key].name;
         group.appendChild(opt);
       }
-      fruitEl.appendChild(group);
+      targetEl.appendChild(group);
     }
-    fruitEl.value = FRUIT_PROFILES[selected] ? selected : "blueberry";
+    targetEl.value = FRUIT_PROFILES[selected] ? selected : "blueberry";
   }
 
   let berry = null;
@@ -1084,6 +1459,7 @@
   let mutationSalt = 0;
   let animTime = 0;
   let lastGeneratedBase = null;
+  let manualSalt = 0;
 
   function fillDays(){
     const current = Number(dayEl.value) || 1;
@@ -1134,6 +1510,395 @@
     el.value = options.some(o => o.id === current) ? current : "auto";
   }
 
+  function populatePlainSelect(el, values, current, includeAuto=false){
+    if(!el) return;
+    el.innerHTML = "";
+    if(includeAuto){
+      const auto = document.createElement("option");
+      auto.value = "auto";
+      auto.textContent = "Auto / Random";
+      el.appendChild(auto);
+    }
+    for(const value of values){
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = value;
+      el.appendChild(opt);
+    }
+    const wanted = values.includes(current) || current === "auto" ? current : (includeAuto ? "auto" : values[0]);
+    el.value = wanted;
+  }
+
+  function setMakerTab(tab){
+    const manual = tab === "manual";
+    birthdayMakerTab.hidden = manual;
+    manualMakerTab.hidden = !manual;
+    birthdayTabBtn.classList.toggle("active", !manual);
+    manualTabBtn.classList.toggle("active", manual);
+    birthdayTabBtn.setAttribute("aria-selected", String(!manual));
+    manualTabBtn.setAttribute("aria-selected", String(manual));
+    toast.textContent = manual ? "Manual maker selected. Your manual names and picks save after generating." : "Birthday maker selected.";
+  }
+
+  const MANUAL_STORE_KEY = "interactiveFoodBuddyManualMakerV1";
+
+  function getManualStore(){
+    const empty = {names:[], gradients:[], eyes:[], mouths:[], last:{}};
+    try{
+      const saved = JSON.parse(localStorage.getItem(MANUAL_STORE_KEY) || "{}");
+      return {
+        names: Array.isArray(saved.names) ? saved.names : [],
+        gradients: Array.isArray(saved.gradients) ? saved.gradients : [],
+        eyes: Array.isArray(saved.eyes) ? saved.eyes : [],
+        mouths: Array.isArray(saved.mouths) ? saved.mouths : [],
+        last: saved.last && typeof saved.last === "object" ? saved.last : {}
+      };
+    }catch(err){
+      return empty;
+    }
+  }
+
+  function saveManualStore(store){
+    try{
+      localStorage.setItem(MANUAL_STORE_KEY, JSON.stringify(store));
+    }catch(err){
+      console.warn("Manual maker store unavailable", err);
+    }
+  }
+
+  function pushRecent(list, value, max=24){
+    const clean = String(value || "").trim();
+    if(!clean) return list;
+    return [clean, ...list.filter(item => item !== clean)].slice(0,max);
+  }
+
+  function populateManualHistory(){
+    const store = getManualStore();
+    if(manualNameHistory){
+      manualNameHistory.innerHTML = store.names.map(name => `<option value="${String(name).replaceAll('"',"&quot;")}"></option>`).join("");
+    }
+    if(manualGradientHistory){
+      manualGradientHistory.innerHTML = store.gradients.map(name => `<option value="${String(name).replaceAll('"',"&quot;")}"></option>`).join("");
+    }
+    if(manualHistoryLine){
+      const lastBits = [];
+      if(store.names[0]) lastBits.push(`name: ${store.names[0]}`);
+      if(store.gradients[0]) lastBits.push(`gradient: ${store.gradients[0]}`);
+      if(store.eyes[0]) lastBits.push(`eyes: ${store.eyes[0]}`);
+      if(store.mouths[0]) lastBits.push(`mouth: ${store.mouths[0]}`);
+      if(store.last?.pupilScale) lastBits.push(`pupils: ${Math.round(Number(store.last.pupilScale) * 100)}%`);
+      if(store.last?.pupilX != null || store.last?.pupilY != null) lastBits.push(`pupil move: ${Math.round(Number(store.last.pupilX || 0))}, ${Math.round(Number(store.last.pupilY || 0))}`);
+      if(store.last?.mouthRotation != null) lastBits.push(`mouth rot: ${Math.round(Number(store.last.mouthRotation))}°`);
+      if(store.last?.mouthOpen != null) lastBits.push(`mouth open: ${Math.round(Number(store.last.mouthOpen) * 100)}%`);
+      if(store.last?.useCustomColors) lastBits.push("custom colors on");
+      if(store.last?.disableAccessories) lastBits.push("accessories off");
+      manualHistoryLine.textContent = lastBits.length ? `Stored manual picks · ${lastBits.join(" · ")}` : "Manual names, gradients, picked eyes, picked mouths, colors, pupil movement, mouth openness, and accessory visibility save here after you generate.";
+    }
+  }
+
+  function manualSelectedGradient(){
+    if(manualDisableGradientEl?.checked) return "Flat Color";
+    return (manualCustomGradientEl?.value || "").trim() || manualGradientEl?.value || "Flat Color";
+  }
+
+  function rememberManualPicks(){
+    const store = getManualStore();
+    const gradient = manualSelectedGradient();
+    const eyes = manualEyesEl?.value || "Googly";
+    const mouth = manualMouthEl?.value || "Big Grin";
+    const name = (manualNameEl?.value || "").trim();
+    const pupilScale = rangePercent(manualPupilSizeEl, 100) / 100;
+    const mouthRotation = rangeNumber(manualMouthRotateEl, 0);
+    const pupilX = clamp(rangeNumber(manualPupilXEl, 0), -35, 35);
+    const pupilY = clamp(rangeNumber(manualPupilYEl, 0), -30, 30);
+    const mouthOpen = clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100) / 100;
+
+    store.names = pushRecent(store.names, name);
+    store.gradients = pushRecent(store.gradients, gradient);
+    store.eyes = pushRecent(store.eyes, eyes);
+    store.mouths = pushRecent(store.mouths, mouth);
+    store.last = {
+      name,
+      fruitKind: manualFruitEl?.value || "blueberry",
+      gender: manualGenderEl?.value || "any",
+      mood: manualMoodEl?.value || "happy",
+      scene: manualSceneEl?.value || "garden",
+      season: manualSeasonEl?.value || "none",
+      palette: manualPaletteEl?.value || "auto",
+      gradient: manualSelectedGradient(),
+      customGradient: (manualCustomGradientEl?.value || "").trim(),
+      eyes,
+      mouth,
+      pupilScale,
+      mouthRotation,
+      pupilX,
+      pupilY,
+      mouthOpen,
+      useCustomColors: !!manualUseCustomColorsEl?.checked,
+      disableGradient: !!manualDisableGradientEl?.checked,
+      baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
+      secondColor: normalizeHexColor(manualSecondColorEl?.value, "#76e7ff"),
+      thirdColor: normalizeHexColor(manualThirdColorEl?.value, "#ff66cc"),
+      accentColor: normalizeHexColor(manualAccentColorEl?.value, "#ff2d55"),
+      gradientAngle: clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360),
+      disableAccessories: !!manualDisableAccessoriesEl?.checked
+    };
+    saveManualStore(store);
+    populateManualHistory();
+  }
+
+  function populateManualControls(){
+    if(!manualFruitEl) return;
+    rebuildFoodDropdown(manualFruitEl);
+    populateSelect(manualMoodEl, MOODS, "happy");
+    populateSelect(manualSceneEl, BACKGROUND_SCENES, "garden");
+    populateSelect(manualSeasonEl, SEASONS, "none");
+    populatePlainSelect(manualGradientEl, GRADIENT_TYPES, "Soft Radial");
+    populatePlainSelect(manualEyesEl, FACE_TYPES, "Googly");
+    populatePlainSelect(manualMouthEl, MOUTH_TYPES, "Big Grin");
+    populatePlainSelect(manualPaletteEl, PALETTES.map(p => p.name), "auto", true);
+    populateManualHistory();
+
+    const store = getManualStore();
+    const last = store.last || {};
+    if(last.name) manualNameEl.value = last.name;
+    if(last.fruitKind && FRUIT_PROFILES[last.fruitKind]) manualFruitEl.value = last.fruitKind;
+    if(last.gender) manualGenderEl.value = last.gender;
+    if(last.mood && MOODS.some(m => m.id === last.mood)) manualMoodEl.value = last.mood;
+    if(last.scene && BACKGROUND_SCENES.some(s => s.id === last.scene)) manualSceneEl.value = last.scene;
+    if(last.season && SEASONS.some(s => s.id === last.season)) manualSeasonEl.value = last.season;
+    if(last.palette && (last.palette === "auto" || PALETTES.some(p => p.name === last.palette))) manualPaletteEl.value = last.palette;
+    if(last.gradient && GRADIENT_TYPES.includes(last.gradient)) manualGradientEl.value = last.gradient;
+    if(last.customGradient) manualCustomGradientEl.value = last.customGradient;
+    if(last.eyes && FACE_TYPES.includes(last.eyes)) manualEyesEl.value = last.eyes;
+    if(last.mouth && MOUTH_TYPES.includes(last.mouth)) manualMouthEl.value = last.mouth;
+    if(last.pupilScale != null && manualPupilSizeEl) manualPupilSizeEl.value = clamp(Math.round(Number(last.pupilScale) * 100) || 100, 30, 220);
+    if(last.mouthRotation != null && manualMouthRotateEl) manualMouthRotateEl.value = clamp(Math.round(Number(last.mouthRotation)) || 0, -90, 90);
+    if(last.pupilX != null && manualPupilXEl) manualPupilXEl.value = clamp(Math.round(Number(last.pupilX)) || 0, -35, 35);
+    if(last.pupilY != null && manualPupilYEl) manualPupilYEl.value = clamp(Math.round(Number(last.pupilY)) || 0, -30, 30);
+    if(last.mouthOpen != null && manualMouthOpenEl) manualMouthOpenEl.value = clamp(Math.round(Number(last.mouthOpen) * 100) || 0, 0, 100);
+    if(last.useCustomColors != null && manualUseCustomColorsEl) manualUseCustomColorsEl.checked = !!last.useCustomColors;
+    if(last.disableGradient != null && manualDisableGradientEl) manualDisableGradientEl.checked = !!last.disableGradient;
+    if(last.baseColor && manualBaseColorEl) manualBaseColorEl.value = normalizeHexColor(last.baseColor, "#245bff");
+    if(last.secondColor && manualSecondColorEl) manualSecondColorEl.value = normalizeHexColor(last.secondColor, "#76e7ff");
+    if(last.thirdColor && manualThirdColorEl) manualThirdColorEl.value = normalizeHexColor(last.thirdColor, "#ff66cc");
+    if(last.accentColor && manualAccentColorEl) manualAccentColorEl.value = normalizeHexColor(last.accentColor, "#ff2d55");
+    if(last.gradientAngle != null && manualGradientAngleEl) manualGradientAngleEl.value = clamp(Math.round(Number(last.gradientAngle)) || 45, 0, 360);
+    if(last.disableAccessories != null && manualDisableAccessoriesEl) manualDisableAccessoriesEl.checked = !!last.disableAccessories;
+    syncRangeLabels();
+  }
+
+  function randomizeManualControls(){
+    const rand = rng(hashString(`${Date.now()}|manual-random|${manualSalt++}`));
+    const fruitKeys = Object.keys(FRUIT_PROFILES);
+    manualFruitEl.value = pick(rand, fruitKeys);
+    manualGenderEl.value = pick(rand, ["female","male","neutral","any"]);
+    manualMoodEl.value = pick(rand, MOODS.filter(m => m.id !== "auto")).id;
+    manualSceneEl.value = pick(rand, BACKGROUND_SCENES.filter(s => s.id !== "auto")).id;
+    manualSeasonEl.value = pick(rand, SEASONS.filter(s => s.id !== "auto")).id;
+    manualPaletteEl.value = rand() > .35 ? pick(rand, PALETTES).name : "auto";
+    manualGradientEl.value = pick(rand, GRADIENT_TYPES);
+    manualCustomGradientEl.value = "";
+    manualEyesEl.value = pick(rand, FACE_TYPES);
+    manualMouthEl.value = pick(rand, MOUTH_TYPES);
+    if(manualPupilSizeEl) manualPupilSizeEl.value = Math.round(50 + rand() * 130);
+    if(manualMouthRotateEl) manualMouthRotateEl.value = Math.round(-35 + rand() * 70);
+    if(manualPupilXEl) manualPupilXEl.value = Math.round(-22 + rand() * 44);
+    if(manualPupilYEl) manualPupilYEl.value = Math.round(-18 + rand() * 36);
+    if(manualMouthOpenEl) manualMouthOpenEl.value = Math.round(rand() * 90);
+    if(manualUseCustomColorsEl) manualUseCustomColorsEl.checked = rand() > .42;
+    if(manualDisableGradientEl) manualDisableGradientEl.checked = rand() > .62;
+    if(manualBaseColorEl) manualBaseColorEl.value = randomHexColor(rand);
+    if(manualSecondColorEl) manualSecondColorEl.value = randomHexColor(rand);
+    if(manualThirdColorEl) manualThirdColorEl.value = randomHexColor(rand);
+    if(manualAccentColorEl) manualAccentColorEl.value = randomHexColor(rand);
+    if(manualGradientAngleEl) manualGradientAngleEl.value = Math.round(rand() * 360);
+    if(manualDisableAccessoriesEl) manualDisableAccessoriesEl.checked = rand() > .78;
+    syncRangeLabels();
+    makeManualBerry(false);
+  }
+
+  function normalizeHexColor(value, fallback="#245bff"){
+    const raw = String(value || "").trim();
+    if(/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
+    if(/^#[0-9a-f]{3}$/i.test(raw)){
+      return "#" + raw.slice(1).split("").map(ch => ch + ch).join("").toLowerCase();
+    }
+    return fallback;
+  }
+
+  function hexToRgb(hex){
+    const clean = normalizeHexColor(hex, "#245bff").slice(1);
+    return {
+      r: parseInt(clean.slice(0,2), 16),
+      g: parseInt(clean.slice(2,4), 16),
+      b: parseInt(clean.slice(4,6), 16)
+    };
+  }
+
+  function rgbToHslParts({r,g,b}){
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
+    if(max !== min){
+      const d = max - min;
+      s = l > .5 ? d / (2 - max - min) : d / (max + min);
+      if(max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if(max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+    }
+    return {h, s:s*100, l:l*100};
+  }
+
+  function colorMix(hexA, hexB, t){
+    const a = hexToRgb(hexA), b = hexToRgb(hexB);
+    const mix = n => Math.round(a[n] + (b[n] - a[n]) * t).toString(16).padStart(2,"0");
+    return `#${mix("r")}${mix("g")}${mix("b")}`;
+  }
+
+  function randomHexColor(rand){
+    const n = Math.floor(rand() * 0xffffff);
+    return `#${n.toString(16).padStart(6,"0")}`;
+  }
+
+  function manualColorSettings(){
+    return {
+      enabled: !!manualUseCustomColorsEl?.checked,
+      base: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
+      mid: normalizeHexColor(manualSecondColorEl?.value, "#76e7ff"),
+      end: normalizeHexColor(manualThirdColorEl?.value, "#ff66cc"),
+      accent: normalizeHexColor(manualAccentColorEl?.value, "#ff2d55"),
+      angle: clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360),
+      flat: !!manualDisableGradientEl?.checked
+    };
+  }
+
+  function applyManualCustomColors(settings){
+    if(!berry || !settings?.enabled) return;
+    const baseHsl = rgbToHslParts(hexToRgb(settings.base));
+    const midHsl = rgbToHslParts(hexToRgb(settings.mid));
+    const endHsl = rgbToHslParts(hexToRgb(settings.end));
+    const accentHsl = rgbToHslParts(hexToRgb(settings.accent));
+    berry.paletteName = "Manual Color Picker";
+    berry.colorName = "Manual Colors";
+    berry.bodyHue = baseHsl.h;
+    berry.secondHue = midHsl.h;
+    berry.thirdHue = endHsl.h;
+    berry.sat = clamp(baseHsl.s, 25, 100);
+    berry.light = clamp(baseHsl.l, 12, 88);
+    berry.body = settings.base;
+    berry.bodyLight = colorMix(settings.base, "#ffffff", .32);
+    berry.bodyDark = colorMix(settings.base, "#000000", .28);
+    berry.bodyAlt = settings.mid;
+    berry.bodyAlt2 = settings.end;
+    berry.blush = settings.accent;
+    berry.lip = settings.accent;
+    berry.eyeColorA = settings.mid;
+    berry.eyeColorB = settings.end;
+    berry.customGradientColors = {
+      enabled: true,
+      base: settings.base,
+      mid: settings.mid,
+      end: settings.end,
+      accent: settings.accent,
+      angle: settings.angle,
+      hueA: baseHsl.h,
+      hueB: midHsl.h,
+      hueC: endHsl.h,
+      accentHue: accentHsl.h
+    };
+  }
+
+  function applyManualPalette(paletteName){
+    if(!berry || !paletteName || paletteName === "auto") return;
+    const palette = PALETTES.find(item => item.name === paletteName);
+    if(!palette) return;
+    const light = clamp(palette.l, 24, 76);
+    const sat = clamp(palette.s, 38, 100);
+    berry.paletteName = palette.name;
+    berry.colorName = palette.name;
+    berry.bodyHue = palette.h;
+    berry.secondHue = (palette.h + 45) % 360;
+    berry.thirdHue = (palette.h + 170) % 360;
+    berry.sat = sat;
+    berry.light = light;
+    berry.body = hsl(berry.bodyHue, sat, light);
+    berry.bodyDark = hsl(berry.bodyHue, sat, Math.max(16, light-20));
+    berry.bodyLight = hsl(berry.bodyHue, Math.max(35,sat-14), Math.min(84, light+18));
+    berry.bodyAlt = hsl(berry.secondHue, clamp(sat-4,45,100), clamp(light+3,27,78));
+    berry.bodyAlt2 = hsl(berry.thirdHue, clamp(sat-12,35,100), clamp(light+8,30,80));
+    berry.blush = hsl(palette.accent, 95, 55);
+    berry.lip = hsl((palette.accent + 12) % 360, 94, 50);
+    berry.eyeColorA = hsl((palette.accent + 40) % 360, 90, 45);
+    berry.eyeColorB = hsl((palette.accent + 180) % 360, 90, 48);
+  }
+
+  function storeManualVisualState(){
+    const store = getManualStore();
+    store.last = {
+      ...(store.last || {}),
+      palette: manualPaletteEl?.value || "auto",
+      gradient: manualGradientEl?.value || "Flat Color",
+      customGradient: (manualCustomGradientEl?.value || "").trim(),
+      eyes: manualEyesEl?.value || "Googly",
+      mouth: manualMouthEl?.value || "Big Grin",
+      useCustomColors: !!manualUseCustomColorsEl?.checked,
+      disableGradient: !!manualDisableGradientEl?.checked,
+      baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
+      secondColor: normalizeHexColor(manualSecondColorEl?.value, "#76e7ff"),
+      thirdColor: normalizeHexColor(manualThirdColorEl?.value, "#ff66cc"),
+      accentColor: normalizeHexColor(manualAccentColorEl?.value, "#ff2d55"),
+      gradientAngle: clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360),
+      disableAccessories: !!manualDisableAccessoriesEl?.checked
+    };
+    saveManualStore(store);
+    populateManualHistory();
+  }
+
+  function fixEyeGapForFace(faceType){
+    if(!berry) return;
+    if(faceType === "Cyclops") berry.eyeGap = 0;
+    else if(faceType === "Three Eyes") berry.eyeGap = 118;
+    else if(!Number.isFinite(Number(berry.eyeGap)) || Number(berry.eyeGap) < 60) berry.eyeGap = 132;
+  }
+
+  function applyManualVisualTweaks(save=true){
+    if(!berry){
+      makeManualBerry(false);
+      return;
+    }
+
+    const chosenGradient = manualSelectedGradient();
+    const chosenEyes = manualEyesEl?.value || berry.faceType || "Googly";
+    const chosenMouth = manualMouthEl?.value || berry.mouthType || "Big Grin";
+    const chosenPalette = manualPaletteEl?.value || "auto";
+    const manualColors = manualColorSettings();
+
+    berry.manualMode = true;
+    if(berry.avatarPreset === "berryPVZ") berry.avatarPreset = null;
+    berry.gradientType = chosenGradient;
+    berry.faceType = chosenEyes;
+    berry.mouthType = chosenMouth;
+    berry.emotionBaseFaceType = chosenEyes;
+    berry.emotionBaseMouthType = chosenMouth;
+    berry.accessoriesDisabled = !!manualDisableAccessoriesEl?.checked;
+
+    if(manualColors.enabled){
+      applyManualCustomColors(manualColors);
+    } else {
+      berry.customGradientColors = null;
+      if(chosenPalette !== "auto") applyManualPalette(chosenPalette);
+    }
+
+    fixEyeGapForFace(chosenEyes);
+    if(save) storeManualVisualState();
+    wobble = Math.max(wobble, .7);
+    updateUI();
+    toast.textContent = "Manual color, eyes, mouth, and accessory visibility updated without regenerating.";
+  }
+
   function rollRarity(rand, bonus=0){
     let roll = rand() - bonus;
     let acc = 0;
@@ -1173,19 +1938,40 @@
     if(year < 0 || age > 90) return "old";
     if(age >= 0 && age <= 5) return "baby";
     if(month === 10) return rand() > .45 ? "cursed" : "dramatic";
-    const moods = ["happy","goofy","sleepy","angry","nervous","smug","sad","royal","dramatic","blank","party"];
+    const moods = ["happy","excited","goofy","silly","sleepy","angry","grumpy","nervous","scared","smug","mischievous","sad","crying","shy","lovestruck","confused","dizzy","surprised","bored","chill","zen","proud","hungry","sick","disgusted","evil","glitchy","royal","dramatic","blank","party"];
     return moods[(month * 13 + day + Math.floor(rand()*moods.length)) % moods.length];
   }
 
   function moodFaceOverride(mood, faceType, mouthType){
     const map = {
       happy:["Shiny","Big Grin"],
+      excited:["Big Spark Dots","Mega Laugh"],
       goofy:["Crazy Eyes","Wavy Mouth"],
+      silly:["Comma Pupils","Doodle Smile"],
       sleepy:["Sleepy","Sleepy Drool"],
       angry:["Angry Eyes","Zigzag"],
+      grumpy:["Lowered Lids","Root Frown"],
       nervous:["Tiny Pupils","Nervous Smile"],
+      scared:["Nervous Beads","Yell Mouth"],
       smug:["Side Eye","Crooked Smirk"],
+      mischievous:["Mischief Eyes","Crooked Smirk"],
       sad:["Droopy Eyes","Frown"],
+      crying:["Droopy Eyes","Gumdrop Frown"],
+      shy:["Soft Eyes","Tiny Smile"],
+      lovestruck:["Heart Pupils","Lip Smile"],
+      confused:["Confused Eyes","Awkward Bite"],
+      dizzy:["Spiral Pupils","Wavy Mouth"],
+      surprised:["Wide Awake","Surprised O"],
+      shocked:["Shocked Eyes","Yell Mouth"],
+      bored:["Deadpan Ovals","Bored Mouth"],
+      chill:["Half Moon","Cloud Smile"],
+      zen:["Moon Pupils","U Smile"],
+      proud:["Shiny","Cheese Grin"],
+      hungry:["Fork Pupils","Snack Chomp"],
+      sick:["Drowsy Dots","Sneeze Mouth"],
+      disgusted:["Side Eye","Sour Pucker"],
+      evil:["Cat Eyes","Vampire Smile"],
+      glitchy:["Glitch Eyes","Pixel Mouth"],
       baby:["Huge Eyes","Tiny O"],
       old:["Old Lids","Flat Line"],
       cursed:["Glitch Eyes","Scribble Mouth"],
@@ -1216,8 +2002,11 @@
     if(gender === "male") pool.push("Baseball Cap","Mustache","Tiny Tie","Cool Shades");
     if(gender === "neutral") pool.push("Sticker Star","Pixel Shades","Leaf Cape","Halo");
     if(mood === "royal") pool.push("Tiny Crown","Velvet Cape");
-    if(mood === "party") pool.push("Party Hat","Confetti Aura");
-    if(mood === "cursed") pool.push("Glitch Halo","Bat Wings");
+    if(mood === "party" || mood === "excited") pool.push("Party Hat","Confetti Aura");
+    if(mood === "cursed" || mood === "glitchy") pool.push("Glitch Halo","Bat Wings");
+    if(mood === "lovestruck" || mood === "shy") pool.push("Heart Glasses","Flower Pin");
+    if(mood === "evil" || mood === "mischievous") pool.push("Tiny Horns","Cool Shades");
+    if(mood === "sick") pool.push("Round Glasses","Steam Wisps");
     if(ageInfo.baby) pool.push("Pacifier","Baby Bib");
     if(ageInfo.wrinkles >= 3) pool.push("Round Glasses","Cane","Old-Timey Hat");
     if(SEASONAL_ACCESSORIES[season]) pool.push(...SEASONAL_ACCESSORIES[season]);
@@ -1261,6 +2050,76 @@
 
   function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
 
+  function rangeNumber(el, fallback=0){
+    const n = Number(el?.value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function rangePercent(el, fallback=100){
+    return clamp(rangeNumber(el, fallback), 30, 220);
+  }
+
+  function syncRangeLabels(){
+    if(pupilSizeValue && pupilSizeEl) pupilSizeValue.textContent = `${rangePercent(pupilSizeEl, 100)}%`;
+    if(mouthRotateValue && mouthRotateEl) mouthRotateValue.textContent = `${rangeNumber(mouthRotateEl, 0)}°`;
+    if(pupilXValue && pupilXEl) pupilXValue.textContent = `${rangeNumber(pupilXEl, 0)}`;
+    if(pupilYValue && pupilYEl) pupilYValue.textContent = `${rangeNumber(pupilYEl, 0)}`;
+    if(mouthOpenValue && mouthOpenEl) mouthOpenValue.textContent = `${clamp(rangeNumber(mouthOpenEl, 0), 0, 100)}%`;
+    if(manualPupilSizeValue && manualPupilSizeEl) manualPupilSizeValue.textContent = `${rangePercent(manualPupilSizeEl, 100)}%`;
+    if(manualMouthRotateValue && manualMouthRotateEl) manualMouthRotateValue.textContent = `${rangeNumber(manualMouthRotateEl, 0)}°`;
+    if(manualPupilXValue && manualPupilXEl) manualPupilXValue.textContent = `${rangeNumber(manualPupilXEl, 0)}`;
+    if(manualPupilYValue && manualPupilYEl) manualPupilYValue.textContent = `${rangeNumber(manualPupilYEl, 0)}`;
+    if(manualMouthOpenValue && manualMouthOpenEl) manualMouthOpenValue.textContent = `${clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100)}%`;
+    if(manualGradientAngleValue && manualGradientAngleEl) manualGradientAngleValue.textContent = `${clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360)}°`;
+  }
+
+  function expressionValuesFrom(scope="birthday"){
+    const manual = scope === "manual";
+    return {
+      pupilScale: rangePercent(manual ? manualPupilSizeEl : pupilSizeEl, 100) / 100,
+      mouthRotation: clamp(rangeNumber(manual ? manualMouthRotateEl : mouthRotateEl, 0), -90, 90),
+      pupilX: clamp(rangeNumber(manual ? manualPupilXEl : pupilXEl, 0), -35, 35),
+      pupilY: clamp(rangeNumber(manual ? manualPupilYEl : pupilYEl, 0), -30, 30),
+      mouthOpen: clamp(rangeNumber(manual ? manualMouthOpenEl : mouthOpenEl, 0), 0, 100) / 100
+    };
+  }
+
+  function setExpressionControlsFromBerry(scope="birthday"){
+    if(!berry) return;
+    const manual = scope === "manual";
+    const pupilEl = manual ? manualPupilSizeEl : pupilSizeEl;
+    const mouthEl = manual ? manualMouthRotateEl : mouthRotateEl;
+    const pupilXControl = manual ? manualPupilXEl : pupilXEl;
+    const pupilYControl = manual ? manualPupilYEl : pupilYEl;
+    const mouthOpenControl = manual ? manualMouthOpenEl : mouthOpenEl;
+    if(pupilEl) pupilEl.value = clamp(Math.round(Number(berry.pupilScale ?? 1) * 100), 30, 220);
+    if(mouthEl) mouthEl.value = clamp(Math.round(Number(berry.mouthRotation ?? 0)), -90, 90);
+    if(pupilXControl) pupilXControl.value = clamp(Math.round(Number(berry.pupilX ?? 0)), -35, 35);
+    if(pupilYControl) pupilYControl.value = clamp(Math.round(Number(berry.pupilY ?? 0)), -30, 30);
+    if(mouthOpenControl) mouthOpenControl.value = clamp(Math.round(Number(berry.mouthOpen ?? 0) * 100), 0, 100);
+    syncRangeLabels();
+  }
+
+  function applyExpressionControls(scope="birthday", saveManual=false){
+    const values = expressionValuesFrom(scope);
+    if(berry){
+      berry.pupilScale = values.pupilScale;
+      berry.mouthRotation = values.mouthRotation;
+      berry.pupilX = values.pupilX;
+      berry.pupilY = values.pupilY;
+      berry.mouthOpen = values.mouthOpen;
+      if(faceStat) faceStat.textContent = `${berry.faceType} · pupils ${Math.round(values.pupilScale * 100)}% · move ${values.pupilX}, ${values.pupilY}`;
+      if(mouthStat) mouthStat.textContent = `${berry.mouthType} · ${Math.round(values.mouthRotation)}° · open ${Math.round(values.mouthOpen * 100)}%`;
+    }
+    syncRangeLabels();
+    if(saveManual){
+      const store = getManualStore();
+      store.last = {...(store.last || {}), pupilScale: values.pupilScale, mouthRotation: values.mouthRotation, pupilX: values.pupilX, pupilY: values.pupilY, mouthOpen: values.mouthOpen};
+      saveManualStore(store);
+      populateManualHistory();
+    }
+  }
+
   function chooseGender(rand){
     const val = genderEl.value;
     if(val !== "any") return val;
@@ -1286,6 +2145,7 @@
     const selectedMood = moodEl?.value || "auto";
     const selectedScene = sceneEl?.value || "auto";
     const selectedSeason = seasonEl?.value || "auto";
+    const expression = expressionValuesFrom("birthday");
 
     const gender = chooseGender(rand);
     const palette = pick(rand, PALETTES);
@@ -1390,8 +2250,11 @@
       eyeTilt: (rand() - .5) * .34,
       eyeSize: .82 + rand() * .42,
       eyeGap: 112 + Math.floor(rand()*64),
-      pupilX: Math.floor((rand()-.5)*18),
-      pupilY: Math.floor((rand()-.5)*12),
+      pupilScale: expression.pupilScale,
+      mouthRotation: expression.mouthRotation,
+      pupilX: expression.pupilX,
+      pupilY: expression.pupilY,
+      mouthOpen: expression.mouthOpen,
       browStyle: Math.floor(rand()*8),
       hasBrows: rand() > .22,
       lashes: rand() > (gender === "female" ? .55 : .78),
@@ -1417,6 +2280,12 @@
       wobblePhase: rand()*999
     };
 
+    berry.emotionBaseFaceType = faceType;
+    berry.emotionBaseMouthType = mouthType;
+    berry.emotionBaseBrowStyle = berry.browStyle;
+    berry.emotionBaseLid = berry.lid;
+    berry.emotionBaseEyeSize = berry.eyeSize;
+
     if(berry.rarity === "Legendary" || berry.rarity === "Mythic"){
       berry.starCount += berry.rarity === "Mythic" ? 12 : 7;
       berry.gradientType = pick(rand, ["Rainbow Wash","Aurora Fade","Prism Wash","Electric Split","Pearl Shine","Toxic Fade"]);
@@ -1433,6 +2302,309 @@
     updateUI();
   }
 
+  function makeManualBerry(randomize=false){
+    if(!manualFruitEl){
+      makeBerry();
+      return;
+    }
+    if(randomize){
+      randomizeManualControls();
+      return;
+    }
+
+    const manualName = (manualNameEl?.value || "").trim();
+    const chosenGradient = manualSelectedGradient();
+    const chosenEyes = manualEyesEl?.value || "Googly";
+    const chosenMouth = manualMouthEl?.value || "Big Grin";
+    const manualExpression = expressionValuesFrom("manual");
+    const manualColors = manualColorSettings();
+    const chosenPalette = manualPaletteEl?.value || "auto";
+    const chosenFruit = manualFruitEl?.value || "blueberry";
+    const chosenGender = manualGenderEl?.value || "any";
+    const chosenMood = manualMoodEl?.value || "happy";
+    const chosenScene = manualSceneEl?.value || "garden";
+    const chosenSeason = manualSeasonEl?.value || "none";
+    const seedBasis = [
+      "manual",
+      manualName,
+      chosenFruit,
+      chosenGender,
+      chosenMood,
+      chosenScene,
+      chosenSeason,
+      chosenPalette,
+      chosenGradient,
+      chosenEyes,
+      chosenMouth,
+      manualExpression.pupilScale,
+      manualExpression.mouthRotation,
+      manualExpression.pupilX,
+      manualExpression.pupilY,
+      manualExpression.mouthOpen,
+      manualColors.enabled,
+      !!manualDisableGradientEl?.checked,
+      manualColors.base,
+      manualColors.mid,
+      manualColors.end,
+      manualColors.accent,
+      manualColors.angle,
+      !!manualDisableAccessoriesEl?.checked,
+      manualSalt
+    ].join("|");
+    const manualSeed = hashString(seedBasis);
+
+    const old = {
+      year: yearEl.value,
+      month: monthEl.value,
+      day: dayEl.value,
+      gender: genderEl.value,
+      fruit: fruitEl.value,
+      mood: moodEl?.value,
+      scene: sceneEl?.value,
+      season: seasonEl?.value,
+      regenSalt,
+      mutationSalt
+    };
+
+    yearEl.value = String(1980 + (manualSeed % 50));
+    monthEl.value = String((manualSeed % 12) + 1);
+    dayEl.value = String(((manualSeed >>> 5) % 31) + 1);
+    genderEl.value = chosenGender;
+    fruitEl.value = chosenFruit;
+    if(moodEl) moodEl.value = chosenMood;
+    if(sceneEl) sceneEl.value = chosenScene;
+    if(seasonEl) seasonEl.value = chosenSeason;
+    regenSalt = manualSalt;
+    mutationSalt = 0;
+
+    makeBerry(true);
+
+    yearEl.value = old.year;
+    monthEl.value = old.month;
+    dayEl.value = old.day;
+    genderEl.value = old.gender;
+    fruitEl.value = old.fruit;
+    if(moodEl) moodEl.value = old.mood;
+    if(sceneEl) sceneEl.value = old.scene;
+    if(seasonEl) seasonEl.value = old.season;
+    regenSalt = old.regenSalt;
+    mutationSalt = old.mutationSalt;
+
+    if(!berry) return;
+    const fruitProfile = FRUIT_PROFILES[chosenFruit] || FRUIT_PROFILES.blueberry;
+    const fallbackWords = manualName ? manualName.split(/\s+/).filter(Boolean) : [];
+    berry.manualMode = true;
+    berry.avatarPreset = null;
+    berry.seed = manualSeed;
+    berry.year = "Manual";
+    berry.month = "-";
+    berry.day = "-";
+    berry.fruitKind = chosenFruit;
+    berry.fruitName = fruitProfile.name;
+    berry.name = manualName || berry.name;
+    berry.word1 = fallbackWords[0] || "Manual";
+    berry.word2 = fallbackWords.length > 1 ? fallbackWords[fallbackWords.length-1] : "Berry";
+    berry.gradientType = chosenGradient;
+    berry.faceType = chosenEyes;
+    berry.mouthType = chosenMouth;
+    berry.pupilScale = manualExpression.pupilScale;
+    berry.mouthRotation = manualExpression.mouthRotation;
+    berry.pupilX = manualExpression.pupilX;
+    berry.pupilY = manualExpression.pupilY;
+    berry.mouthOpen = manualExpression.mouthOpen;
+    berry.accessoriesDisabled = !!manualDisableAccessoriesEl?.checked;
+    berry.emotionBaseFaceType = chosenEyes;
+    berry.emotionBaseMouthType = chosenMouth;
+    berry.emotionBaseBrowStyle = berry.browStyle;
+    berry.emotionBaseLid = berry.lid;
+    berry.emotionBaseEyeSize = berry.eyeSize;
+    berry.familyId = `manual-family-${manualSeed}`;
+    berry.parentSeed = null;
+    berry.generation = 0;
+    berry.relationTag = "Manual";
+    berry.mutationSalt = manualSalt;
+    if(manualColors.enabled){
+      applyManualCustomColors(manualColors);
+    } else {
+      berry.customGradientColors = null;
+      applyManualPalette(chosenPalette);
+    }
+
+    fixEyeGapForFace(berry.faceType);
+
+    rememberManualPicks();
+    tapCount = 0;
+    wobble = 1.4;
+    updateUI();
+    toast.textContent = `${berry.name} generated from manual picks.`;
+  }
+
+  function makeDefaultBerryPVZ(){
+    regenSalt = 0;
+    mutationSalt = 0;
+    yearEl.value = "2011";
+    monthEl.value = "1";
+    dayEl.value = "1";
+    genderEl.value = "neutral";
+    fruitEl.value = "blueberry";
+    if(moodEl) moodEl.value = "happy";
+    if(sceneEl) sceneEl.value = "garden";
+    if(seasonEl) seasonEl.value = "none";
+
+    makeBerry(true);
+
+    const defaultSeed = hashString("berry-pvz-default-avatar");
+    const ageInfo = ageStage(parsedYearValue(yearEl.value));
+    Object.assign(berry, {
+      avatarPreset: "berryPVZ",
+      seed: defaultSeed,
+      year: "2011",
+      month: 1,
+      day: 1,
+      gender: "neutral",
+      fruitKind: "blueberry",
+      fruitName: "Blueberry / Berry",
+      mood: "happy",
+      moodName: "Happy",
+      scene: "berryPVZWhite",
+      sceneName: "Plain White",
+      season: "none",
+      seasonName: "None",
+      rarity: "Common",
+      rarityClass: "rarity-common",
+      raritySparkle: 0,
+      accessories: [],
+      idleAnim: "Simple Bounce",
+      ageInfo,
+      cosmeticGender: "neutral styling",
+      familyId: `family-${hashString("berry-pvz")}`,
+      parentSeed: null,
+      generation: 0,
+      relationTag: "Default",
+      mutationSalt: 0,
+      name: "Berry PVZ",
+      word1: "Berry",
+      word2: "PVZ",
+      type: "Classic Blueberry",
+      faceType: "Berry PVZ Face",
+      mouthType: "Open Smile",
+      emotionBaseFaceType: "Berry PVZ Face",
+      emotionBaseMouthType: "Open Smile",
+      emotionBaseBrowStyle: 0,
+      emotionBaseLid: 0,
+      emotionBaseEyeSize: 1,
+      fuzzType: "Smooth Wrap",
+      gradientType: "Flat Color",
+      paletteName: "Classic Blue",
+      colorName: "Berry PVZ Blue",
+      bodyHue: 240,
+      secondHue: 240,
+      thirdHue: 240,
+      sat: 100,
+      light: 50,
+      body: "#0000ff",
+      bodyDark: "#0000cc",
+      bodyLight: "#3333ff",
+      bodyAlt: "#0000ff",
+      bodyAlt2: "#0000ff",
+      outline: "#000000",
+      blush: "#ff0000",
+      lip: "#ff1010",
+      eyeColorA: "#000000",
+      eyeColorB: "#000000",
+      eyeTilt: 0,
+      eyeSize: 1,
+      eyeGap: 146,
+      pupilScale: expressionValuesFrom("birthday").pupilScale,
+      mouthRotation: expressionValuesFrom("birthday").mouthRotation,
+      pupilX: expressionValuesFrom("birthday").pupilX,
+      pupilY: expressionValuesFrom("birthday").pupilY,
+      mouthOpen: expressionValuesFrom("birthday").mouthOpen,
+      browStyle: 0,
+      hasBrows: false,
+      lashes: false,
+      freckles: false,
+      cheek: false,
+      tinyStem: false,
+      leaf: false,
+      bow: false,
+      cap: false,
+      antenna: false,
+      spots: false,
+      stripes: false,
+      starCount: 0,
+      bodyW: 1,
+      bodyH: 1,
+      topDip: 1,
+      leftLump: 0,
+      rightLump: 0,
+      bellyShift: 0,
+      mouthWidth: 190,
+      mouthHeight: 115,
+      lid: 0,
+      wobblePhase: 0
+    });
+
+    lastGeneratedBase = {
+      rawYear: "2011",
+      month: 1,
+      day: 1,
+      selectedGender: "neutral",
+      fruitKind: "blueberry",
+      regenSalt: 0,
+      mutationSalt: 0,
+      defaultAvatar: true
+    };
+    tapCount = 0;
+    wobble = 0;
+    updateUI();
+    toast.textContent = "Default avatar loaded: Berry PVZ.";
+  }
+
+  function resolveSelectedMoodForCurrentBerry(){
+    const selectedMood = moodEl?.value || "auto";
+    if(selectedMood !== "auto") return selectedMood;
+    const rawYear = berry?.year ?? yearEl.value;
+    const year = parsedYearValue(rawYear);
+    const month = Number(berry?.month ?? monthEl.value) || 1;
+    const day = Number(berry?.day ?? dayEl.value) || 1;
+    const moodRand = rng(hashString(`${berry?.seed ?? "new"}|${rawYear}|${month}|${day}|emotion-only-auto`));
+    return autoMood(year, month, day, moodRand);
+  }
+
+  function applyMoodOnly(){
+    if(!berry){
+      makeBerry();
+      return;
+    }
+
+    const finalMood = resolveSelectedMoodForCurrentBerry();
+    if(!berry.emotionBaseFaceType) berry.emotionBaseFaceType = berry.faceType;
+    if(!berry.emotionBaseMouthType) berry.emotionBaseMouthType = berry.mouthType;
+    if(berry.emotionBaseBrowStyle == null) berry.emotionBaseBrowStyle = berry.browStyle ?? 0;
+    if(berry.emotionBaseLid == null) berry.emotionBaseLid = berry.lid ?? 0;
+    if(berry.emotionBaseEyeSize == null) berry.emotionBaseEyeSize = berry.eyeSize ?? 1;
+
+    const [face, mouth] = moodFaceOverride(finalMood, berry.emotionBaseFaceType, berry.emotionBaseMouthType);
+    berry.mood = finalMood;
+    berry.moodName = byId(MOODS, finalMood, "happy").name.replace("Auto / Birthday Pick","Birthday Mood");
+    berry.faceType = face;
+    berry.mouthType = mouth;
+    berry.browStyle = berry.emotionBaseBrowStyle;
+    berry.lid = berry.emotionBaseLid;
+    berry.eyeSize = berry.emotionBaseEyeSize;
+
+    if(finalMood === "old") berry.lid = Math.max(berry.lid, .72);
+    if(finalMood === "baby") berry.eyeSize *= 1.18;
+    if(finalMood === "angry") berry.browStyle = 3;
+    berry.idleAnim = berry.ageInfo?.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : berry.idleAnim;
+
+    tapCount = 0;
+    wobble = 1.5;
+    updateUI();
+    toast.textContent = `${berry.name} kept its body and changed emotion to ${berry.moodName}.`;
+  }
+
   function regenerateSameBirthday(){
     regenSalt++;
     makeBerry(true);
@@ -1443,14 +2615,14 @@
     nameEl.textContent = berry.name;
     typeStat.textContent = `${berry.fruitName} · ${berry.type}`;
     genderStat.textContent = displayGender(berry.gender);
-    faceStat.textContent = berry.faceType;
-    mouthStat.textContent = berry.mouthType;
+    faceStat.textContent = `${berry.faceType} · pupils ${Math.round(Number(berry.pupilScale ?? 1) * 100)}% · move ${Math.round(Number(berry.pupilX ?? 0))}, ${Math.round(Number(berry.pupilY ?? 0))}`;
+    mouthStat.textContent = `${berry.mouthType} · ${Math.round(Number(berry.mouthRotation ?? 0))}° · open ${Math.round(Number(berry.mouthOpen ?? 0) * 100)}%`;
     colorStat.textContent = `${berry.colorName} · ${berry.gradientType}`;
     if(rarityStat) rarityStat.innerHTML = `<span class="badge ${berry.rarityClass}">${berry.rarity}</span>`;
     if(moodStat) moodStat.textContent = berry.moodName;
     if(sceneStat) sceneStat.textContent = berry.sceneName;
     if(seasonStat) seasonStat.textContent = berry.seasonName;
-    if(accessoryStat) accessoryStat.textContent = berry.accessories?.length ? berry.accessories.join(", ") : "None";
+    if(accessoryStat) accessoryStat.textContent = berry.accessoriesDisabled ? "Disabled" : (berry.accessories?.length ? berry.accessories.join(", ") : "None");
     if(ageStat) ageStat.textContent = `${berry.ageInfo.label}${berry.ageInfo.age >= 0 ? " · " + berry.ageInfo.age : ""}`;
     wordChips.innerHTML = `<span class="wordChip">${berry.word1}</span><span class="wordChip">${berry.word2}</span><span class="wordChip ${berry.rarityClass}">${berry.rarity}</span>`;
     toast.textContent = `${berry.word1} ${berry.word2} · ${berry.rarity} · ${berry.moodName} · ${berry.sceneName}`;
@@ -1460,6 +2632,20 @@
 
   function berryBodyPath(expand=0){
     const ew = expand;
+
+    if(berry?.avatarPreset === "berryPVZ"){
+      ctx.beginPath();
+      ctx.moveTo(-213-ew, -122-ew);
+      ctx.bezierCurveTo(-194-ew, -205-ew, -100-ew, -223-ew, -55-ew, -178-ew*.7);
+      ctx.bezierCurveTo(-50-ew*.15, -246-ew, 52+ew*.15, -251-ew, 62+ew*.2, -178-ew*.7);
+      ctx.bezierCurveTo(96+ew*.35, -254-ew, 212+ew, -228-ew, 244+ew, -132-ew);
+      ctx.bezierCurveTo(292+ew, 12-ew*.1, 248+ew, 178+ew*.25, 120+ew*.4, 238+ew);
+      ctx.bezierCurveTo(38+ew*.15, 277+ew, -98-ew*.15, 268+ew, -174-ew*.7, 190+ew*.35);
+      ctx.bezierCurveTo(-254-ew, 108+ew*.1, -263-ew, -42-ew*.2, -213-ew, -122-ew);
+      ctx.closePath();
+      return;
+    }
+
     const kind = berry.fruitKind || "blueberry";
     const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
     const shape = profile.shape || kind;
@@ -1871,6 +3057,38 @@
   }
 
   function bodyPaint(){
+    if(berry.customGradientColors?.enabled){
+      const c = berry.customGradientColors;
+      const type = berry.gradientType || "Custom Gradient";
+      if(type === "Flat Color") return c.base || berry.body;
+      const angle = (Number(c.angle ?? 45) * Math.PI) / 180;
+      const r = 340;
+      let g;
+      if(["Soft Radial","Center Pop","Bubble Shine","Neon Core","Glossy Dome","Moonlit Glow","Custom Gradient"].includes(type)){
+        g = ctx.createRadialGradient(-86,-112,20,24,50,300);
+      } else {
+        const x = Math.cos(angle) * r;
+        const y = Math.sin(angle) * r;
+        g = ctx.createLinearGradient(-x,-y,x,y);
+      }
+      if(type === "Candy Split" || type === "Creamy Stripe" || type === "Electric Split" || type === "Split Splash"){
+        g.addColorStop(0, c.base);
+        g.addColorStop(.47, c.base);
+        g.addColorStop(.50, c.mid);
+        g.addColorStop(.53, c.end);
+        g.addColorStop(1, c.end);
+      } else if(type === "Dark Bottom" || type === "Night Fade" || type === "Velvet Fade"){
+        g.addColorStop(0, c.mid);
+        g.addColorStop(.55, c.base);
+        g.addColorStop(1, colorMix(c.end, "#000000", .36));
+      } else {
+        g.addColorStop(0, c.mid || berry.bodyLight);
+        g.addColorStop(.48, c.base || berry.body);
+        g.addColorStop(1, c.end || berry.bodyAlt);
+      }
+      return g;
+    }
+
     if(berry.gradientType === "Flat Color") return berry.body;
 
     let g;
@@ -2959,6 +4177,13 @@
   }
 
   function drawBodyFill(){
+    if(berry?.avatarPreset === "berryPVZ"){
+      berryBodyPath(0);
+      ctx.fillStyle = "#0000ff";
+      ctx.fill();
+      return;
+    }
+
     berryBodyPath(0);
     ctx.fillStyle = bodyPaint();
     ctx.fill();
@@ -3011,6 +4236,8 @@
   }
 
   function drawStemExtras(){
+    if(berry?.avatarPreset === "berryPVZ") return;
+
     const profile = FRUIT_PROFILES[berry.fruitKind] || FRUIT_PROFILES.blueberry;
     const shape = profile.shape || berry.fruitKind;
 
@@ -3221,6 +4448,7 @@
   }
 
   function drawPupil(px,py,scale,side){
+    scale *= clamp(Number(berry?.pupilScale ?? 1), .3, 2.2);
     ctx.fillStyle = "#050505";
     if(berry.faceType === "Star Pupils" || berry.faceType === "Tired Stars"){
       drawStar(px,py,14*scale,7*scale,5,"#000");
@@ -3467,15 +4695,20 @@
     drawEyeShape(-2,-4,whiteW,whiteH,kind);
     ctx.fill();
 
+    const pupilOffsetX = clamp(Number(berry.pupilX ?? 0), -35, 35);
+    const pupilOffsetY = clamp(Number(berry.pupilY ?? 0), -30, 30);
+
     if(kind === "Heterochromia"){
       ctx.fillStyle = side < 0 ? berry.eyeColorA : berry.eyeColorB;
       ctx.beginPath();
-      ctx.ellipse(berry.pupilX,berry.pupilY,23*scale,30*scale,0,0,Math.PI*2);
+      ctx.ellipse(pupilOffsetX,pupilOffsetY,23*scale,30*scale,0,0,Math.PI*2);
       ctx.fill();
     }
 
-    const px = kind === "Side Eye" ? side * 13 : kind === "Cross Eyes" ? -side * 10 : berry.pupilX;
-    const py = kind === "Sleepy" || kind === "Droopy Eyes" ? 11 : berry.pupilY;
+    const basePx = kind === "Side Eye" ? side * 13 : kind === "Cross Eyes" ? -side * 10 : 0;
+    const basePy = kind === "Sleepy" || kind === "Droopy Eyes" ? 11 : 0;
+    const px = basePx + pupilOffsetX;
+    const py = basePy + pupilOffsetY;
     drawPupil(px,py,scale,side);
 
     ctx.fillStyle = "rgba(255,255,255,.75)";
@@ -3601,6 +4834,7 @@
   function drawMouth(cx, cy){
     ctx.save();
     ctx.translate(cx,cy);
+    ctx.rotate((Number(berry?.mouthRotation || 0) * Math.PI) / 180);
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     const w = berry.mouthWidth;
@@ -3611,6 +4845,30 @@
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 8;
     }
+
+    const mouthOpenAmount = clamp(Number(berry?.mouthOpen ?? 0), 0, 1);
+    function drawOpeningUnderStroke(){
+      if(mouthOpenAmount <= .02) return;
+      fillBlack();
+      const openW = w * (.20 + mouthOpenAmount * .30);
+      const openH = h * (.16 + mouthOpenAmount * .45);
+      const skew = ["Crooked Smirk","Slanted Smile","Chin Smile","Side Smile"].includes(berry.mouthType) ? w * .09 : 0;
+      ctx.beginPath();
+      if(berry.mouthType === "Frown" || berry.mouthType === "Gumdrop Frown" || berry.mouthType === "Root Frown"){
+        ctx.ellipse(0,28,openW,openH*.82,0,0,Math.PI*2);
+      } else {
+        ctx.moveTo(-openW,10);
+        ctx.bezierCurveTo(-openW*.55, 8 + openH*.85, skew - openW*.2, 18 + openH, skew, 14 + openH*.88);
+        ctx.bezierCurveTo(skew + openW*.55, 12 + openH*.72, openW*.95, -2 + openH*.35, openW, 3);
+        ctx.bezierCurveTo(openW*.5, 12, -openW*.5, 18, -openW, 10);
+      }
+      ctx.fill();
+      if(mouthOpenAmount > .28){
+        drawTongue(skew*.35, 18 + openH*.55, openW*.32, Math.max(6, openH*.13));
+      }
+    }
+
+    if(OPENABLE_MOUTH_TYPES.has(berry.mouthType)) drawOpeningUnderStroke();
 
     if(berry.mouthType === "Big Grin"){
       fillBlack();
@@ -3824,6 +5082,15 @@
       ctx.moveTo(-w*.4,18);
       ctx.bezierCurveTo(-w*.1,40,w*.18,8,w*.48,-4);
       ctx.stroke();
+    } else if(berry.mouthType === "Open Smirk"){
+      fillBlack();
+      ctx.beginPath();
+      ctx.moveTo(-w*.42,8);
+      ctx.bezierCurveTo(-w*.1,42,w*.3,26,w*.52,-12);
+      ctx.bezierCurveTo(w*.56,44,w*.1,70,-w*.24,46);
+      ctx.bezierCurveTo(-w*.45,29,-w*.52,14,-w*.42,8);
+      ctx.fill();
+      drawTongue(w*.08,h*.7,w*.2,12);
     } else if(berry.mouthType === "Bubble Mouth"){
       fillBlack();
       ctx.beginPath();
@@ -4155,7 +5422,248 @@
     ctx.restore();
   }
 
+  function drawBerryPVZFace(){
+    ctx.save();
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    const mood = berry?.mood || "happy";
+
+    function eye(x,y,side){
+      const sleepy = mood === "sleepy" || mood === "old" || mood === "blank" || mood === "bored" || mood === "chill" || mood === "zen";
+      const shocked = mood === "dramatic" || mood === "baby" || mood === "party" || mood === "excited" || mood === "surprised" || mood === "shocked" || mood === "scared";
+      const goofy = mood === "goofy" || mood === "silly" || mood === "dizzy" || mood === "confused";
+      const sad = mood === "sad" || mood === "crying";
+      const nervous = mood === "nervous" || mood === "scared" || mood === "sick";
+      const pupilScale = clamp(Number(berry?.pupilScale ?? 1), .3, 2.2);
+      const scale = shocked ? 1.12 : sleepy ? .82 : 1;
+      const hScale = sleepy ? .42 : 1;
+      const pupilShiftX = (goofy ? (side < 0 ? -14 : 16) : mood === "smug" ? 13 : 0) + clamp(Number(berry?.pupilX ?? 0), -35, 35);
+      const pupilShiftY = (sad ? 12 : nervous ? -8 : 0) + clamp(Number(berry?.pupilY ?? 0), -30, 30);
+
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.ellipse(x,y,62*scale,74*scale*hScale,0,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.ellipse(x,y,43*scale,55*scale*hScale,0,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = "#000";
+      if(mood === "party" || mood === "excited" || mood === "proud"){
+        drawStar(x+pupilShiftX,y+pupilShiftY,18*pupilScale,8*pupilScale,5,"#000");
+      } else if(mood === "lovestruck"){
+        drawHeart(x+pupilShiftX,y+pupilShiftY,pupilScale*.75,"#000");
+      } else if(mood === "dizzy" || mood === "confused"){
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 7 * pupilScale;
+        ctx.beginPath();
+        for(let a=0;a<Math.PI*4.2;a+=.25){
+          const r = a * 2.6 * pupilScale;
+          const sx = x + pupilShiftX + Math.cos(a*side)*r;
+          const sy = y + pupilShiftY + Math.sin(a*side)*r;
+          if(a===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+        }
+        ctx.stroke();
+      } else if(mood === "royal"){
+        ctx.beginPath();
+        ctx.moveTo(x, y-27*pupilScale);
+        ctx.lineTo(x+22*pupilScale, y);
+        ctx.lineTo(x, y+27*pupilScale);
+        ctx.lineTo(x-22*pupilScale, y);
+        ctx.closePath();
+        ctx.fill();
+      } else if(mood === "evil"){
+        ctx.beginPath();
+        ctx.ellipse(x+pupilShiftX,y+pupilShiftY,10*pupilScale,31*pupilScale,0,0,Math.PI*2);
+        ctx.fill();
+      } else if(sleepy){
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 11;
+        ctx.beginPath();
+        ctx.moveTo(x-31,y+2);
+        ctx.quadraticCurveTo(x,y+16,x+32,y+2);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(x+pupilShiftX,y+pupilShiftY,15*(goofy && side > 0 ? 1.45 : 1)*pupilScale,34*(nervous ? .72 : 1)*pupilScale,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function brow(x,y,tilt){
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 13;
+      ctx.beginPath();
+      ctx.moveTo(x-42,y-tilt);
+      ctx.lineTo(x+42,y+tilt);
+      ctx.stroke();
+    }
+
+    eye(-62,-74,-1);
+    eye(84,-62,1);
+
+    if(mood === "angry"){
+      brow(-62,-152,28);
+      brow(84,-144,-28);
+    } else if(mood === "sad" || mood === "nervous"){
+      brow(-62,-150,-18);
+      brow(84,-142,18);
+    } else if(mood === "smug"){
+      brow(-62,-154,3);
+      brow(84,-148,-20);
+    }
+
+    ctx.save();
+    ctx.translate(14,82);
+    ctx.rotate((Number(berry?.mouthRotation || 0) * Math.PI) / 180);
+    ctx.translate(-14,-82);
+
+    ctx.fillStyle = "#000";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 13;
+
+    const berryPvmouthOpen = clamp(Number(berry?.mouthOpen ?? 0), 0, 1);
+    const berryPVZClosedMouth = ["sad","crying","bored","disgusted","blank","old","chill","zen","nervous","scared","confused","sick","shy","lovestruck"].includes(mood);
+    if(berryPvmouthOpen > .02 && berryPVZClosedMouth){
+      ctx.beginPath();
+      ctx.ellipse(14,82,36 + berryPvmouthOpen * 45, 12 + berryPvmouthOpen * 48, berryPvmouthOpen * .08, 0, Math.PI*2);
+      ctx.fill();
+      if(berryPvmouthOpen > .32) drawTongue(18,103 + berryPvmouthOpen * 22, 20 + berryPvmouthOpen * 10, 8 + berryPvmouthOpen * 8);
+    }
+
+    if(mood === "sad" || mood === "crying"){
+      ctx.beginPath();
+      ctx.moveTo(-82,93);
+      ctx.quadraticCurveTo(10,38,98,89);
+      ctx.stroke();
+    } else if(mood === "angry" || mood === "grumpy" || mood === "evil"){
+      ctx.beginPath();
+      ctx.moveTo(-82,58);
+      ctx.lineTo(93,42);
+      ctx.lineTo(105,71);
+      ctx.lineTo(-70,88);
+      ctx.closePath();
+      ctx.fill();
+    } else if(mood === "bored" || mood === "disgusted"){
+      ctx.beginPath();
+      ctx.moveTo(-76,72);
+      ctx.quadraticCurveTo(4,92,98,71);
+      ctx.stroke();
+    } else if(mood === "blank" || mood === "old" || mood === "chill" || mood === "zen"){
+      ctx.beginPath();
+      ctx.moveTo(-72,66);
+      ctx.lineTo(99,66);
+      ctx.stroke();
+    } else if(mood === "nervous" || mood === "scared" || mood === "confused" || mood === "sick"){
+      ctx.beginPath();
+      ctx.moveTo(-73,69);
+      ctx.quadraticCurveTo(-28,48,18,69);
+      ctx.quadraticCurveTo(58,89,99,66);
+      ctx.stroke();
+    } else if(mood === "shy"){
+      ctx.beginPath();
+      ctx.moveTo(-66,66);
+      ctx.quadraticCurveTo(7,94,82,63);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,70,120,.55)";
+      ctx.beginPath();
+      ctx.ellipse(-118,40,22,12,-.1,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(128,42,22,12,.1,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#000";
+    } else if(mood === "lovestruck"){
+      ctx.beginPath();
+      ctx.moveTo(-69,54);
+      ctx.bezierCurveTo(-30,95,42,96,94,50);
+      ctx.stroke();
+      drawHeart(14,112,.42,"#ff1010");
+    } else if(mood === "dramatic" || mood === "surprised" || mood === "shocked"){
+      ctx.beginPath();
+      ctx.ellipse(14,83,50,74,0,0,Math.PI*2);
+      ctx.fill();
+      drawTongue(18,140,26,12);
+    } else if(mood === "sleepy"){
+      ctx.beginPath();
+      ctx.ellipse(12,82,54,28,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#ff1010";
+      ctx.beginPath();
+      ctx.ellipse(33,102,14,8,0,0,Math.PI*2);
+      ctx.fill();
+    } else if(mood === "hungry"){
+      ctx.beginPath();
+      ctx.moveTo(-89,48);
+      ctx.bezierCurveTo(-34,35,30,35,98,44);
+      ctx.bezierCurveTo(93,116,36,149,-28,132);
+      ctx.bezierCurveTo(-77,119,-97,83,-89,48);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      for(let i=0;i<5;i++){
+        ctx.beginPath();
+        ctx.moveTo(-60+i*35,50);
+        ctx.lineTo(-45+i*35,72);
+        ctx.lineTo(-30+i*35,50);
+        ctx.fill();
+      }
+      drawTongue(17,127,26,12);
+    } else if(mood === "silly"){
+      ctx.beginPath();
+      ctx.moveTo(-85,44);
+      ctx.bezierCurveTo(-20,78,44,40,105,59);
+      ctx.bezierCurveTo(82,119,35,146,-24,132);
+      ctx.bezierCurveTo(-72,120,-98,80,-85,44);
+      ctx.fill();
+      drawTongue(39,132,24,14);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-96,40);
+      ctx.bezierCurveTo(-42,52,16,59,70,28);
+      ctx.bezierCurveTo(96,13,112,25,112,61);
+      ctx.bezierCurveTo(111,126,50,159,-22,139);
+      ctx.bezierCurveTo(-78,123,-101,82,-96,40);
+      ctx.fill();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(-96,40);
+      ctx.bezierCurveTo(-42,52,16,59,70,28);
+      ctx.bezierCurveTo(96,13,112,25,112,61);
+      ctx.bezierCurveTo(111,126,50,159,-22,139);
+      ctx.bezierCurveTo(-78,123,-101,82,-96,40);
+      ctx.clip();
+      ctx.fillStyle = "#ff1010";
+      ctx.beginPath();
+      ctx.ellipse(21,133,30,14,0,Math.PI,0);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.restore();
+
+    if(mood === "cursed" || mood === "glitchy"){
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-120,-126);
+      ctx.lineTo(132,-4);
+      ctx.moveTo(-118,-8);
+      ctx.lineTo(125,-130);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
   function drawFaceBits(){
+    if(berry?.avatarPreset === "berryPVZ"){
+      drawBerryPVZFace();
+      return;
+    }
+
     if(berry.cheek){
       ctx.fillStyle = "rgba(255,80,120,.25)";
       ctx.beginPath();
@@ -4191,6 +5699,13 @@
     const scene = berry?.scene || "garden";
     ctx.save();
     ctx.setTransform(1,0,0,1,0,0);
+
+    if(berry?.avatarPreset === "berryPVZ"){
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,720,720);
+      ctx.restore();
+      return;
+    }
 
     function sky(a,b){
       const g = ctx.createLinearGradient(0,0,0,720);
@@ -4317,6 +5832,7 @@
   }
 
   function drawAccessories(t, layer){
+    if(berry?.accessoriesDisabled) return;
     if(!berry?.accessories) return;
     const acc = berry.accessories;
     ctx.save();
@@ -4706,6 +6222,8 @@
     moodEl.value = berry.mood || "auto";
     sceneEl.value = berry.scene || "auto";
     seasonEl.value = berry.season || "auto";
+    setExpressionControlsFromBerry(berry.manualMode ? "manual" : "birthday");
+    if(manualDisableAccessoriesEl) manualDisableAccessoriesEl.checked = !!berry.accessoriesDisabled;
     wobble = 1.4;
     updateUI();
     toast.textContent = `${berry.name} loaded from the Berry Dex.`;
@@ -4741,7 +6259,12 @@
     const parent = JSON.parse(JSON.stringify(berry));
     mutationSalt++;
     regenSalt += 17;
-    makeBerry(true);
+    if(parent.manualMode){
+      manualSalt++;
+      makeManualBerry(false);
+    } else {
+      makeBerry(true);
+    }
     berry.familyId = parent.familyId || berry.familyId;
     berry.parentSeed = parent.seed;
     berry.generation = (parent.generation || 0) + 1;
@@ -4756,15 +6279,20 @@
   function makeRelative(kind){
     if(!berry) makeBerry();
     const parent = JSON.parse(JSON.stringify(berry));
-    if(kind === "child"){
-      const y = parsedYearValue(parent.year);
-      yearEl.value = String(Number.isFinite(y) ? y + Math.floor(8 + Math.random()*18) : parent.year);
-      monthEl.value = 1 + ((parent.month + Math.floor(Math.random()*3)) % 12);
-      dayEl.value = 1 + ((parent.day + Math.floor(Math.random()*9)) % 31);
+    if(parent.manualMode){
+      manualSalt += kind === "child" ? 11 : 5;
+      makeManualBerry(false);
     } else {
-      regenSalt += 3 + Math.floor(Math.random()*30);
+      if(kind === "child"){
+        const y = parsedYearValue(parent.year);
+        yearEl.value = String(Number.isFinite(y) ? y + Math.floor(8 + Math.random()*18) : parent.year);
+        monthEl.value = 1 + ((parent.month + Math.floor(Math.random()*3)) % 12);
+        dayEl.value = 1 + ((parent.day + Math.floor(Math.random()*9)) % 31);
+      } else {
+        regenSalt += 3 + Math.floor(Math.random()*30);
+      }
+      makeBerry(true);
     }
-    makeBerry(true);
     berry.familyId = parent.familyId || berry.familyId;
     berry.parentSeed = kind === "child" ? parent.seed : parent.parentSeed;
     berry.generation = kind === "child" ? (parent.generation || 0) + 1 : (parent.generation || 0);
@@ -4815,9 +6343,14 @@
   }
 
 
+  birthdayTabBtn.addEventListener("click", () => setMakerTab("birthday"));
+  manualTabBtn.addEventListener("click", () => setMakerTab("manual"));
   makeBtn.addEventListener("click", makeBerry);
   regenBtn.addEventListener("click", regenerateSameBirthday);
   randomBtn.addEventListener("click", randomBirthday);
+  if(manualMakeBtn) manualMakeBtn.addEventListener("click", () => makeManualBerry(false));
+  if(manualApplyVisualBtn) manualApplyVisualBtn.addEventListener("click", () => applyManualVisualTweaks(true));
+  if(manualRandomBtn) manualRandomBtn.addEventListener("click", () => makeManualBerry(true));
   mutateBtn.addEventListener("click", mutateBuddy);
   exportBtn.addEventListener("click", exportPng);
   saveDexBtn.addEventListener("click", saveToDex);
@@ -4826,9 +6359,67 @@
   clearDexBtn.addEventListener("click", clearDex);
   genderEl.addEventListener("change", makeBerry);
   fruitEl.addEventListener("change", makeBerry);
-  moodEl.addEventListener("change", makeBerry);
+  moodEl.addEventListener("change", () => {
+    if(emotionOnlyEl?.checked) applyMoodOnly();
+    else makeBerry();
+  });
+  if(applyMoodBtn) applyMoodBtn.addEventListener("click", applyMoodOnly);
+  if(emotionOnlyEl) emotionOnlyEl.addEventListener("change", () => {
+    toast.textContent = emotionOnlyEl.checked ? "Emotion-only mode on. Mood changes keep the same character." : "Emotion-only mode off. Mood changes can reroll the buddy.";
+  });
   sceneEl.addEventListener("change", makeBerry);
   seasonEl.addEventListener("change", makeBerry);
+  for(const el of [manualNameEl, manualFruitEl, manualGenderEl, manualMoodEl, manualSceneEl, manualSeasonEl, manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualDisableAccessoriesEl, manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl]){
+    if(!el) continue;
+    const eventName = el.tagName === "INPUT" ? "change" : "change";
+    el.addEventListener(eventName, () => {
+      const store = getManualStore();
+      store.last = {
+        ...(store.last || {}),
+        name: (manualNameEl?.value || "").trim(),
+        fruitKind: manualFruitEl?.value || "blueberry",
+        gender: manualGenderEl?.value || "any",
+        mood: manualMoodEl?.value || "happy",
+        scene: manualSceneEl?.value || "garden",
+        season: manualSeasonEl?.value || "none",
+        palette: manualPaletteEl?.value || "auto",
+        gradient: manualGradientEl?.value || "Flat Color",
+        customGradient: (manualCustomGradientEl?.value || "").trim(),
+        eyes: manualEyesEl?.value || "Googly",
+        mouth: manualMouthEl?.value || "Big Grin",
+        pupilScale: rangePercent(manualPupilSizeEl, 100) / 100,
+        mouthRotation: rangeNumber(manualMouthRotateEl, 0),
+        pupilX: clamp(rangeNumber(manualPupilXEl, 0), -35, 35),
+        pupilY: clamp(rangeNumber(manualPupilYEl, 0), -30, 30),
+        mouthOpen: clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100) / 100,
+        useCustomColors: !!manualUseCustomColorsEl?.checked,
+        disableGradient: !!manualDisableGradientEl?.checked,
+        baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
+        secondColor: normalizeHexColor(manualSecondColorEl?.value, "#76e7ff"),
+        thirdColor: normalizeHexColor(manualThirdColorEl?.value, "#ff66cc"),
+        accentColor: normalizeHexColor(manualAccentColorEl?.value, "#ff2d55"),
+        gradientAngle: clamp(rangeNumber(manualGradientAngleEl, 45), 0, 360),
+        disableAccessories: !!manualDisableAccessoriesEl?.checked
+      };
+      saveManualStore(store);
+      populateManualHistory();
+    });
+  }
+  for(const el of [pupilSizeEl, mouthRotateEl, pupilXEl, pupilYEl, mouthOpenEl]){
+    if(!el) continue;
+    el.addEventListener("input", () => applyExpressionControls("birthday"));
+    el.addEventListener("change", () => applyExpressionControls("birthday"));
+  }
+  for(const el of [manualPupilSizeEl, manualMouthRotateEl, manualPupilXEl, manualPupilYEl, manualMouthOpenEl, manualGradientAngleEl]){
+    if(!el) continue;
+    el.addEventListener("input", () => applyExpressionControls("manual", true));
+    el.addEventListener("change", () => applyExpressionControls("manual", true));
+  }
+  for(const el of [manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl, manualDisableAccessoriesEl]){
+    if(!el) continue;
+    el.addEventListener("input", () => applyManualVisualTweaks(true));
+    el.addEventListener("change", () => applyManualVisualTweaks(true));
+  }
   dexList.addEventListener("click", ev => {
     const load = ev.target.getAttribute("data-load");
     const del = ev.target.getAttribute("data-delete");
@@ -4842,9 +6433,11 @@
   populateSelect(sceneEl, BACKGROUND_SCENES, "auto");
   populateSelect(seasonEl, SEASONS, "auto");
   rebuildFoodDropdown();
+  populateManualControls();
+  syncRangeLabels();
   fillDays();
   renderDex();
-  makeBerry();
+  makeDefaultBerryPVZ();
   requestAnimationFrame(animate);
 })();
 </script>

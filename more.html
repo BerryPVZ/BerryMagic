@@ -774,7 +774,7 @@
         </div>
 
         <button id="manualMakeBtn" type="button">Generate Manual Berry</button>
-        <button class="smallBtn" id="manualApplyVisualBtn" type="button">Apply Color / Eyes / Mouth Only</button>
+        <button class="smallBtn" id="manualApplyVisualBtn" type="button">Apply Manual Picks</button>
         <button class="smallBtn" id="manualRandomBtn" type="button">Randomize Manual Picks</button>
         <div class="historyLine" id="manualHistoryLine">Manual names, gradients, picked eyes, and picked mouths save here after you generate.</div>
       </div>
@@ -784,6 +784,7 @@
         <button class="orangeBtn" id="saveDexBtn">Save to Berry Dex</button>
         <button class="smallBtn" id="siblingBtn">Make Sibling</button>
         <button class="smallBtn" id="childBtn">Make Child</button>
+        <button class="smallBtn" id="resetBtn" type="button">Reset Character</button>
         <button class="redBtn" id="clearDexBtn">Clear Dex</button>
       </div>
 
@@ -1354,6 +1355,7 @@
   const saveDexBtn = document.getElementById("saveDexBtn");
   const siblingBtn = document.getElementById("siblingBtn");
   const childBtn = document.getElementById("childBtn");
+  const resetBtn = document.getElementById("resetBtn");
   const clearDexBtn = document.getElementById("clearDexBtn");
   const dexList = document.getElementById("dexList");
   const dexCount = document.getElementById("dexCount");
@@ -1839,11 +1841,22 @@
     const store = getManualStore();
     store.last = {
       ...(store.last || {}),
+      name: (manualNameEl?.value || "").trim(),
+      fruitKind: manualFruitEl?.value || "blueberry",
+      gender: manualGenderEl?.value || "any",
+      mood: manualMoodEl?.value || "happy",
+      scene: manualSceneEl?.value || "garden",
+      season: manualSeasonEl?.value || "none",
       palette: manualPaletteEl?.value || "auto",
       gradient: manualGradientEl?.value || "Flat Color",
       customGradient: (manualCustomGradientEl?.value || "").trim(),
       eyes: manualEyesEl?.value || "Googly",
       mouth: manualMouthEl?.value || "Big Grin",
+      pupilScale: rangePercent(manualPupilSizeEl, 100) / 100,
+      mouthRotation: rangeNumber(manualMouthRotateEl, 0),
+      pupilX: clamp(rangeNumber(manualPupilXEl, 0), -35, 35),
+      pupilY: clamp(rangeNumber(manualPupilYEl, 0), -30, 30),
+      mouthOpen: clamp(rangeNumber(manualMouthOpenEl, 0), 0, 100) / 100,
       useCustomColors: !!manualUseCustomColorsEl?.checked,
       disableGradient: !!manualDisableGradientEl?.checked,
       baseColor: normalizeHexColor(manualBaseColorEl?.value, "#245bff"),
@@ -1864,8 +1877,57 @@
     else if(!Number.isFinite(Number(berry.eyeGap)) || Number(berry.eyeGap) < 60) berry.eyeGap = 132;
   }
 
+  function manualChoiceOrCurrent(value, current, fallback){
+    const chosen = String(value || "").trim();
+    if(chosen && chosen !== "auto") return chosen;
+    if(current && current !== "auto") return current;
+    return fallback;
+  }
+
+  function applyManualInfoTweaks(){
+    if(!berry) return;
+
+    const manualName = (manualNameEl?.value || "").trim();
+    const fallbackWords = manualName ? manualName.split(/\s+/).filter(Boolean) : [];
+    const chosenGender = manualGenderEl?.value || "any";
+    const finalMood = manualChoiceOrCurrent(manualMoodEl?.value, berry.mood, "happy");
+    const finalScene = manualChoiceOrCurrent(manualSceneEl?.value, berry.scene, "garden");
+    const finalSeason = manualChoiceOrCurrent(manualSeasonEl?.value, berry.season, "none");
+
+    if(manualName){
+      berry.name = manualName;
+      berry.word1 = fallbackWords[0] || berry.word1 || "Manual";
+      berry.word2 = fallbackWords.length > 1 ? fallbackWords[fallbackWords.length - 1] : (berry.word2 || "Berry");
+    }
+
+    if(chosenGender !== "any"){
+      berry.gender = chosenGender;
+      berry.cosmeticGender = chosenGender === "female" ? "soft lashes / bows" : chosenGender === "male" ? "caps / bold brows" : "stickers / neutral styling";
+    }
+
+    berry.mood = finalMood;
+    berry.moodName = byId(MOODS, finalMood, "happy").name.replace("Auto / Birthday Pick", "Manual Mood");
+    berry.scene = finalScene;
+    berry.sceneName = byId(BACKGROUND_SCENES, finalScene, "garden").name.replace("Auto / Birthday Pick", "Manual Scene");
+    berry.season = finalSeason;
+    berry.seasonName = byId(SEASONS, finalSeason, "none").name.replace("Auto / Birthday Pick", "Manual Event");
+
+    if(berry.emotionBaseBrowStyle == null) berry.emotionBaseBrowStyle = berry.browStyle ?? 0;
+    if(berry.emotionBaseLid == null) berry.emotionBaseLid = berry.lid ?? 0;
+    if(berry.emotionBaseEyeSize == null) berry.emotionBaseEyeSize = berry.eyeSize ?? 1;
+
+    berry.browStyle = berry.emotionBaseBrowStyle;
+    berry.lid = berry.emotionBaseLid;
+    berry.eyeSize = berry.emotionBaseEyeSize;
+
+    if(finalMood === "baby") berry.eyeSize *= 1.18;
+    applyMoodDecorationRules(finalMood);
+    berry.idleAnim = berry.ageInfo?.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : berry.idleAnim;
+  }
+
   function applyManualVisualTweaks(save=true){
-    if(!berry){
+    const chosenFruit = manualFruitEl?.value || berry?.fruitKind || "blueberry";
+    if(!berry || !berry.manualMode || berry.fruitKind !== chosenFruit){
       makeManualBerry(false);
       return;
     }
@@ -1883,7 +1945,11 @@
     berry.mouthType = chosenMouth;
     berry.emotionBaseFaceType = chosenEyes;
     berry.emotionBaseMouthType = chosenMouth;
+    berry.emotionBaseBrowStyle = 0;
+    berry.emotionBaseLid = 0;
     berry.accessoriesDisabled = !!manualDisableAccessoriesEl?.checked;
+
+    applyManualInfoTweaks();
 
     if(manualColors.enabled){
       applyManualCustomColors(manualColors);
@@ -1896,7 +1962,7 @@
     if(save) storeManualVisualState();
     wobble = Math.max(wobble, .7);
     updateUI();
-    toast.textContent = "Manual color, eyes, mouth, and accessory visibility updated without regenerating.";
+    toast.textContent = "Manual food type, mood, eyes, mouth, colors, and accessories are applied.";
   }
 
   function rollRarity(rand, bonus=0){
@@ -1981,6 +2047,61 @@
       party:["Star Pupils","Open Laugh"]
     };
     return map[mood] || [faceType, mouthType];
+  }
+
+  const MOOD_BROW_STYLES = {
+    angry: 3,
+    grumpy: 3,
+    sad: 2,
+    crying: 2,
+    nervous: 2,
+    scared: 2,
+    smug: 7,
+    mischievous: 7,
+    evil: 6,
+    disgusted: 7,
+    confused: 1,
+    dramatic: 3
+  };
+
+  const MOOD_LID_AMOUNTS = {
+    old: .72,
+    sleepy: .42,
+    chill: .28,
+    zen: .25,
+    bored: .24,
+    blank: .22,
+    grumpy: .18
+  };
+
+  function moodBrowStyleFor(mood){
+    return Object.prototype.hasOwnProperty.call(MOOD_BROW_STYLES, mood) ? MOOD_BROW_STYLES[mood] : null;
+  }
+
+  function moodLidAmountFor(mood){
+    return Object.prototype.hasOwnProperty.call(MOOD_LID_AMOUNTS, mood) ? MOOD_LID_AMOUNTS[mood] : 0;
+  }
+
+  function applyMoodDecorationRules(finalMood){
+    if(!berry) return;
+    const mood = finalMood || berry.mood || "happy";
+    const browStyle = moodBrowStyleFor(mood);
+    berry.hasBrows = browStyle !== null;
+    berry.browStyle = browStyle !== null ? browStyle : 0;
+    berry.lid = moodLidAmountFor(mood);
+  }
+
+  function applyManualMoodToPickedFace(){
+    if(!manualMoodEl) return;
+    const chosenMood = manualMoodEl.value || "happy";
+    if(chosenMood === "auto") return;
+
+    const baseFace = manualEyesEl?.value || berry?.emotionBaseFaceType || berry?.faceType || "Googly";
+    const baseMouth = manualMouthEl?.value || berry?.emotionBaseMouthType || berry?.mouthType || "Big Grin";
+    const [moodFace, moodMouth] = moodFaceOverride(chosenMood, baseFace, baseMouth);
+
+    if(manualEyesEl && FACE_TYPES.includes(moodFace)) manualEyesEl.value = moodFace;
+    if(manualMouthEl && MOUTH_TYPES.includes(moodMouth)) manualMouthEl.value = moodMouth;
   }
 
   function ageStage(year){
@@ -2100,6 +2221,21 @@
     syncRangeLabels();
   }
 
+  function resetExpressionControls(scope="birthday"){
+    const manual = scope === "manual";
+    const pupilEl = manual ? manualPupilSizeEl : pupilSizeEl;
+    const mouthEl = manual ? manualMouthRotateEl : mouthRotateEl;
+    const pupilXControl = manual ? manualPupilXEl : pupilXEl;
+    const pupilYControl = manual ? manualPupilYEl : pupilYEl;
+    const mouthOpenControl = manual ? manualMouthOpenEl : mouthOpenEl;
+    if(pupilEl) pupilEl.value = 100;
+    if(mouthEl) mouthEl.value = 0;
+    if(pupilXControl) pupilXControl.value = 0;
+    if(pupilYControl) pupilYControl.value = 0;
+    if(mouthOpenControl) mouthOpenControl.value = 0;
+    syncRangeLabels();
+  }
+
   function applyExpressionControls(scope="birthday", saveManual=false){
     const values = expressionValuesFrom(scope);
     if(berry){
@@ -2139,6 +2275,7 @@
     const selectedGender = genderEl.value;
     const fruitKind = fruitEl.value || "blueberry";
     const fruitProfile = FRUIT_PROFILES[fruitKind] || FRUIT_PROFILES.blueberry;
+    const isBlueberryTemplate = fruitKind === "blueberry" || fruitProfile.shape === "blueberry";
     const seed = hashString(`${rawYear}|${month}|${day}|${selectedGender}|${fruitKind}|${regenSalt}`);
     const rand = rng(seed);
 
@@ -2255,13 +2392,13 @@
       pupilX: expression.pupilX,
       pupilY: expression.pupilY,
       mouthOpen: expression.mouthOpen,
-      browStyle: Math.floor(rand()*8),
-      hasBrows: rand() > .22,
+      browStyle: 0,
+      hasBrows: false,
       lashes: rand() > (gender === "female" ? .55 : .78),
       freckles: rand() > .48,
       cheek: rand() > .26,
       tinyStem: fruitProfile.stem ? rand() > .16 : rand() > .58,
-      leaf: fruitProfile.leaf ? rand() > .08 : rand() > (gender === "female" ? .55 : .68),
+      leaf: isBlueberryTemplate ? false : (fruitProfile.leaf ? rand() > .08 : rand() > (gender === "female" ? .55 : .68)),
       bow: gender === "female" && rand() > .7,
       cap: gender === "male" && rand() > .72,
       antenna: rand() > .87,
@@ -2276,23 +2413,22 @@
       bellyShift: (rand()-.5)*22,
       mouthWidth: 88 + Math.floor(rand()*112),
       mouthHeight: 38 + Math.floor(rand()*72),
-      lid: lidAmount,
+      lid: 0,
       wobblePhase: rand()*999
     };
 
     berry.emotionBaseFaceType = faceType;
     berry.emotionBaseMouthType = mouthType;
-    berry.emotionBaseBrowStyle = berry.browStyle;
-    berry.emotionBaseLid = berry.lid;
+    berry.emotionBaseBrowStyle = 0;
+    berry.emotionBaseLid = 0;
     berry.emotionBaseEyeSize = berry.eyeSize;
 
     if(berry.rarity === "Legendary" || berry.rarity === "Mythic"){
       berry.starCount += berry.rarity === "Mythic" ? 12 : 7;
       berry.gradientType = pick(rand, ["Rainbow Wash","Aurora Fade","Prism Wash","Electric Split","Pearl Shine","Toxic Fade"]);
     }
-    if(berry.mood === "old") berry.lid = Math.max(berry.lid, .72);
     if(berry.mood === "baby") berry.eyeSize *= 1.18;
-    if(berry.mood === "angry") berry.browStyle = 3;
+    applyMoodDecorationRules(berry.mood);
     if(berry.accessories.includes("Tiny Crown") || berry.accessories.includes("Cake Crown")) berry.word1 = "Royal";
 
         if(berry.faceType === "Cyclops") berry.eyeGap = 0;
@@ -2415,9 +2551,10 @@
     berry.accessoriesDisabled = !!manualDisableAccessoriesEl?.checked;
     berry.emotionBaseFaceType = chosenEyes;
     berry.emotionBaseMouthType = chosenMouth;
-    berry.emotionBaseBrowStyle = berry.browStyle;
-    berry.emotionBaseLid = berry.lid;
+    berry.emotionBaseBrowStyle = 0;
+    berry.emotionBaseLid = 0;
     berry.emotionBaseEyeSize = berry.eyeSize;
+    applyManualInfoTweaks();
     berry.familyId = `manual-family-${manualSeed}`;
     berry.parentSeed = null;
     berry.generation = 0;
@@ -2442,6 +2579,7 @@
   function makeDefaultBerryPVZ(){
     regenSalt = 0;
     mutationSalt = 0;
+    resetExpressionControls("birthday");
     yearEl.value = "2011";
     monthEl.value = "1";
     dayEl.value = "1";
@@ -2561,6 +2699,43 @@
     toast.textContent = "Default avatar loaded: Berry PVZ.";
   }
 
+  function resetManualControlsForDefault(){
+    if(!manualFruitEl) return;
+    if(manualNameEl) manualNameEl.value = "Berry PVZ";
+    manualFruitEl.value = "blueberry";
+    if(manualGenderEl) manualGenderEl.value = "neutral";
+    if(manualMoodEl) manualMoodEl.value = "happy";
+    if(manualSceneEl) manualSceneEl.value = "garden";
+    if(manualSeasonEl) manualSeasonEl.value = "none";
+    if(manualPaletteEl) manualPaletteEl.value = "Classic Blue";
+    if(manualGradientEl) manualGradientEl.value = "Flat Color";
+    if(manualCustomGradientEl) manualCustomGradientEl.value = "";
+    if(manualUseCustomColorsEl) manualUseCustomColorsEl.checked = false;
+    if(manualDisableGradientEl) manualDisableGradientEl.checked = true;
+    if(manualBaseColorEl) manualBaseColorEl.value = "#0000ff";
+    if(manualSecondColorEl) manualSecondColorEl.value = "#0000ff";
+    if(manualThirdColorEl) manualThirdColorEl.value = "#0000ff";
+    if(manualAccentColorEl) manualAccentColorEl.value = "#ff1010";
+    if(manualGradientAngleEl) manualGradientAngleEl.value = 45;
+    if(manualDisableAccessoriesEl) manualDisableAccessoriesEl.checked = true;
+    if(manualEyesEl && FACE_TYPES.includes("Googly")) manualEyesEl.value = "Googly";
+    if(manualMouthEl && MOUTH_TYPES.includes("Big Grin")) manualMouthEl.value = "Big Grin";
+    resetExpressionControls("manual");
+  }
+
+  function resetCharacter(){
+    regenSalt = 0;
+    mutationSalt = 0;
+    manualSalt = 0;
+    tapCount = 0;
+    wobble = 0;
+    resetExpressionControls("birthday");
+    resetManualControlsForDefault();
+    if(emotionOnlyEl) emotionOnlyEl.checked = true;
+    makeDefaultBerryPVZ();
+    toast.textContent = "Character reset to Berry PVZ.";
+  }
+
   function resolveSelectedMoodForCurrentBerry(){
     const selectedMood = moodEl?.value || "auto";
     if(selectedMood !== "auto") return selectedMood;
@@ -2594,9 +2769,8 @@
     berry.lid = berry.emotionBaseLid;
     berry.eyeSize = berry.emotionBaseEyeSize;
 
-    if(finalMood === "old") berry.lid = Math.max(berry.lid, .72);
     if(finalMood === "baby") berry.eyeSize *= 1.18;
-    if(finalMood === "angry") berry.browStyle = 3;
+    applyMoodDecorationRules(finalMood);
     berry.idleAnim = berry.ageInfo?.wrinkles >= 3 ? "Old Creak" : finalMood === "sleepy" ? "Sleepy Sway" : finalMood === "party" ? "Party Wiggle" : berry.idleAnim;
 
     tapCount = 0;
@@ -3236,6 +3410,12 @@
     ctx.restore();
   }
 
+  function berryUsesBlueberryTemplate(){
+    const kind = berry?.fruitKind || "blueberry";
+    const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
+    return kind === "blueberry" || profile.shape === "blueberry" || profile.texture === "blueberry";
+  }
+
   function drawFruitTexture(){
     const kind = berry.fruitKind || "blueberry";
     const profile = FRUIT_PROFILES[kind] || FRUIT_PROFILES.blueberry;
@@ -3336,17 +3516,7 @@
     }
 
     if(texture === "blueberry"){
-      ctx.fillStyle = "rgba(0,0,0,.18)";
-      ctx.beginPath();
-      ctx.ellipse(0,-170,48,22,0,0,Math.PI*2);
-      ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,.18)";
-      for(let i=0;i<6;i++){
-        const a = (i/6)*Math.PI*2;
-        ctx.beginPath();
-        ctx.ellipse(Math.cos(a)*28, -170 + Math.sin(a)*10, 15, 6, a, 0, Math.PI*2);
-        ctx.fill();
-      }
+      // Blueberry templates are kept clean and flat: no dark crown/body shadow overlays.
       return;
     }
 
@@ -4184,9 +4354,15 @@
       return;
     }
 
+    const noBlueberryShadows = berryUsesBlueberryTemplate();
+
     berryBodyPath(0);
     ctx.fillStyle = bodyPaint();
     ctx.fill();
+
+    if(noBlueberryShadows){
+      return;
+    }
 
     ctx.save();
     berryBodyPath(-4);
@@ -4240,6 +4416,7 @@
 
     const profile = FRUIT_PROFILES[berry.fruitKind] || FRUIT_PROFILES.blueberry;
     const shape = profile.shape || berry.fruitKind;
+    const isBlueberryTemplate = berry.fruitKind === "blueberry" || shape === "blueberry";
 
 
     if(["carrot","beet","radish","turnip","corn","eggplant","bellpepper","chilipepper"].includes(berry.fruitKind) || shape === "carrot" || shape === "corn"){
@@ -4333,7 +4510,7 @@
       ctx.stroke();
     }
 
-    if((berry.tinyStem || profile.stem) && !["apple","pear","strawberry","pineapple","banana"].includes(shape) && !["persimmon","pomegranate","quince"].includes(berry.fruitKind)){
+    if(!isBlueberryTemplate && (berry.tinyStem || profile.stem) && !["apple","pear","strawberry","pineapple","banana"].includes(shape) && !["persimmon","pomegranate","quince"].includes(berry.fruitKind)){
       ctx.fillStyle = "#020202";
       ctx.beginPath();
       ctx.ellipse(5,-263,20,36,.24,0,Math.PI*2);
@@ -4343,7 +4520,7 @@
       ctx.ellipse(20,-277,11,24,.7,0,Math.PI*2);
       ctx.fill();
     }
-    if(berry.leaf && shape !== "pineapple" && shape !== "strawberry" && berry.fruitKind !== "persimmon"){
+    if(!isBlueberryTemplate && berry.leaf && shape !== "pineapple" && shape !== "strawberry" && berry.fruitKind !== "persimmon"){
       ctx.fillStyle = "#1f8b43";
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 4;
@@ -4716,9 +4893,10 @@
     ctx.ellipse(px-7,py-13,4*scale,6*scale,0,0,Math.PI*2);
     ctx.fill();
 
-    if(berry.lid > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind)){
+    const moodLidAmount = moodLidAmountFor(berry.mood);
+    if(moodLidAmount > .12 || ["Sleepy","Old Lids","Half Moon","Droopy Eyes","Angry Eyes"].includes(kind)){
       const lidBoost = ["Sleepy","Old Lids","Half Moon","Droopy Eyes"].includes(kind) ? .45 : kind === "Angry Eyes" ? .25 : 0;
-      const amount = Math.min(.88, berry.lid + lidBoost);
+      const amount = Math.min(.88, moodLidAmount + lidBoost);
       ctx.fillStyle = berry.body;
       ctx.beginPath();
       ctx.ellipse(0,-whiteH*(.95 - amount*.45),whiteW+9,whiteH*amount,0,0,Math.PI*2);
@@ -4783,7 +4961,11 @@
   }
 
   function drawBrows(gap){
-    if(!berry.hasBrows || berry.faceType === "Cyclops") return;
+    if(berry.faceType === "Cyclops") return;
+    const moodBrowStyle = moodBrowStyleFor(berry.mood);
+    const faceAllowsBrows = ["Angry Eyes","Mischief Eyes"].includes(berry.faceType);
+    if(moodBrowStyle === null && !faceAllowsBrows) return;
+    const drawBrowStyle = moodBrowStyle !== null ? moodBrowStyle : Number(berry.browStyle || 0);
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 10;
     ctx.lineCap = "round";
@@ -4793,25 +4975,25 @@
 
     function brow(x, flip){
       ctx.beginPath();
-      if(berry.browStyle === 0){
+      if(drawBrowStyle === 0){
         ctx.moveTo(x-40,y+4);
         ctx.quadraticCurveTo(x,y-19,x+43,y+1);
-      } else if(berry.browStyle === 1){
+      } else if(drawBrowStyle === 1){
         ctx.moveTo(x-39,y-8*flip);
         ctx.lineTo(x+40,y+10*flip);
-      } else if(berry.browStyle === 2){
+      } else if(drawBrowStyle === 2){
         ctx.moveTo(x-39,y+8);
         ctx.quadraticCurveTo(x,y+20,x+40,y+7);
-      } else if(berry.browStyle === 3){
+      } else if(drawBrowStyle === 3){
         ctx.moveTo(x-38,y);
         ctx.lineTo(x+38,y);
-      } else if(berry.browStyle === 4){
+      } else if(drawBrowStyle === 4){
         ctx.moveTo(x-39,y+6);
         ctx.quadraticCurveTo(x-10,y-24,x+42,y-15);
-      } else if(berry.browStyle === 5){
+      } else if(drawBrowStyle === 5){
         ctx.moveTo(x-38,y-10);
         ctx.quadraticCurveTo(x,y-28,x+38,y-10);
-      } else if(berry.browStyle === 6){
+      } else if(drawBrowStyle === 6){
         ctx.moveTo(x-38,y+13);
         ctx.lineTo(x+38,y-16);
       } else {
@@ -5409,7 +5591,7 @@
       ctx.fill();
     }
 
-    if(["Big Grin","Side Smile","Surprised O","Bean Mouth","Open Bean","Mega Laugh","Snack Chomp"].includes(berry.mouthType) && berry.starCount > 2){
+    if(["Tiny Fangs","Vampire Smile","Shark Smile","Snack Chomp"].includes(berry.mouthType) && berry.starCount > 2){
       ctx.fillStyle = "#fff";
       ctx.beginPath();
       ctx.moveTo(-8,9);
@@ -6356,6 +6538,7 @@
   saveDexBtn.addEventListener("click", saveToDex);
   siblingBtn.addEventListener("click", () => makeRelative("sibling"));
   childBtn.addEventListener("click", () => makeRelative("child"));
+  if(resetBtn) resetBtn.addEventListener("click", resetCharacter);
   clearDexBtn.addEventListener("click", clearDex);
   genderEl.addEventListener("change", makeBerry);
   fruitEl.addEventListener("change", makeBerry);
@@ -6414,6 +6597,16 @@
     if(!el) continue;
     el.addEventListener("input", () => applyExpressionControls("manual", true));
     el.addEventListener("change", () => applyExpressionControls("manual", true));
+  }
+  for(const el of [manualFruitEl, manualGenderEl, manualSceneEl, manualSeasonEl]){
+    if(!el) continue;
+    el.addEventListener("change", () => applyManualVisualTweaks(true));
+  }
+  if(manualMoodEl){
+    manualMoodEl.addEventListener("change", () => {
+      applyManualMoodToPickedFace();
+      applyManualVisualTweaks(true);
+    });
   }
   for(const el of [manualPaletteEl, manualGradientEl, manualCustomGradientEl, manualEyesEl, manualMouthEl, manualUseCustomColorsEl, manualDisableGradientEl, manualBaseColorEl, manualSecondColorEl, manualThirdColorEl, manualAccentColorEl, manualGradientAngleEl, manualDisableAccessoriesEl]){
     if(!el) continue;
